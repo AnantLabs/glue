@@ -1,0 +1,103 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Glue.Data</RootNamespace>
+    <AssemblyName>glue.data</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActiveRecord.cs" />
+    <Compile Include="ChildCollection.cs" />
+    <Compile Include="Filter.cs" />
+    <Compile Include="IActiveRecord.cs" />
+    <Compile Include="IDataExporter.cs" />
+    <Compile Include="IDataImporter.cs" />
+    <Compile Include="IDataProvider.cs" />
+    <Compile Include="IMappingProvider.cs" />
+    <Compile Include="ISchemaProvider.cs" />
+    <Compile Include="Limit.cs" />
+    <Compile Include="MappingProvider.cs" />
+    <Compile Include="MappingProviderGeneric.cs" />
+    <Compile Include="Mapping\Accessor.cs" />
+    <Compile Include="Mapping\Attributes.cs" />
+    <Compile Include="Mapping\Entity.cs" />
+    <Compile Include="Mapping\EntityColumn.cs" />
+    <Compile Include="Mapping\EntityMember.cs" />
+    <Compile Include="Order.cs" />
+    <Compile Include="Providers\OleDb\OleDbDataProvider.cs" />
+    <Compile Include="Providers\OleDb\OleDbMappingProvider.cs" />
+    <Compile Include="Providers\Sql\SqlDataProvider.cs" />
+    <Compile Include="Providers\Sql\SqlMappingProvider.cs" />
+    <Compile Include="Providers\Sql\SqlSchemaProvider.cs" />
+    <Compile Include="Schema\BinHexEncoding.cs" />
+    <Compile Include="Schema\Column.cs" />
+    <Compile Include="Schema\Constraint.cs" />
+    <Compile Include="Schema\Container.cs" />
+    <Compile Include="Schema\Database.cs" />
+    <Compile Include="Schema\ForeignKey.cs" />
+    <Compile Include="Schema\Helper.cs" />
+    <Compile Include="Schema\ImportMode.cs" />
+    <Compile Include="Schema\Index.cs" />
+    <Compile Include="Schema\Key.cs" />
+    <Compile Include="Schema\Parameter.cs" />
+    <Compile Include="Schema\PrimaryKey.cs" />
+    <Compile Include="Schema\Procedure.cs" />
+    <Compile Include="Schema\Scalar.cs" />
+    <Compile Include="Schema\SchemaObject.cs" />
+    <Compile Include="Schema\Table.cs" />
+    <Compile Include="Schema\Trigger.cs" />
+    <Compile Include="Schema\View.cs" />
+    <Compile Include="UnitOfWork.cs" />
+    <Compile Include="Utility\Helper.cs" />
+    <Compile Include="Utility\Management.cs" />
+    <Compile Include="Utility\SchemaDiff.cs" />
+    <Compile Include="Utility\SimpleDataExporter.cs" />
+    <Compile Include="Utility\SimpleDataImporter.cs" />
+    <Compile Include="Utility\XmlDataExporter.cs" />
+    <Compile Include="Utility\XmlDataImporter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Glue.Lib\Glue.Lib.csproj">
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Name>Glue.Lib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
