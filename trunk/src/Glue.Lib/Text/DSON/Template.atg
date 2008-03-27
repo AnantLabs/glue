@@ -1,0 +1,151 @@
+using Edf.Lib;
+using Edf.Lib.Text.DSON;
+using System.Collections;
+
+COMPILER Root
+
+/*--------------------------------------------------------------------------*/
+
+public object Result = null;
+
+void Log(string fmt, params object[] args) 
+{
+    Edf.Lib.Log.Debug(String.Format(fmt, args));
+}
+
+void Err(string msg) 
+{
+    errors.Error(la.line, la.col, msg);
+}
+
+int ConvertToInt(string s) 
+{
+    Console.WriteLine("Int: " + s);
+    return Convert.ToInt32(s);
+}
+
+bool ConvertToBool(string s) 
+{
+    Console.WriteLine("Bool: " + s);
+    return string.Compare(s, "true", true) == 0 || string.Compare(s, "yes", true) == 0;
+}
+
+static string[] date_time_formats = { 
+                                "yyyy-MM-dd", 
+                                "yyyy-MM-ddTHH:mm",
+                                "yyyy-MM-ddTHH:mm:ss",
+                                "yyyy-MM-ddTHH:mm:ss.ff",
+                                "yyyy-MM-ddTHH:mm:ss.fff",
+                                "HH:mm",
+                                "HH:mm:ss",
+                                "HH:mm:ss.ff",
+                                "HH:mm:ss.fff"
+                            };
+/*
+Regex = new Regex("
+    ((\d\d\d\d)-(\d\d)-(\d\d)(T(\d\d):(\d\d)(:(\d\d(\.(\d+))))))|
+    ((\d\d):(\d\d)(:(\d\d(\.(\d+)))))
+    ";
+*/
+
+DateTime ConvertToDateTime(string s) 
+{
+    return DateTime.ParseExact(s, date_time_formats, null, System.Globalization.DateTimeStyles.None); 
+}
+
+string ConvertToString(string s) 
+{
+    // check if doc-string style
+    if (s != null && s.Length >= 6 && s.StartsWith("\"\"\"") && s.EndsWith("\"\"\""))
+    {
+        s = s.Substring(3, s.Length - 6);
+        s = StringHelper.Unindent(s);
+        s = StringHelper.Eat(s, "\n");
+        return s;
+    }
+    if (s != null && s.Length >= 2) 
+    {
+        if (s[0] == '"' && s[s.Length - 1] == '"')
+            s = s.Substring(1, s.Length - 2);
+        else if (s[0] == '\'' && s[s.Length - 1] == '\'')
+            s = s.Substring(1, s.Length - 2);
+        s = StringHelper.UnEscapeCStyle(s);
+        return s;
+    }
+    return s;
+}
+
+/*--------------------------------------------------------------------------*/
+
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
+  digit  = "0123456789".
+  cr     = '\r'.
+  lf     = '\n'.
+  tab    = '\t'.
+  stringchar1 = ANY - '"' - '\\' - cr - lf.
+  stringchar2 = ANY - '\'' - '\\' - cr - lf.
+  stringchar3 = ANY - '"'.
+
+TOKENS
+  string        = "\"" {stringchar1|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} "\"" | 
+                  "'" {stringchar2|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} "'" |
+                  "\"\"\"" {stringchar3} "\"\"\"". 
+  ident         = letter {letter | digit}.
+  number        = digit {digit}.
+  time          = digit digit ':' digit digit [ ':' digit digit [ '.' digit digit digit ] ].
+  date          = digit digit digit digit '-' digit digit '-' digit digit [ 'T' digit digit ':' digit digit [ ':' digit digit [ '.' digit digit digit ] ] ].
+
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO cr lf
+
+IGNORE '\t' + '\r' + '\n'
+
+PRODUCTIONS
+
+Root
+=                                       (. Result = null; .)
+  Dict <out Result>
+| List <out Result>
+.
+
+Dict <out object value>
+=                                       (. Item dict = new Item(); value = dict; .)
+  '{' Member <dict> 
+      { [','] Member <dict> 
+      }
+  '}'
+.
+
+List <out object value>
+=                                       (. Item list = new Item(); value = list; object item = null; .)
+  '[' Value <out item>                  (. list.Add(item); .)
+      { [','] Value <out item>            (. list.Add(item); .)
+      }
+  ']'
+.
+  
+Member <Item dict>
+= ident                                 (. string key = t.val; object value = null; .)
+  ':' Value <out value>                 (. dict.Set(key, value); .)
+//  ( 
+//  ':' Value <out value>                 (. dict.Set(key, value); .)
+//  | List<out value>                     (. dict.Set(key, value); .)
+//  | Dict<out value>                     (. dict.Set(key, value); .)
+//  )                     
+.
+
+Value <out object value>                (. value = null; .)
+= date                                  (. value = ConvertToDateTime(t.val); .)
+| time                                  (. value = ConvertToDateTime(t.val); .)
+| number                                (. value = ConvertToInt(t.val); .)
+| string                                (. value = ConvertToString(t.val); .)
+| ("true" | "false" | "yes" | "no")     (. value = ConvertToBool(t.val); .)
+| "null"                                (. value = null; .)
+| ident                                 (. value = t.val; .)
+| List<out value>
+| Dict<out value>
+.                                       
+
+END Root.
+

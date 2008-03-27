@@ -1,0 +1,237 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>glue.web</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Glue.Web</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Web.RegularExpressions">
+      <Name>System.Web.RegularExpressions</Name>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Name>System.Web.Services</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Attributes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilers\ViewCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controller.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Cookie.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CookieCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ErrorCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exeptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Filters\MarkdownFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Filters\ReplaceFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Filters\TextileFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Filters\XsltFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ForbiddenController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GridHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Helper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Memory\Request.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Memory\Response.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Server\Request.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Server\Response.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Server\Server.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Server\Session.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Web\HandlerFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Web\PostedFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Web\Request.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Web\Response.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Web\Session.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Interfaces.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modules\Caching.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modules\Common.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modules\Localized.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Modules\Traffic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PostedFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PostedFileCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Routing.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SchemaController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnknownController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="View.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Glue.Data\Glue.Data.csproj">
+      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
+      <Name>Glue.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Glue.Lib\Glue.Lib.csproj">
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Name>Glue.Lib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Hosting\CGI\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
