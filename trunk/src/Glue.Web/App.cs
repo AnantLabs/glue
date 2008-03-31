@@ -3,8 +3,8 @@ using System.Xml;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Configuration;
 using System.Reflection;
+
 using Glue.Lib;
 
 namespace Glue.Web 
