@@ -431,7 +431,6 @@
   <ItemGroup>
     <Folder Include="Net\Ftp\" />
     <Folder Include="Net\Nntp\" />
-    <Folder Include="Xml\Delimited\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
