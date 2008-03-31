@@ -88,7 +88,7 @@ namespace Glue.Lib.Text.Template
             InitDefinitions();
 
             AssemblyName name = new AssemblyName();
-            name.Name = "edf_lib_text_template";
+            name.Name = "glue_lib_text_template";
             System.Security.PermissionSet permissions = new System.Security.PermissionSet(System.Security.Permissions.PermissionState.Unrestricted);
             
             AssemblyBuilder assembly;
@@ -105,9 +105,9 @@ namespace Glue.Lib.Text.Template
             }
            
             if (memory)
-                module = assembly.DefineDynamicModule("edf_lib_text_template.dll", debug);
+                module = assembly.DefineDynamicModule("glue_lib_text_template.dll", debug);
             else
-                module = assembly.DefineDynamicModule("edf_lib_text_template.dll", "edf_lib_text_template.dll", debug);
+                module = assembly.DefineDynamicModule("glue_lib_text_template.dll", "glue_lib_text_template.dll", debug);
             
             if (debug)
             {
@@ -181,7 +181,7 @@ namespace Glue.Lib.Text.Template
             Type compiledType = _typeBuilder.CreateType();
             if (!memory)
             {
-                assembly.Save("edf_lib_text_template.dll");
+                assembly.Save("glue_lib_text_template.dll");
             }
             return compiledType;
         }

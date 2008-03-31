@@ -16,7 +16,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitleAttribute("Glue.Web")]
 [assembly: AssemblyVersionAttribute("1.0.1075")]
 [assembly: AssemblyInformationalVersionAttribute("1.0.1075")]
-[assembly: AssemblyCompanyAttribute("EDF http://www.edf.nl")]
-[assembly: AssemblyCopyrightAttribute("Copyright (C) 2002-2004 EDF")]
 [assembly: ComVisibleAttribute(false)]
 

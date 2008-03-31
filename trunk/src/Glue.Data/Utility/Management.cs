@@ -102,7 +102,7 @@ namespace Glue.Data.Schema
         {
             elementname = NullConvert.Coalesce(elementname, "dataprovider");
             // <dataprovider
-            //  type="Edf.Lib.Data.Providers.Sql.SqlMappingProvider"
+            //  type="Glue.Data.Providers.Sql.SqlMappingProvider"
             //  database="database_name"
             //  username="glue_user"
             //  server="server_name"
@@ -120,11 +120,11 @@ namespace Glue.Data.Schema
         /// </summary>
         public static ISchemaProvider CreateSchemaProvider(string scheme, string server, string user, string pass)
         {
-            string name = "edf.lib.data.providers." + scheme + "." + scheme + "SchemaProvider";
+            string name = "glue.data.providers." + scheme + "." + scheme + "SchemaProvider";
             Type type = Configuration.FindType(name);
             if (type == null)
             {
-                name = name + ",edf.lib." + scheme;
+                name = name + ",glue.lib." + scheme;
                 type =  Configuration.FindType(name);
             }
             if (type == null)

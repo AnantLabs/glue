@@ -55,7 +55,7 @@ namespace Glue.Data.Providers.Sql
         {
             Entity info = Entity.Obtain(type);
             string typeName = type.FullName.Replace('.','_');
-            string namespaceName = "Edf_Lib_Data_Mapping_Generated";
+            string namespaceName = "Glue_Data_Mapping_Generated";
             StringWriter code = new StringWriter();
             code.WriteLine("using System;");
             code.WriteLine("using System.Collections;");

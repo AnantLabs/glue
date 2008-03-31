@@ -55,7 +55,7 @@ namespace Glue.Lib.Servers
                 //    Settings.Incoming.SocketTimeout
                 //    );
 
-                WriteLine("220 EDF SMTP Server.");
+                WriteLine("220 Glue SMTP Server.");
         
                 bool processing = true;
         
