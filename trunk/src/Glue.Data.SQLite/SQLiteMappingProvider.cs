@@ -41,6 +41,16 @@ namespace Glue.Data.Providers.SQLite
         {
         }
 
+        /// <summary>
+        /// Create new UnitOfWork-instance with a specified IsolationLevel
+        /// </summary>
+        /// <param name="isolationLevel">Transaction isolation level</param>
+        /// <returns>New UnitOfWork-instance</returns>
+        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
+        {
+            throw new NotImplementedException();
+        }
+
         public Type GenerateAccessor(Type type)
         {
             Entity info = Entity.Obtain(type);
@@ -761,16 +771,6 @@ namespace Glue.Data.Providers.SQLite
                         result.Add(reader[0], reader[1]);
             }
             return result;
-        }
-
-        /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
-        {
-            throw new NotImplementedException();
         }
     }
 }

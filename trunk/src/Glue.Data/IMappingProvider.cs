@@ -39,5 +39,12 @@ namespace Glue.Data
         void   AddManyToMany(object left, object right);
         void   DelManyToMany(object left, object right);
         IDictionary Map(Type type, string key, string value, Filter filter, Order order);
+
+        /// <summary>
+        /// Create new UnitOfWork-instance with a specified IsolationLevel
+        /// </summary>
+        /// <param name="isolationLevel">Transaction isolation level</param>
+        /// <returns>New UnitOfWork-instance</returns>
+        UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel);
     }
 }

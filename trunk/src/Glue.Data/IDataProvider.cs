@@ -20,13 +20,6 @@ namespace Glue.Data
         IDbConnection CreateConnection();
 
         /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel);
-
-        /// <summary>
         /// Set parameters on IDbCommand using a name/value parameter-collection.
         /// </summary>
         /// <param name="command">IDbCommand</param>

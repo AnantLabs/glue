@@ -71,16 +71,6 @@ namespace Glue.Data.Providers.MySql
         }
 
         /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
-        {
-            return UnitOfWork.Create((IMappingProvider)this, CreateConnection(), isolationLevel);
-        }
-
-        /// <summary>
         /// SetParameter
         /// </summary>
         public MySqlParameter SetParameter(MySqlCommand command, string name, object value)
