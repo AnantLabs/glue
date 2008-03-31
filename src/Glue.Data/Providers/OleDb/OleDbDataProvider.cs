@@ -25,16 +25,6 @@ namespace Glue.Data.Providers.OleDb
         }
 
         /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
-        {
-            return UnitOfWork.Create((IMappingProvider)this, CreateConnection(), isolationLevel);
-        }
-
-        /// <summary>
         /// OleDbHelper
         /// </summary>
         public OleDbDataProvider(string server, string database, string username, string password)

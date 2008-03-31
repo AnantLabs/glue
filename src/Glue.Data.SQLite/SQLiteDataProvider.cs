@@ -384,17 +384,6 @@ namespace Glue.Data.Providers.SQLite
         }
 
         /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        /// <summary>
         /// Contains
         /// </summary>
         private bool Contains(string[] strings, string value)
