@@ -62,7 +62,6 @@
     <Compile Include="Schema\Container.cs" />
     <Compile Include="Schema\Database.cs" />
     <Compile Include="Schema\ForeignKey.cs" />
-    <Compile Include="Schema\Helper.cs" />
     <Compile Include="Schema\ImportMode.cs" />
     <Compile Include="Schema\Index.cs" />
     <Compile Include="Schema\Key.cs" />

@@ -1,5 +1,5 @@
-using Edf.Lib;
-using Edf.Lib.Text.DSON;
+using Glue.Lib;
+using Glue.Lib.Text.DSON;
 using System.Collections;
 
 COMPILER Root
@@ -10,7 +10,7 @@ public object Result = null;
 
 void Log(string fmt, params object[] args) 
 {
-    Edf.Lib.Log.Debug(String.Format(fmt, args));
+    Glue.Lib.Log.Debug(String.Format(fmt, args));
 }
 
 void Err(string msg) 

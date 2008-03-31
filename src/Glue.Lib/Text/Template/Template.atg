@@ -1,6 +1,6 @@
-//run: coco %1 -namespace Edf.Lib.Text.Template
-using Edf.Lib.Text.Template;
-using Edf.Lib.Text.Template.AST;
+//run: coco %1 -namespace Glue.Lib.Text.Template
+using Glue.Lib.Text.Template;
+using Glue.Lib.Text.Template.AST;
 
 COMPILER Root
 

@@ -16,7 +16,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitleAttribute("Glue.Lib")]
 [assembly: AssemblyVersionAttribute("2.0.1570")]
 [assembly: AssemblyInformationalVersionAttribute("2.0.1570")]
-[assembly: AssemblyCompanyAttribute("EDF http://www.edf.nl")]
-[assembly: AssemblyCopyrightAttribute("Copyright (C) 2002-2005 EDF")]
 [assembly: ComVisibleAttribute(false)]
 

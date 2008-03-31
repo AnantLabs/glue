@@ -37,7 +37,7 @@ namespace Glue.Web
                 Log.Debug("Begin Compiling: " + virtualPath);
                 ViewCompiler compiler = new ViewCompiler();
                 compiler.FileName = path;
-                compiler.NamespaceName = "Edf_Glue_Views_Generated";
+                compiler.NamespaceName = "Glue_Web_Views_Generated";
                 compiler.BaseTypeName = App.Current.BaseViewType.FullName;
                 compiler.TypeName = Path.GetFileNameWithoutExtension(StringHelper.StripNonWordChars(virtualPath, '_'));
                 compiler.ControllerType = controllerType;
