@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.IO;
@@ -63,7 +64,7 @@ namespace Glue.Data.Providers.SQLite
             code.WriteLine("using Glue.Lib;");
             code.WriteLine("using Glue.Data;");
             code.WriteLine("using Glue.Data.Mapping;");
-            code.WriteLine("using Finisar.SQLite;");
+            code.WriteLine("using System.Data.SQLite;");
             code.WriteLine("namespace " + namespaceName);
             code.WriteLine("{");
             code.WriteLine("  public class " + typeName + " : " + typeof(Accessor).FullName);
@@ -108,12 +109,15 @@ namespace Glue.Data.Providers.SQLite
             
             return compiler.CompiledAssembly.GetType(namespaceName + "." + typeName);
         }
-        
+
+        // from sql
         void GenerateInitFromReaderFixed(TextWriter code, EntityMember member, string prefix)
         {
             if (member.Aggregated)
             {
-                code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "(); // aggregated");
+                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
+                if (!readOnly)
+                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "(); // aggregated");
                 foreach (EntityMember child in member.Children)
                     GenerateInitFromReaderFixed(code, child, member.Name + ".");
             }
@@ -125,20 +129,14 @@ namespace Glue.Data.Providers.SQLite
                 foreach (EntityMember fk in foreign.KeyMembers)
                 {
                     code.WriteLine(",");
-                    code.Write("        " + GetConvertCode(fk.Type, "reader[index++]"));
+                    code.Write("        " + GetFromDataExpression(fk, "reader[index++]"));
                 }
                 code.WriteLine();
                 code.WriteLine("      );");
             }
             else
             {
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.WriteLine("      instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[index++], " + member.Column.ConventionalNullValue + ");");
-                    else
-                        code.WriteLine("      instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[index++]);");
-                else
-                    code.WriteLine("      instance." + prefix + member.Name + " = " + GetConvertCode(member.Type, "reader[index++]") + ";");
+                code.WriteLine("      instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[index++]") + ";");
             }
         }
 
@@ -156,11 +154,49 @@ namespace Glue.Data.Providers.SQLite
 
         }
 
+        string GetFromDataExpression(EntityMember member, string sourceExpression)
+        {
+            if (member.Column.GenericNullable)
+                return "NullConvert.To<" + member.Column.Type.Name + "?>(" + sourceExpression + ")";
+            else if (member.Column.Nullable)
+                if (member.Column.ConventionalNullValue != null)
+                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
+                else
+                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ")";
+
+            if (member.Type == typeof(Guid))
+                return "(Guid)(" + sourceExpression + ")";
+            else if (member.Type.IsEnum)
+                return "(" + member.Type.FullName + ")" + "Convert.ToInt32(" + sourceExpression + ")";
+            else
+                return "Convert.To" + member.Type.Name + "(" + sourceExpression + ")";
+        }
+
+        string GetIntoDataExpression(EntityMember member, string sourceExpression)
+        {
+            if (member.Column.MaxLength > 0)
+                sourceExpression = "NullConvert.Truncate(" + sourceExpression + ", " + member.Column.MaxLength + ")";
+
+            //if (member.Column.GenericNullable)
+            //    return "((" + sourceExpression + ") == null ? DBNull.Value : (object)(" + sourceExpression + "))";
+            if (member.Column.GenericNullable)
+                return "NullConvert.From<" + member.Column.Type.Name + "?>(" + sourceExpression + ")";
+            else if (member.Column.Nullable)
+                if (member.Column.ConventionalNullValue != null)
+                    return "NullConvert.From(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
+                else
+                    return "NullConvert.From(" + sourceExpression + ")";
+            else
+                return sourceExpression;
+        }
+
         void GenerateInitFromReaderDynamic(TextWriter code, EntityMember member, string prefix)
         {
             if (member.Aggregated)
             {
-                code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "();");
+                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
+                if (!readOnly)
+                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "();");
                 foreach (EntityMember child in member.Children)
                     GenerateInitFromReaderDynamic(code, child, member.Name + ".");
             }
@@ -171,21 +207,14 @@ namespace Glue.Data.Providers.SQLite
                 code.WriteLine("      if (ordinal != null)");
                 code.WriteLine("        instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
                 code.WriteLine("          typeof(" + foreign.Type.FullName + "), ");
-                code.WriteLine("          " + GetConvertCode(foreign.KeyMembers[0].Type, "reader[(int)ordinal]"));
+                code.WriteLine("          " + GetFromDataExpression(foreign.KeyMembers[0], "reader[(int)ordinal]"));
                 code.WriteLine("        );");
             }
             else
             {
                 code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
                 code.WriteLine("      if (ordinal != null)");
-
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.WriteLine("        instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[(int)ordinal], " + member.Column.ConventionalNullValue + ");");
-                    else
-                        code.WriteLine("        instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[(int)ordinal]);");
-                else
-                    code.WriteLine("          instance." + prefix + member.Name + " = " + GetConvertCode(member.Type, "reader[(int)ordinal]") + ";");
+                code.WriteLine("        instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[(int)ordinal]") + ";");
             }
         }
 
@@ -200,22 +229,16 @@ namespace Glue.Data.Providers.SQLite
             {
                 Entity foreign = Entity.Obtain(member.Type);
                 code.WriteLine("      if (instance." + prefix + member.Name + " == null)");
-                code.WriteLine("        parameters.Add(\"@" + member.Column.Name + "\", DBNull.Value);");
+                code.WriteLine("        parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", DBNull.Value));");
                 code.WriteLine("      else ");
-                code.Write    ("        parameters.Add(\"@" + member.Column.Name + "\", ");
-                code.WriteLine("instance." + prefix + member.Name + "." + foreign.KeyMembers[0].Name + ");");
+                code.Write("        parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", ");
+                code.WriteLine("instance." + prefix + member.Name + "." + foreign.KeyMembers[0].Name + "));");
             }
             else
             {
-                code.Write("      parameters.Add(\"@" + member.Column.Name + "\", ");
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.Write("NullConvert.From(instance." + prefix + member.Name + ", " + member.Column.ConventionalNullValue + ")");
-                    else
-                        code.Write("NullConvert.From(instance." + prefix + member.Name + ")");
-                else
-                    code.Write("instance." + prefix + member.Name);
-                code.WriteLine(");");
+                code.Write("      parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", ");
+                code.Write(GetIntoDataExpression(member, "instance." + prefix + member.Name));
+                code.WriteLine("));");
             }
         }
 
@@ -321,6 +344,11 @@ namespace Glue.Data.Providers.SQLite
                 else
                     return null;
         }
+ 
+        public T Find<T>(params object[] keys)
+        {
+            return (T)Find(typeof(T), keys);
+        }
 
         public object FindByFilter(Type type, Filter filter)
         {
@@ -359,6 +387,11 @@ namespace Glue.Data.Providers.SQLite
             return List(null, type, filter, order, limit);
         }
 
+        public List<T> List<T>(Filter filter, Order order, Limit limit)
+        {
+            return new List<T>((IEnumerable<T>)List(typeof(T), filter, order, limit));
+        }
+ 
         public Array List(string table, Type type, Filter filter, Order order, Limit limit)
         {
             Entity info = Obtain(type);

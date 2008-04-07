@@ -16,14 +16,17 @@ namespace mp3sql
         // Database will be located in ~\Application Data\mp3sql\sqlite.db
         // or ~/.config/mp3sql/sqlite.db or $XDG_DATA_DIR/mp3sql/sqlite.db
         static string dbfile = Path.GetFullPath(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-            "/mp3sql/sqlite.db".Replace('/', Path.DirectorySeparatorChar));
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "mp3sql/sqlite.db"));
 
 
         static void Main(string[] args)
         {
+            Log.Level = Level.Debug;
             ID3v1 tags = null;
 
+            Log.Debug(dbfile);
             try
             {
                 tags = new ID3v1("../../13 - Susanna Hoffs - The Look of Love.mp3");
@@ -50,7 +53,7 @@ namespace mp3sql
 
             
             // TODO: check op file niet bestaand / in use / verkeerd formaat / acces denied etc.
-            Glue.Data.IDataProvider provider = new SQLiteDataProvider("Data Source=" + dbfile + ";New=True");
+            IMappingProvider provider = new SQLiteMappingProvider("Data Source=" + dbfile + ";New=True");
             using (IDbConnection conn = provider.CreateConnection())
             {
                 int tables = provider.ExecuteScalarInt32("SELECT count(*) FROM sqlite_master;");
@@ -62,8 +65,20 @@ namespace mp3sql
 
                 //tables = provider.ExecuteScalarInt32("SELECT count(*) FROM sqlite_master;");
                 //Console.WriteLine("Number of tables: " + tables);
+                PrintCommand(conn, "SELECT * FROM track");
+                Array l = provider.List(typeof(Track), null, null, null);
+                foreach (Track t in l)
+                {
+                    Console.WriteLine("Track: {0}\n  {1}\n  {2}\n  {3}\n  {4}", t.Id, t.Title, t.Path, t.Year, t.Quality);
+                }
             }
-            
+
+            Console.WriteLine("Generic path: " + provider.Find<Track>(0).Path);
+
+            foreach (Track t in ((SQLiteMappingProvider)provider).List<Track>(null, null, null)) 
+            {
+                Console.WriteLine("Track: {0}\n  {1}\n  {2}\n  {3}\n  {4}", t.Id, t.Title, t.Path, t.Year, t.Quality);
+            }
         }
 
 //        static void CreateTables(IDataProvider provider)
@@ -87,6 +102,9 @@ namespace mp3sql
         /// <param name="cmdStr"></param>
         static void PrintCommand(IDbConnection conn, string cmdStr)
         {
+            Console.WriteLine(conn.State);
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
             IDbCommand cmd = conn.CreateCommand();
             cmd.CommandText = cmdStr;
             IDataReader reader = cmd.ExecuteReader();

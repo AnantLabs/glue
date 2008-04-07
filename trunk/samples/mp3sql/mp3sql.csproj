@@ -28,17 +28,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Glue.Data, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="glue.data, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\bin\Glue.Data.dll</HintPath>
+      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.data.dll</HintPath>
     </Reference>
-    <Reference Include="Glue.Data.SQLite, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="glue.data.sqlite, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\bin\Glue.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.data.sqlite.dll</HintPath>
     </Reference>
-    <Reference Include="Glue.Lib, Version=2.0.1570.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="glue.lib, Version=2.0.1570.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\bin\Glue.Lib.dll</HintPath>
+      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.lib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
