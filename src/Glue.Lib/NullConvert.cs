@@ -404,5 +404,16 @@ namespace Glue.Lib
                 return DBNull.Value;
             return v;
         }
+
+        /// <summary>
+        /// Special version for generic nullable types, which don't handle
+        /// DBNull at all.
+        /// </summary>
+        public static object From<T>(T value)
+        {
+            if (value == null)
+                return DBNull.Value;
+            return value;
+        }
     }
 }

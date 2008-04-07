@@ -15,6 +15,7 @@ namespace Glue.Data
     public interface IMappingProvider : IDataProvider
     {
         object Find(Type type, params object[] keys);
+        T Find<T>(params object[] keys);
         object FindByFilter(Type type, Filter filter);
         object FindByFilter(Type type, Filter filter, Order order);
         object FindByFilter(string table, Type type, Filter filter);
@@ -38,6 +39,16 @@ namespace Glue.Data
         Array  ListManyToMany(Type left, object right, Filter filter, Order order, Limit limit);
         void   AddManyToMany(object left, object right);
         void   DelManyToMany(object left, object right);
+
+        /// <summary>
+        /// Creates a dictionary of key-value pairs where the keys and values are taken from two columns in a table.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="filter"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
         IDictionary Map(Type type, string key, string value, Filter filter, Order order);
 
         /// <summary>

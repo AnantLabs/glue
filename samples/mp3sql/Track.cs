@@ -7,15 +7,28 @@ using Glue.Data.Mapping;
 
 namespace mp3sql
 {
+    public class QualityInfo
+    {
+        public long? Bitrate;
+        public string Encoding;
+        public long? Level;
+        
+        public override string ToString()
+        {
+            return string.Format("B:{0} L:{1} E:{2}", Bitrate, Level, Encoding);
+        }
+    }
+
     [Table]
-    class Track : ActiveRecord
+    public class Track : ActiveRecord
     {
         [Key] 
         public int Id;
         public string Path;
         public string Title;
         public string Artist;
-        public Nullable<int> Year;
+        public long? Year;
         public string Comment;
+        public QualityInfo Quality = new QualityInfo();
     }
 }

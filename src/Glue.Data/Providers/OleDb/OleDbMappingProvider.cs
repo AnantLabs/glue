@@ -313,6 +313,11 @@ namespace Glue.Data.Providers.OleDb
                     return null;
         }
 
+        public T Find<T>(params object[] keys)
+        {
+            return (T)Find(typeof(T), keys);
+        }
+
         public object FindByFilter(Type type, Filter filter)
         {
             return FindByFilter(type, filter, null);

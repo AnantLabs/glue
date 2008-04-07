@@ -318,6 +318,11 @@ namespace Glue.Data.Providers.Sql
                     return null;
         }
 
+        public T Find<T>(params object[] keys)
+        {
+            return (T)Find(typeof(T), keys);
+        }
+
         public object FindByFilter(Type type, Filter filter)
         {
             return FindByFilter(type, filter, null);
@@ -969,6 +974,11 @@ namespace Glue.Data.Providers.Sql
                 s += " WHERE " + filter;
             Log.Debug("Count SQL: " + s);
             return (int) ExecuteScalar(s);
+        }
+
+        public int Count<T>(Filter filter)
+        {
+            return Count(typeof(T), filter);
         }
 
         public IDictionary Map(Type type, string key, string value, Filter filter, Order order)
