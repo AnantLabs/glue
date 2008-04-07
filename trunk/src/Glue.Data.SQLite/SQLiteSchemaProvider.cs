@@ -4,7 +4,7 @@ using System.Xml;
 using System.Collections;
 using System.Text;
 using System.Data;
-using Finisar.SQLite;
+using System.Data.SQLite;
 using Glue.Data;
 using Glue.Data.Schema;
 

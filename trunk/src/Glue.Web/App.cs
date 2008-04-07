@@ -261,7 +261,7 @@ endif
         /// * Call Controller::Intialize 
         /// * Call Controller::Execute; this will in turn invoke a suitable public 
         ///   method on the controller (e.g. DocumentController::View)
-        /// * Call Controller::Finalize 
+        /// * Call Controller::Close 
         /// </summary>
         public virtual void Process(IRequest request, IResponse response) 
         {
@@ -309,7 +309,7 @@ endif
                     }
                     finally
                     {
-                        controller.Finalize();
+                        controller.Close();
                     }
                 }
 

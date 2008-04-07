@@ -145,7 +145,7 @@ namespace Glue.Web
             return false;
         }
 
-        protected internal virtual void Finalize()
+        protected internal virtual void Close()
         {
         }
 
