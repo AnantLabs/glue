@@ -4,7 +4,7 @@ using System.Data;
 using System.Text;
 using System.IO;
 using System.Reflection;
-using Finisar.SQLite;
+using System.Data.SQLite;
 using Glue.Lib;
 using Glue.Data;
 using Glue.Data.Mapping;
@@ -312,7 +312,7 @@ namespace Glue.Data.Providers.SQLite
             i = 0;
             foreach (EntityMember m in info.KeyMembers)
             {
-                cmd.Parameters.Add("@" + m.Column.Name, keys[i]);
+                cmd.Parameters.Add(new SQLiteParameter("@" + m.Column.Name, keys[i]));
                 i++;
             }
             using (SQLiteDataReader reader = ExecuteReader(cmd))
@@ -675,7 +675,7 @@ namespace Glue.Data.Providers.SQLite
             i = 0;
             foreach (EntityMember m in info.KeyMembers)
             {
-                cmd.Parameters.Add("@" + m.Column.Name, keys[i]);
+                cmd.Parameters.Add(new SQLiteParameter("@" + m.Column.Name, keys[i]));
                 i++;
             }
             ExecuteNonQuery(cmd);

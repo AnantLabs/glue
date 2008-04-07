@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Data;
-using Finisar.SQLite;
+using System.Data.SQLite;
 using Glue.Lib;
 using Glue.Data;
 
@@ -77,11 +77,17 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteParameter SetParameter(SQLiteCommand command, string name, object value)
         {
+            SQLiteParameter p;
             object v = value == null ? DBNull.Value : value;
             int i = command.Parameters.IndexOf(name);
             if (i < 0)
-                return command.Parameters.Add(name, v);
-            SQLiteParameter p = command.Parameters[i];
+            {
+                //return command.Parameters[command.Parameters.Add(new SQLiteParameter(name, value))];
+                p = new SQLiteParameter(name, value);
+                command.Parameters.Add(p);
+                return p;
+            }
+            p = command.Parameters[i];
             p.Value = value;
             if (v.GetType() == typeof(byte[]))
                 p.Size = ((byte[])v).Length;
@@ -94,8 +100,8 @@ namespace Glue.Data.Providers.SQLite
             int i = command.Parameters.IndexOf(name);
             if (i < 0)
             {
-                SQLiteParameter p = command.Parameters.Add(name, value);
-                p.DbType = type;
+                SQLiteParameter p = command.Parameters.Add(name, type);
+                p.Value = value;
                 return p;
             }
             else
@@ -145,9 +151,9 @@ namespace Glue.Data.Providers.SQLite
                             for (int i = 0; i < rec.FieldCount; i++)
                             {
                                 if (rec[i] == null || rec[i] == DBNull.Value)
-                                    command.Parameters.Add("@" + rec.GetName(i), DBNull.Value);
+                                    command.Parameters.Add(new SQLiteParameter("@" + rec.GetName(i), DBNull.Value));
                                 else
-                                    command.Parameters.Add("@" + rec.GetName(i), rec.GetValue(i));
+                                    command.Parameters.Add(new SQLiteParameter("@" + rec.GetName(i), rec.GetValue(i)));
                             }
                         }
                         else if (p.GetType() == typeof(object[]))
@@ -161,9 +167,9 @@ namespace Glue.Data.Providers.SQLite
                         break;
                     case 1:
                         if (p == null)
-                            command.Parameters.Add(name, DBNull.Value);
+                            command.Parameters.Add(new SQLiteParameter(name, DBNull.Value));
                         else
-                            command.Parameters.Add(name, p);
+                            command.Parameters.Add(new SQLiteParameter(name, p));
                         name = null;
                         state = 0;
                         break;

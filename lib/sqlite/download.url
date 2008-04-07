@@ -1,5 +1,2 @@
-[DEFAULT]
-BASEURL=http://sourceforge.net/projects/adodotnetsqlite
 [InternetShortcut]
-URL=http://sourceforge.net/projects/adodotnetsqlite
-Modified=B02D445A7AECC501A7
+URL=http://sourceforge.net/projects/sqlite-dotnet2

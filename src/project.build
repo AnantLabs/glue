@@ -88,7 +88,8 @@ doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
 		</csc>
 
 		<!-- Build Glue.Data.SQLite.dll -->
-		<copy file="../lib/sqlite/SQLite.NET.dll" todir="${builddir}" />
+		<copy file="../lib/sqlite/System.Data.SQLite.dll" todir="${builddir}" />
+		<copy file="../lib/sqlite/System.Data.SQLite.xml" todir="${builddir}" />
 		<csc target="library" output="${builddir}/Glue.Data.SQLite.dll" doc="${builddir}/Glue.Data.SQLite.xml">
 			<sources>
 				<include name="Glue.Data.SQLite/**.cs" />
@@ -97,7 +98,7 @@ doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
 				<include name="System.Data.dll" />
 				<include name="${builddir}/Glue.Lib.dll" />
 				<include name="${builddir}/Glue.Data.dll" />
-				<include name="${builddir}/SQLite.NET.dll" />
+                                <include name="${builddir}/System.Data.SQLite.dll" />
 			</references>
 			<nowarn>
 				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
