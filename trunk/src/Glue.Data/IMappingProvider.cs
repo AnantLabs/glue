@@ -16,10 +16,17 @@ namespace Glue.Data
     {
         object Find(Type type, params object[] keys);
         T Find<T>(params object[] keys);
+
         object FindByFilter(Type type, Filter filter);
         object FindByFilter(Type type, Filter filter, Order order);
         object FindByFilter(string table, Type type, Filter filter);
         object FindByFilter(Type type, IDbCommand command);
+
+        T FindByFilter<T>(Filter filter);
+        T FindByFilter<T>(Filter filter, Order order);
+        T FindByFilter<T>(string table, Filter filter);
+        T FindByFilter<T>(IDbCommand command);
+
         Array  List(Type type, Filter filter, Order order, Limit limit);
         Array  List(string table, Type type, Filter filter, Order order, Limit limit);
         Array  List(Type type, IDbCommand command);

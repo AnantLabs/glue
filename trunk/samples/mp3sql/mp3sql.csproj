@@ -28,28 +28,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="glue.data, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.data.dll</HintPath>
-    </Reference>
-    <Reference Include="glue.data.sqlite, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.data.sqlite.dll</HintPath>
-    </Reference>
-    <Reference Include="glue.lib, Version=2.0.1570.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\src\Glue.Data.SQLite\bin\glue.lib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Album.cs" />
+    <Compile Include="DataContext.cs" />
     <Compile Include="ID3v1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Track.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Glue.Data.SQLite\Glue.Data.SQLite.csproj">
+      <Project>{46246856-7109-4962-A291-E8DD114CAE56}</Project>
+      <Name>Glue.Data.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
+      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
+      <Name>Glue.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Lib\Glue.Lib.csproj">
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Name>Glue.Lib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

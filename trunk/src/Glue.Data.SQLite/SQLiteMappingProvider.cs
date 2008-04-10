@@ -42,6 +42,38 @@ namespace Glue.Data.Providers.SQLite
         {
         }
 
+        protected SQLiteMappingProvider(SQLiteConnection connection) : base(connection)
+        {
+        }
+
+        /*
+        IMappingProvider MyProvider;
+        
+         * foreach (Item i in MyProvider.List...) {
+         *  ...
+         * }
+         * using (IMappingProvider provider = MyProvider.Open()) {
+         *      foreach (Item i in provider.List...) {
+         *      }
+         *      provider.Insert(new Item(1,"x"));
+         *      provider.Delete<Item>(1);
+         * }
+        */
+
+        public IMappingProvider Open()
+        {
+            return new SQLiteMappingProvider(CreateConnection());
+        }
+
+        public void Close()
+        {
+            if (connection != null)
+            {
+                connection.Close();
+                connection = null;
+            }
+        }
+
         /// <summary>
         /// Create new UnitOfWork-instance with a specified IsolationLevel
         /// </summary>
@@ -195,6 +227,26 @@ namespace Glue.Data.Providers.SQLite
             throw new NotImplementedException();
         }
 
+        public T FindByFilter<T>(Filter filter)
+        {
+            return (T)FindByFilter(typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(string table, Filter filter)
+        {
+            return (T)FindByFilter(table, typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(IDbCommand command)
+        {
+            return (T)FindByFilter(typeof(T), command);
+        }
+
+        public T FindByFilter<T>(Filter filter, Order order)
+        {
+            return (T)FindByFilter(typeof(T), filter, order);
+        }
+
         public Array List(Type type, Filter filter, Order order, Limit limit)
         {
             return List(null, type, filter, order, limit);
@@ -337,26 +389,45 @@ namespace Glue.Data.Providers.SQLite
             }
         }
 
+        /// <summary>
+        /// If TableA and TableB are linked in a many-to-many relation, the linking table should be called "TableA_TableB",
+        /// with an underscore. If the key column from a table 'TableX' does not start with 'TableX', the key column in the
+        /// linking table will be prepended with 'TableX'.
+        /// Example: TableA with key 'Id' and 'TableB' with key 'Id' will be linked in table 'TableA_TableB' with two key
+        /// columns 'TableA_Id' and 'TableB_Id'.
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public void AddManyToMany(object left, object right)
         {
             Entity leftInfo = Obtain(left.GetType());
             Entity rightInfo = Obtain(right.GetType());
-            string between = leftInfo.Table.Name + rightInfo.Table.Name;
+            string between = leftInfo.Table.Name + "_" + rightInfo.Table.Name;
+            string leftkey = leftInfo.KeyMembers[0].Column.Name;
+            if (!leftkey.StartsWith(leftInfo.Table.Name, StringComparison.OrdinalIgnoreCase)) leftkey = leftInfo.Table.Name + '_' + leftkey;
+            string rightkey = rightInfo.KeyMembers[0].Column.Name;
+            if (!rightkey.StartsWith(rightInfo.Table.Name, StringComparison.OrdinalIgnoreCase)) rightkey = rightInfo.Table.Name + '_' + rightkey;
             string sql = string.Format(@"
                 REPLACE INTO [{0}]({1}, {2}) VALUES(@{1}, @{2})",
                 between, 
-                leftInfo.KeyMembers[0].Column.Name,
-                rightInfo.KeyMembers[0].Column.Name
+                leftkey,
+                rightkey
                 );
             SQLiteCommand command = CreateCommand(
                 sql, 
-                "@" + leftInfo.KeyMembers[0].Column.Name,
+                "@" + leftkey,
                 leftInfo.KeyMembers[0].GetValue(left),
-                "@" + rightInfo.KeyMembers[0].Column.Name,
+                "@" + rightkey,
                 rightInfo.KeyMembers[0].GetValue(right)
                 );
             ExecuteNonQuery(command);
         }
+        
+        /*
+         * void AddManyToMany(object left, object right, Entity leftInfo, Entity rightInfo, string between, string leftkey, string rightkey)
+        {
+        }
+         */
         
         public void DelManyToMany(object left, object right)
         {
