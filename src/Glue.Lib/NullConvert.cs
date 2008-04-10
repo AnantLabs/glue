@@ -274,11 +274,21 @@ namespace Glue.Lib
                 return default(T);
             return (T)value;
         }
-        
+
+        /// <summary>
+        /// Returns DBNull if v is null, or v otherwise
+        /// </summary>
+        public static object From(object v)
+        {
+            if (v == null)
+                return DBNull.Value;
+            return v;
+        }
+
         /// <summary>
         /// Returns DBNull if v is null;
         /// </summary>
-        public static object From(String v)
+        public static object From(string v)
         {
             if (v == null)
                 return DBNull.Value;

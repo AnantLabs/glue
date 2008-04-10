@@ -52,202 +52,15 @@ namespace Glue.Data.Providers.SQLite
             throw new NotImplementedException();
         }
 
-        public Type GenerateAccessor(Type type)
-        {
-            Entity info = Entity.Obtain(type);
-            string typeName = type.FullName.Replace('.','_');
-            string namespaceName = "Glue_Data_Mapping_Generated";
-            StringWriter code = new StringWriter();
-            code.WriteLine("using System;");
-            code.WriteLine("using System.Collections;");
-            code.WriteLine("using System.Data;");
-            code.WriteLine("using Glue.Lib;");
-            code.WriteLine("using Glue.Data;");
-            code.WriteLine("using Glue.Data.Mapping;");
-            code.WriteLine("using System.Data.SQLite;");
-            code.WriteLine("namespace " + namespaceName);
-            code.WriteLine("{");
-            code.WriteLine("  public class " + typeName + " : " + typeof(Accessor).FullName);
-            code.WriteLine("  {");
-            code.WriteLine("    public " + typeName + "(IMappingProvider provider, Type type) : base(provider, type) {} ");
-            code.WriteLine("    public override void InitFromReaderFixed(object obj, IDataReader reader, int index)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderFixed(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void InitFromReaderDynamic(object obj, IDataReader reader, IDictionary ordinals)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      object ordinal;");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderDynamic(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void AddParametersToCommandFixed(object obj, IDbCommand command)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      SQLiteParameterCollection parameters = (SQLiteParameterCollection)command.Parameters;");
-            foreach (EntityMember m in info.KeyMembers)
-                GenerateAddParameter(code, m, "");
-            foreach (EntityMember m in EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers))
-                GenerateAddParameter(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("  }");
-            code.WriteLine("}");
-            Log.Debug(code.ToString());
-            Glue.Lib.Compilation.SourceCompiler compiler = new Glue.Lib.Compilation.SourceCompiler();
-            compiler.Language = "C#";
-            compiler.Source = code.ToString();
-            try
-            {
-                compiler.Compile();
-            }
-            catch (Glue.Lib.Compilation.CompilationException e)
-            {
-                Log.Error(e.ErrorMessage);
-            }
-            
-            return compiler.CompiledAssembly.GetType(namespaceName + "." + typeName);
-        }
-
-        // from sql
-        void GenerateInitFromReaderFixed(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
-                if (!readOnly)
-                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "(); // aggregated");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderFixed(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.Write("        typeof(" + foreign.Type.FullName + ")");
-                foreach (EntityMember fk in foreign.KeyMembers)
-                {
-                    code.WriteLine(",");
-                    code.Write("        " + GetFromDataExpression(fk, "reader[index++]"));
-                }
-                code.WriteLine();
-                code.WriteLine("      );");
-            }
-            else
-            {
-                code.WriteLine("      instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[index++]") + ";");
-            }
-        }
-
-        string GetConvertCode(Type type, string argumentcode)
-        {
-            if (type == typeof(Guid))
-                return "(Guid)(" + argumentcode + ")";
-            else
-                return "Convert.To" + type.Name + "(" + argumentcode + ")";
-        }
-
-        string GetNullConvertCode(Type type, string argumentcode)
-        {
-            return "NullConvert.To" + type.Name + "(" + argumentcode + ")";
-
-        }
-
-        string GetFromDataExpression(EntityMember member, string sourceExpression)
-        {
-            if (member.Column.GenericNullable)
-                return "NullConvert.To<" + member.Column.Type.Name + "?>(" + sourceExpression + ")";
-            else if (member.Column.Nullable)
-                if (member.Column.ConventionalNullValue != null)
-                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
-                else
-                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ")";
-
-            if (member.Type == typeof(Guid))
-                return "(Guid)(" + sourceExpression + ")";
-            else if (member.Type.IsEnum)
-                return "(" + member.Type.FullName + ")" + "Convert.ToInt32(" + sourceExpression + ")";
-            else
-                return "Convert.To" + member.Type.Name + "(" + sourceExpression + ")";
-        }
-
-        string GetIntoDataExpression(EntityMember member, string sourceExpression)
-        {
-            if (member.Column.MaxLength > 0)
-                sourceExpression = "NullConvert.Truncate(" + sourceExpression + ", " + member.Column.MaxLength + ")";
-
-            //if (member.Column.GenericNullable)
-            //    return "((" + sourceExpression + ") == null ? DBNull.Value : (object)(" + sourceExpression + "))";
-            if (member.Column.GenericNullable)
-                return "NullConvert.From<" + member.Column.Type.Name + "?>(" + sourceExpression + ")";
-            else if (member.Column.Nullable)
-                if (member.Column.ConventionalNullValue != null)
-                    return "NullConvert.From(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
-                else
-                    return "NullConvert.From(" + sourceExpression + ")";
-            else
-                return sourceExpression;
-        }
-
-        void GenerateInitFromReaderDynamic(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
-                if (!readOnly)
-                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "();");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderDynamic(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-                code.WriteLine("        instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.WriteLine("          typeof(" + foreign.Type.FullName + "), ");
-                code.WriteLine("          " + GetFromDataExpression(foreign.KeyMembers[0], "reader[(int)ordinal]"));
-                code.WriteLine("        );");
-            }
-            else
-            {
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-                code.WriteLine("        instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[(int)ordinal]") + ";");
-            }
-        }
-
-        void GenerateAddParameter(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                foreach (EntityMember child in member.Children)
-                    GenerateAddParameter(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      if (instance." + prefix + member.Name + " == null)");
-                code.WriteLine("        parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", DBNull.Value));");
-                code.WriteLine("      else ");
-                code.Write("        parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", ");
-                code.WriteLine("instance." + prefix + member.Name + "." + foreign.KeyMembers[0].Name + "));");
-            }
-            else
-            {
-                code.Write("      parameters.Add(new SQLiteParameter(\"@" + member.Column.Name + "\", ");
-                code.Write(GetIntoDataExpression(member, "instance." + prefix + member.Name));
-                code.WriteLine("));");
-            }
-        }
-
+        /// <summary>
+        /// Obtain cached Entity information for given type.
+        /// </summary>
         Entity Obtain(Type type)
         {
             Entity info = Entity.Obtain(type);
             if (info.Accessor == null)
             {
-                Type accessorType = GenerateAccessor(type);
+                Type accessorType = AccessorHelper.GenerateAccessor(type, "System.Data.SQLite", "SQLite", "@");
                 info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] {this,type});
             }
             return info;
@@ -530,8 +343,7 @@ namespace Glue.Data.Providers.SQLite
             Entity rightInfo = Obtain(right.GetType());
             string between = leftInfo.Table.Name + rightInfo.Table.Name;
             string sql = string.Format(@"
-                IF NOT EXISTS(SELECT * FROM {0} WHERE {1}=@{1} AND {2}=@{2})
-                INSERT {0} ({1},{2}) VALUES(@{1},@{2})",
+                REPLACE INTO [{0}]({1}, {2}) VALUES(@{1}, @{2})",
                 between, 
                 leftInfo.KeyMembers[0].Column.Name,
                 rightInfo.KeyMembers[0].Column.Name
@@ -552,7 +364,7 @@ namespace Glue.Data.Providers.SQLite
             Entity rightInfo = Obtain(right.GetType());
             string between = leftInfo.Table.Name + rightInfo.Table.Name;
             string sql = string.Format(@"
-                DELETE {0} WHERE {1}=@{1} AND {2}=@{2}",
+                DELETE FROM [{0}] WHERE {1}=@{1} AND {2}=@{2}",
                 between, 
                 leftInfo.KeyMembers[0].Column.Name,
                 rightInfo.KeyMembers[0].Column.Name
@@ -603,7 +415,7 @@ namespace Glue.Data.Providers.SQLite
                 s.Append(")");
                 if (info.AutoKeyMember != null)
                 {
-                    s.Append("; SELECT @@IDENTITY");
+                    s.Append("; SELECT last_insert_rowid();");
                 }
                 info.InsertCommandText = s.ToString();
                 Log.Debug("Insert SQL: " + info.InsertCommandText);

@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.MySql", "Glue.Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.SQLite", "Glue.Data.SQLite\Glue.Data.SQLite.csproj", "{46246856-7109-4962-A291-E8DD114CAE56}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Lib.Test", "..\test\Glue.Lib.Test\Glue.Lib.Test.csproj", "{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.Test", "..\test\Glue.Data.Test\Glue.Data.Test.csproj", "{4120617F-1595-4C28-8219-4A335E3B64D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{46246856-7109-4962-A291-E8DD114CAE56}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46246856-7109-4962-A291-E8DD114CAE56}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46246856-7109-4962-A291-E8DD114CAE56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4120617F-1595-4C28-8219-4A335E3B64D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4120617F-1595-4C28-8219-4A335E3B64D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4120617F-1595-4C28-8219-4A335E3B64D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4120617F-1595-4C28-8219-4A335E3B64D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

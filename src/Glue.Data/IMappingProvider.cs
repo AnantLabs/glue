@@ -43,12 +43,10 @@ namespace Glue.Data
         /// <summary>
         /// Creates a dictionary of key-value pairs where the keys and values are taken from two columns in a table.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <param name="filter"></param>
-        /// <param name="order"></param>
-        /// <returns></returns>
+        /// <param name="key">Column with keys</param>
+        /// <param name="value">Column with values</param>
+        /// <param name="filter">Filter</param>
+        /// <param name="order">Order</param>
         IDictionary Map(Type type, string key, string value, Filter filter, Order order);
 
         /// <summary>

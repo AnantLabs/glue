@@ -128,12 +128,12 @@ namespace Glue.Data.Providers.MySql
                             name = (string)p;
                             if (name[0] == '-')
                             {
-                                command.Parameters.RemoveAt("@" + name.Substring(1));
+                                command.Parameters.RemoveAt("?" + name.Substring(1));
                             } 
                             else
                             {
-                                if (name[0] != '@')
-                                    name = "@" + name;
+                                if (name[0] != '?')
+                                    name = "?" + name;
                                 state = 1;
                             }
                         } 
@@ -143,9 +143,9 @@ namespace Glue.Data.Providers.MySql
                             for (int i = 0; i < rec.FieldCount; i++)
                             {
                                 if (rec[i] == null || rec[i] == DBNull.Value)
-                                    command.Parameters.Add("@" + rec.GetName(i), DBNull.Value);
+                                    command.Parameters.Add("?" + rec.GetName(i), DBNull.Value);
                                 else
-                                    command.Parameters.Add("@" + rec.GetName(i), rec.GetValue(i));
+                                    command.Parameters.Add("?" + rec.GetName(i), rec.GetValue(i));
                             }
                         }
                         else if (p.GetType() == typeof(object[]))
