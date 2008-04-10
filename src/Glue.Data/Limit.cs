@@ -17,16 +17,25 @@ namespace Glue.Data
         /// </summary>
         public readonly int Count = -1;
 
+        /// <summary>
+        /// Create new Limit
+        /// </summary>
+        /// <param name="index">Index row</param>
+        /// <param name="count">Number of rows to return</param>
         public Limit(int index, int count)
         {
             this.Index = index;
             this.Count = count;
         }
+
         public override string ToString()
         {
             return string.Concat(Index, " +", Count);
         }
         
+        /// <summary>
+        /// True if Limit is set to Unlimited.
+        /// </summary>
         public bool IsUnlimited
         {
             get { return Index == 0 && Count == -1; }
@@ -42,7 +51,13 @@ namespace Glue.Data
         /// </summary>
         public static readonly Limit One = new Limit(0, 1);
         
-        public static Limit New(int index, int count)
+        /// <summary>
+        /// Create new Limit
+        /// </summary>
+        /// <param name="index">Index row</param>
+        /// <param name="count">Number of rows to return</param>
+        /// <returns>New Limit instance</returns>
+        public static Limit Create(int index, int count)
         {
             return new Limit(index, count);
         }
@@ -50,8 +65,8 @@ namespace Glue.Data
         /// <summary>
         /// Returns the first non-empty Limit in the argument list.
         /// </summary>
-        /// <param name="limits"></param>
-        /// <returns></returns>
+        /// <param name="limits">Limits</param>
+        /// <returns>First non-empty Limit in the argument list</returns>
         public static Limit Coalesce(params Limit[] limits)
         {
             Limit result = Limit.Unlimited;
@@ -61,6 +76,11 @@ namespace Glue.Data
             return result;
         }
 
+        /// <summary>
+        /// Limit to return the top 'count' rows.
+        /// </summary>
+        /// <param name="count">Number of rows to return</param>
+        /// <returns>New Limit-instance</returns>
         public static Limit Top(int count)
         {
             return new Limit(0, count);
@@ -71,7 +91,7 @@ namespace Glue.Data
         /// </summary>
         /// <param name="from">First row in the result set</param>
         /// <param name="to">First row after (and not included in) the result set</param>
-        /// <returns></returns>
+        /// <returns>New Limit-instance</returns>
         public static Limit Range(int from, int to)
         {
             return new Limit(from, from < to ? to - from : 0);

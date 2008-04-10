@@ -9,11 +9,71 @@ namespace Glue.Data
     {
         string expression;
 
-        public Filter(string expression)
+        private Filter()
         {
-            this.expression = expression;
         }
-        
+
+        /// <summary>
+        /// Returns new Filter where and fills parameters in expression with placeholders.
+        /// </summary>
+        /// <remarks>
+        /// <code>
+        ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+        /// </code>
+        /// returns
+        /// <code>
+        ///   City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'
+        /// </code>
+        /// Strings will be correctly quoted, dates will have ISO representation, so they'll
+        /// always work.
+        /// </remarks>
+        public Filter(string expr, params object[] parms)
+        {
+            // check if we have parameters
+            if ((parms != null) && (parms.Length > 0))
+            {
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                int last = 0;
+                int i = 0;
+                int n = expr.Length;
+                while (i < n)
+                {
+                    if (expr[i] == '@')
+                    {
+                        int index = 0;
+                        int j = i;
+                        while (++j < n && expr[j] >= '0' && expr[j] <= '9')
+                            index = index * 10 + (byte)expr[j] - (byte)'0';
+                        if (j == i + 1)
+                        {
+                            if (j >= n || expr[j] != '@')
+                                throw new ArgumentException("Expected parameter number or extra '@' after '@'");
+                            s.Append(expr, last, i - last);
+                            j++;
+                        }
+                        else
+                        {
+                            s.Append(expr, last, i - last);
+                            s.Append(ToSql(parms[index]));
+                        }
+                        i = last = j;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                if (last < n)
+                    s.Append(expr, last, n - last);
+
+                this.expression = s.ToString();
+            }
+            else
+            {
+                this.expression = expr;
+            }
+        }
+
         public override string ToString()
         {
             return expression;
@@ -54,51 +114,22 @@ namespace Glue.Data
         public static readonly Filter Empty = new Filter(null);
 
         /// <summary>
-        /// Fills parameters in expression with placeholders.
-        /// Example:
-        ///   Field.Create("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+        /// Returns new Filter where and fills parameters in expression with placeholders.
+        /// </summary>
+        /// <remarks>
+        /// <code>
+        ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+        /// </code>
         /// returns
+        /// <code>
         ///   City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'
-        /// 
+        /// </code>
         /// Strings will be correctly quoted, dates will have ISO representation, so they'll
         /// always work.
-        /// </summary>
+        /// </remarks>
         public static Filter Create(string expr, params object[] parms)
         {
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
-            int last = 0;
-            int i = 0;
-            int n = expr.Length;
-            while (i < n)
-            {
-                if (expr[i] == '@')
-                {
-                    int index = 0;
-                    int j = i;
-                    while (++j < n && expr[j] >= '0' && expr[j] <= '9')
-                        index = index * 10 + (byte)expr[j] - (byte)'0';
-                    if (j == i + 1)
-                    {
-                        if (j >= n || expr[j] != '@')
-                            throw new ArgumentException("Expected parameter number or extra '@' after '@'");
-                        s.Append(expr, last, i - last);
-                        j++;
-                    }
-                    else
-                    {
-                        s.Append(expr, last, i - last);
-                        s.Append(ToSql(parms[index]));
-                    }
-                    i = last = j;
-                }
-                else
-                {
-                    i++;
-                }
-            }
-            if (last < n)
-                s.Append(expr, last, n - last);
-            return new Filter(s.ToString());
+            return new Filter(expr, parms);
         }
 
         /// <summary>
