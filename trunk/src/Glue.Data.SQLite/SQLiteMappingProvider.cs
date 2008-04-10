@@ -197,7 +197,7 @@ namespace Glue.Data.Providers.SQLite
 
         public object FindByFilter(Type type, Filter filter)
         {
-            Array list = List(type, filter, null, Limit.New(0, 1));
+            Array list = List(type, filter, null, Limit.One);
             if (list != null && list.Length > 0)
                 return list.GetValue(0);
             else
@@ -206,7 +206,7 @@ namespace Glue.Data.Providers.SQLite
 
         public object FindByFilter(string table, Type type, Filter filter)
         {
-            Array list = List(table, type, filter, null, Limit.New(0, 1));
+            Array list = List(table, type, filter, null, Limit.One);
             if (list != null && list.Length > 0)
                 return list.GetValue(0);
             else

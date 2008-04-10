@@ -4,12 +4,60 @@ using System.Text;
 namespace Glue.Data
 {
 	/// <summary>
-    /// An order for data returned from a database query, corresponding to the 'ORDER BY' clause in SQL.
+    /// An Order for data returned from a database query, corresponding to the 'ORDER BY' clause in SQL.
 	/// </summary>
+    /// <remarks>
+    /// An Order can be constructed in the following ways:
+    /// <code>
+    /// Order o = new Order("-Name", "+Age");
+    /// </code>
+    /// <code>
+    /// Order o = new Order("Name DESC", "Age ASC");
+    /// </code>
+    /// <code>
+    /// Order o = new Order("-Name, +Age");    
+    /// </code>
+    /// An Order can also be constructed by casting: 
+    /// <code>
+    /// Order o = (Order)"-Name,+Age";
+    /// </code>
+    /// This is handy in List-methods:
+    /// <code>
+    /// List.All("-Name");
+    /// </code>
+    /// </remarks>
     public class Order
     {
+        /// <summary>
+        /// Returns empty Order. No ordering is done.
+        /// </summary>
         public static Order Empty = new Order((string[])null);
 
+        /// <summary>
+        /// Create Order from string
+        /// </summary>
+        /// <param name="order">Ordering</param>
+        /// <returns>New Order instance</returns>
+        /// <remarks>
+        /// An Order can be constructed in the following ways:
+        /// <code>
+        /// Order o = new Order("-Name", "+Age");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("Name DESC", "Age ASC");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("-Name, +Age");    
+        /// </code>
+        /// An Order can also be constructed by casting: 
+        /// <code>
+        /// Order o = (Order)"-Name,+Age";
+        /// </code>
+        /// This is handy in List-methods:
+        /// <code>
+        /// List.All("-Name");
+        /// </code>
+        /// </remarks>
         public static implicit operator Order(string order)
         {
             return new Order(order);
@@ -35,10 +83,87 @@ namespace Glue.Data
         {
         }
 
+        /// <summary>
+        /// Create Order from string
+        /// </summary>
+        /// <param name="order"></param>
+        /// <remarks>
+        /// An Order can be constructed in the following ways:
+        /// <code>
+        /// Order o = new Order("-Name", "+Age");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("Name DESC", "Age ASC");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("-Name, +Age");    
+        /// </code>
+        /// An Order can also be constructed by casting: 
+        /// <code>
+        /// Order o = (Order)"-Name,+Age";
+        /// </code>
+        /// This is handy in List-methods:
+        /// <code>
+        /// List.All("-Name");
+        /// </code>
+        /// </remarks>
         public Order(string order) : this(order != null && order.Length > 0 ? order.Split(',') : null)
         {
         }
-       
+
+        /// <summary>
+        /// Create Order from string
+        /// </summary>
+        /// <param name="order"></param>
+        /// <remarks>
+        /// An Order can be constructed in the following ways:
+        /// <code>
+        /// Order o = new Order("-Name", "+Age");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("Name DESC", "Age ASC");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("-Name, +Age");    
+        /// </code>
+        /// An Order can also be constructed by casting: 
+        /// <code>
+        /// Order o = (Order)"-Name,+Age";
+        /// </code>
+        /// This is handy in List-methods:
+        /// <code>
+        /// List.All("-Name");
+        /// </code>
+        /// </remarks>
+        public static Order Create(string order)
+        {
+            return new Order(order);
+        }
+
+        /// <summary>
+        /// Create new Order 
+        /// </summary>
+        /// <param name="args">Ordering arguments</param>
+        /// <remarks>
+        /// An Order can be constructed in the following ways:
+        /// <code>
+        /// Order o = new Order("-Name", "+Age");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("Name DESC", "Age ASC");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("-Name, +Age");    
+        /// </code>
+        /// An Order can also be constructed by casting: 
+        /// <code>
+        /// Order o = (Order)"-Name,+Age";
+        /// </code>
+        /// This is handy in List-methods:
+        /// <code>
+        /// List.All("-Name");
+        /// </code>
+        /// </remarks>
         public Order(string[] args)
         {
             int n = args != null ? args.Length : 0;
@@ -47,6 +172,38 @@ namespace Glue.Data
                 terms[i] = NormalizeTerm(args[i]);
         }
 
+        /// <summary>
+        /// Create new Order 
+        /// </summary>
+        /// <param name="args">Ordering arguments</param>
+        /// <remarks>
+        /// An Order can be constructed in the following ways:
+        /// <code>
+        /// Order o = new Order("-Name", "+Age");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("Name DESC", "Age ASC");
+        /// </code>
+        /// <code>
+        /// Order o = new Order("-Name, +Age");    
+        /// </code>
+        /// An Order can also be constructed by casting: 
+        /// <code>
+        /// Order o = (Order)"-Name,+Age";
+        /// </code>
+        /// This is handy in List-methods:
+        /// <code>
+        /// List.All("-Name");
+        /// </code>
+        /// </remarks>
+        public static Order Create(string[] args)
+        {
+            return new Order(args);
+        }
+
+        /// <summary>
+        /// True if the Order is empty, i.e. does no ordering at all.
+        /// </summary>
         public bool IsEmpty
         {
             get { return terms == null || terms.Length == 0; }
@@ -202,5 +359,6 @@ namespace Glue.Data
                 Array.Copy(list, index + 1, result, index, result.Length - index);
             return result;
         }
+
     }
 }
