@@ -15,8 +15,8 @@ namespace Glue.Data.Providers.SQLite
     /// </summary>
     public class SQLiteDataProvider : IDataProvider
     {
-        string connectionString;
-        /* SQLiteConnection connection; */
+        protected string connectionString;
+        protected SQLiteConnection connection;
 
         /// <summary>
         /// SQLiteHelper
@@ -52,28 +52,11 @@ namespace Glue.Data.Providers.SQLite
             }
         }
 
-        /*
         protected SQLiteDataProvider(SQLiteConnection connection)
         {
             this.connection = connection;
+            this.connection.Open();
         }
-
-        public SQLiteDataProvider Open()
-        {
-            SQLiteConnection connection = CreateConnection();
-            connection.Open();
-            return (SQLiteDataProvider)Activator.CreateInstance(GetType(), connection);
-        }
-
-        public void Close()
-        {
-            if (connection != null)
-            {
-                connection.Close();
-                connection = null;
-            }
-        }
-        */
 
         /// <summary>
         /// CreateConnection
@@ -88,7 +71,10 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteConnection CreateConnection()
         {
-            return new SQLiteConnection(this.connectionString);
+            if (this.connection != null)
+                return this.connection;
+            else
+                return new SQLiteConnection(this.connectionString);
         }
 
         public ISchemaProvider GetSchemaProvider()

@@ -218,10 +218,11 @@ namespace Glue.Data
         /// </summary>
         protected void InsertNew()
         {
-            foreach (IActiveRecord record in _newRecords)
+            foreach (object record in _newRecords)
             {
                 Log.Debug("Inserting {0}", record.GetType().FullName);
-                record.Insert(this);
+                this._mappingProvider.Insert(record);
+                //record.Insert(this);
             }
         }
 

@@ -53,6 +53,7 @@
     <Compile Include="Mapping\EntityColumn.cs" />
     <Compile Include="Mapping\EntityMember.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="PrettyPrint.cs" />
     <Compile Include="Providers\OleDb\OleDbDataProvider.cs" />
     <Compile Include="Providers\OleDb\OleDbMappingProvider.cs" />
     <Compile Include="Providers\Sql\SqlDataProvider.cs" />

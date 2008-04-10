@@ -196,6 +196,26 @@ namespace   Glue.Data.Providers.MySql
                 return null;
         }
 
+        public T FindByFilter<T>(Filter filter)
+        {
+            return (T)FindByFilter(typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(string table, Filter filter)
+        {
+            return (T)FindByFilter(table, typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(IDbCommand command)
+        {
+            return (T)FindByFilter(typeof(T), command);
+        }
+
+        public T FindByFilter<T>(Filter filter, Order order)
+        {
+            return (T)FindByFilter(typeof(T), filter, order);
+        }
+
         public Array List(Type type, Filter filter, Order order, Limit limit)
         {
             return List(null, type, filter, order, limit);

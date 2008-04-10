@@ -13,109 +13,111 @@ namespace mp3sql
 {
     class Program
     {
-        // Database will be located in ~\Application Data\mp3sql\sqlite.db
-        // or ~/.config/mp3sql/sqlite.db or $XDG_DATA_DIR/mp3sql/sqlite.db
+        // The database will be located in ~\Application Data\mp3sql\
+        // or ~/.config/mp3sql/ or $XDG_DATA_DIR/mp3sql/
         static string dbfile = Path.GetFullPath(
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "mp3sql/sqlite.db"));
-
+        static DataContext context;
 
         static void Main(string[] args)
         {
-            Log.Level = Level.Debug;
-            ID3v1 tags = null;
+            Log.Level = Level.Info;
 
-            Log.Debug(dbfile);
-            try
+            //args = new string[] { "add", "../../fl.mp3" };
+
+            if (args.Length == 0)
             {
-                tags = new ID3v1("../../13 - Susanna Hoffs - The Look of Love.mp3");
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                Console.Error.WriteLine("Could not find file");
+                PrintUsage();
                 return;
             }
-            Console.WriteLine(tags.Artist);
-            Console.WriteLine(tags.Title);
 
-            Console.WriteLine("Database in: " + dbfile);
-            
-            //IDbConnection conn = (IDbConnection)new SQLiteConnection("Data Source=" + dbfile + ";New=True");
-            //conn.Open();
-            //IDbCommand cmd = conn.CreateCommand();
-            //cmd.CommandText = "SELECT count(*) FROM sqlite_master";
-            //object o = cmd.ExecuteScalar();
-            //Int32 result = Convert.ToInt32(o);
-            //PrintCommand(conn, "select * from track;");
-            //conn.Close();
-            //Console.WriteLine("Number of tables: " + result);
+            // Create directory for db file if it doesn't exist yet.
+            string dbDirectory = Path.GetDirectoryName(dbfile);
+            if (!Directory.Exists(dbDirectory))
+                Directory.CreateDirectory(dbDirectory);
 
-            
-            // TODO: check op file niet bestaand / in use / verkeerd formaat / acces denied etc.
-            IMappingProvider provider = new SQLiteMappingProvider("Data Source=" + dbfile + ";New=True");
-            using (IDbConnection conn = provider.CreateConnection())
+            // Connection string for SQLite
+            string connectionstring = "Data Source=" + dbfile;
+            if (!File.Exists(dbfile))
+                connectionstring += ";New=True";
+
+            context = new DataContext(new SQLiteMappingProvider(connectionstring));
+            context.CreateTables();
+
+            switch (args[0])
             {
-                int tables = provider.ExecuteScalarInt32("SELECT count(*) FROM sqlite_master;");
-                Console.WriteLine("Number of tables: " + tables);
-                //if (tables == 0)
-                //{
-                //    CreateTables(provider);
-                //}
-
-                //tables = provider.ExecuteScalarInt32("SELECT count(*) FROM sqlite_master;");
-                //Console.WriteLine("Number of tables: " + tables);
-                PrintCommand(conn, "SELECT * FROM track");
-                Array l = provider.List(typeof(Track), null, null, null);
-                foreach (Track t in l)
-                {
-                    Console.WriteLine("Track: {0}\n  {1}\n  {2}\n  {3}\n  {4}", t.Id, t.Title, t.Path, t.Year, t.Quality);
-                }
-            }
-
-            Console.WriteLine("Generic path: " + provider.Find<Track>(0).Path);
-
-            foreach (Track t in ((SQLiteMappingProvider)provider).List<Track>(null, null, null)) 
-            {
-                Console.WriteLine("Track: {0}\n  {1}\n  {2}\n  {3}\n  {4}", t.Id, t.Title, t.Path, t.Year, t.Quality);
+                case "list":
+                    List();
+                    return;
+                case "add":
+                    Add(args);
+                    return;
+                default:
+                    PrintUsage();
+                    return;
             }
         }
 
-//        static void CreateTables(IDataProvider provider)
-//        {
-//            provider.ExecuteNonQuery(@"
-//                CREATE TABLE tracks (
-//			        id     INTEGER PRIMARY KEY,
-//			        path   VARCHAR(255) UNIQUE NOT NULL,
-//			        title  VARCHAR(30),
-//			        artist VARCHAR(30),
-//			        year   INTEGER,
-//			        length INTEGER
-//		        );
-//            ");
-//        }
+        static void PrintUsage()
+        {
+            Console.WriteLine("Usage:\nmp3sql add [filenames]\nmp3sql list");
+        }
 
         /// <summary>
-        /// Print results of sql command
+        /// Add mp3 files to database
         /// </summary>
-        /// <param name="conn"></param>
-        /// <param name="cmdStr"></param>
-        static void PrintCommand(IDbConnection conn, string cmdStr)
+        /// <param name="args"></param>
+        static void Add(string[] args)
         {
-            Console.WriteLine(conn.State);
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            IDbCommand cmd = conn.CreateCommand();
-            cmd.CommandText = cmdStr;
-            IDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            ID3v1 tags = null;
+            string path = null;
+
+            using (context.Provider.CreateConnection())
             {
-                for (int i = 0; i < reader.FieldCount; i++)
+                // Loop over files to add
+                for (int i = 1; i < args.Length; i++)
                 {
-                    Console.Write(reader[i] + " ");
+                    path = Path.GetFullPath(args[i]);
+                    try
+                    {
+                        tags = new ID3v1(path);
+                        //tags.Album = "XXX";
+                    }
+                    catch (System.IO.FileNotFoundException)
+                    {
+                        Console.Error.WriteLine("Could not find file: " + path);
+                        continue;
+                    }
+
+                    // Save track to database
+                    Track track = context.TrackFindOrNew(path);
+                    track.Assign(tags);
+                    context.TrackSave(track);
+
+                    // Save Album to database
+                    Album album = context.AlbumFindOrNew(tags.Album);
+                    context.AlbumSave(album);
+
+                    // Put track in album
+                    context.AddTrackToAlbum(track, album);
+                    Console.WriteLine("Added file: " + path);
                 }
-                Console.WriteLine();
             }
         }
+
+        /// <summary>
+        /// List all tracks int database
+        /// </summary>
+        static void List()
+        {
+            using (context.Provider.CreateConnection())
+            {
+                PrettyPrint.Print(Console.Out, context.Provider.ExecuteReader("SELECT * FROM track"));
+            }
+        }
+
+
     }
 }

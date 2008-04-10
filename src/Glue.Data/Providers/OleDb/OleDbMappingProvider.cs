@@ -355,6 +355,26 @@ namespace Glue.Data.Providers.OleDb
                 return null;
         }
 
+        public T FindByFilter<T>(Filter filter)
+        {
+            return (T)FindByFilter(typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(string table, Filter filter)
+        {
+            return (T)FindByFilter(table, typeof(T), filter);
+        }
+
+        public T FindByFilter<T>(IDbCommand command)
+        {
+            return (T)FindByFilter(typeof(T), command);
+        }
+
+        public T FindByFilter<T>(Filter filter, Order order)
+        {
+            return (T)FindByFilter(typeof(T), filter, order);
+        }
+
         private string GetSqlTypeSpecHack(Type type)
         {
             if (type == typeof(String))
