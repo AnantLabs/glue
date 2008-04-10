@@ -51,180 +51,12 @@ namespace   Glue.Data.Providers.MySql
             return UnitOfWork.Create((IMappingProvider)this, CreateConnection(), isolationLevel);
         }
 
-        public Type GenerateAccessor(Type type)
-        {
-            Entity info = Entity.Obtain(type);
-            string typeName = type.FullName.Replace('.','_');
-            string namespaceName = "Glue_Data_Mapping_Generated";
-            StringWriter code = new StringWriter();
-            code.WriteLine("using System;");
-            code.WriteLine("using System.Collections;");
-            code.WriteLine("using System.Data;");
-            code.WriteLine("using Glue.Lib;");
-            code.WriteLine("using Glue.Data;");
-            code.WriteLine("using Glue.Data.Mapping;");
-            code.WriteLine("using MySql.Data.MySqlClient;");
-            code.WriteLine("namespace " + namespaceName);
-            code.WriteLine("{");
-            code.WriteLine("  public class " + typeName + " : " + typeof(Accessor).FullName);
-            code.WriteLine("  {");
-            code.WriteLine("    public " + typeName + "(IMappingProvider provider, Type type) : base(provider, type) {} ");
-            code.WriteLine("    public override void InitFromReaderFixed(object obj, IDataReader reader, int index)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderFixed(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void InitFromReaderDynamic(object obj, IDataReader reader, IDictionary ordinals)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      object ordinal;");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderDynamic(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void AddParametersToCommandFixed(object obj, IDbCommand command)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      MySqlParameterCollection parameters = (MySqlParameterCollection)command.Parameters;");
-            foreach (EntityMember m in info.KeyMembers)
-                GenerateAddParameter(code, m, "");
-            foreach (EntityMember m in EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers))
-                GenerateAddParameter(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("  }");
-            code.WriteLine("}");
-            Log.Debug(code.ToString());
-            Glue.Lib.Compilation.SourceCompiler compiler = new Glue.Lib.Compilation.SourceCompiler();
-            compiler.Language = "C#";
-            compiler.Source = code.ToString();
-            try
-            {
-                compiler.Compile();
-            }
-            catch (Glue.Lib.Compilation.CompilationException e)
-            {
-                Log.Error(e.ErrorMessage);
-            }
-            
-            return compiler.CompiledAssembly.GetType(namespaceName + "." + typeName);
-        }
-        
-        void GenerateInitFromReaderFixed(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "(); // aggregated");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderFixed(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.Write("        typeof(" + foreign.Type.FullName + ")");
-                foreach (EntityMember fk in foreign.KeyMembers)
-                {
-                    code.WriteLine(",");
-                    code.Write("        " + GetConvertCode(fk.Type, "reader[index++]"));
-                }
-                code.WriteLine();
-                code.WriteLine("      );");
-            }
-            else
-            {
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.WriteLine("      instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[index++], " + member.Column.ConventionalNullValue + ");");
-                    else
-                        code.WriteLine("      instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[index++]);");
-                else
-                    code.WriteLine("      instance." + prefix + member.Name + " = " + GetConvertCode(member.Type, "reader[index++]") + ";");
-            }
-        }
-
-        string GetConvertCode(Type type, string argumentcode)
-        {
-            if (type == typeof(Guid))
-                return "(Guid)(" + argumentcode + ")";
-            else
-                return "Convert.To" + type.Name + "(" + argumentcode + ")";
-        }
-
-        string GetNullConvertCode(Type type, string argumentcode)
-        {
-            return "NullConvert.To" + type.Name + "(" + argumentcode + ")";
-
-        }
-
-        void GenerateInitFromReaderDynamic(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "();");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderDynamic(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-                code.WriteLine("        instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.WriteLine("          typeof(" + foreign.Type.FullName + "), ");
-                code.WriteLine("          " + GetConvertCode(foreign.KeyMembers[0].Type, "reader[(int)ordinal]"));
-                code.WriteLine("        );");
-            }
-            else
-            {
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.WriteLine("        instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[(int)ordinal], " + member.Column.ConventionalNullValue + ");");
-                    else
-                        code.WriteLine("        instance." + prefix + member.Name + " = NullConvert.To" + member.Type.Name + "(reader[(int)ordinal]);");
-                else
-                    code.WriteLine("          instance." + prefix + member.Name + " = " + GetConvertCode(member.Type, "reader[(int)ordinal]") + ";");
-            }
-        }
-
-        void GenerateAddParameter(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                foreach (EntityMember child in member.Children)
-                    GenerateAddParameter(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      if (instance." + prefix + member.Name + " == null)");
-                code.WriteLine("        parameters.Add(\"?" + member.Column.Name + "\", DBNull.Value);");
-                code.WriteLine("      else ");
-                code.Write    ("        parameters.Add(\"?" + member.Column.Name + "\", ");
-                code.WriteLine("instance." + prefix + member.Name + "." + foreign.KeyMembers[0].Name + ");");
-            }
-            else
-            {
-                code.Write("      parameters.Add(\"?" + member.Column.Name + "\", ");
-                if (member.Column.Nullable)
-                    if (member.Column.ConventionalNullValue != null)
-                        code.Write("NullConvert.From(instance." + prefix + member.Name + ", " + member.Column.ConventionalNullValue + ")");
-                    else
-                        code.Write("NullConvert.From(instance." + prefix + member.Name + ")");
-                else
-                    code.Write("instance." + prefix + member.Name);
-                code.WriteLine(");");
-            }
-        }
-
         Entity Obtain(Type type)
         {
             Entity info = Entity.Obtain(type);
             if (info.Accessor == null)
             {
-                Type accessorType = GenerateAccessor(type);
+                Type accessorType = AccessorHelper.GenerateAccessor(type, "MySql.Data.MySqlClient", "MySql", "?");
                 info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] {this,type});
             }
             return info;
@@ -507,8 +339,7 @@ namespace   Glue.Data.Providers.MySql
             Entity rightInfo = Obtain(right.GetType());
             string between = leftInfo.Table.Name + rightInfo.Table.Name;
             string sql = string.Format(@"
-                IF NOT EXISTS(SELECT * FROM `{0}` WHERE {1}=?{1} AND {2}=?{2})
-                INSERT {0} ({1},{2}) VALUES(?{1},?{2})",
+                REPLACE INTO `{0}` SET {1}=?{1}, {2}=?{2}",
                 between, 
                 leftInfo.KeyMembers[0].Column.Name,
                 rightInfo.KeyMembers[0].Column.Name
@@ -529,7 +360,7 @@ namespace   Glue.Data.Providers.MySql
             Entity rightInfo = Obtain(right.GetType());
             string between = leftInfo.Table.Name + rightInfo.Table.Name;
             string sql = string.Format(@"
-                DELETE {0} WHERE {1}=?{1} AND {2}=?{2}",
+                DELETE FROM `{0}` WHERE {1}=?{1} AND {2}=?{2}",
                 between, 
                 leftInfo.KeyMembers[0].Column.Name,
                 rightInfo.KeyMembers[0].Column.Name

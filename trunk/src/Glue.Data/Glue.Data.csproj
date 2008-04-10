@@ -26,6 +26,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\glue.data.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,6 +48,7 @@
     <Compile Include="MappingProviderGeneric.cs" />
     <Compile Include="Mapping\Accessor.cs" />
     <Compile Include="Mapping\Attributes.cs" />
+    <Compile Include="Mapping\AccessorHelper.cs" />
     <Compile Include="Mapping\Entity.cs" />
     <Compile Include="Mapping\EntityColumn.cs" />
     <Compile Include="Mapping\EntityMember.cs" />

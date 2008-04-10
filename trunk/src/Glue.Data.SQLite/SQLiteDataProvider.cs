@@ -15,7 +15,8 @@ namespace Glue.Data.Providers.SQLite
     /// </summary>
     public class SQLiteDataProvider : IDataProvider
     {
-        private string connectionString;
+        string connectionString;
+        /* SQLiteConnection connection; */
 
         /// <summary>
         /// SQLiteHelper
@@ -30,7 +31,7 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteDataProvider(string server, string database, string username, string password)
         {
-            this.connectionString = "Data Source=" + database;
+            this.connectionString = "Data Source=" + database + "; Pooling=True; Version=3; UTF8Encoding=True;";
             //this.connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
 
@@ -50,6 +51,29 @@ namespace Glue.Data.Providers.SQLite
                 //connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
             }
         }
+
+        /*
+        protected SQLiteDataProvider(SQLiteConnection connection)
+        {
+            this.connection = connection;
+        }
+
+        public SQLiteDataProvider Open()
+        {
+            SQLiteConnection connection = CreateConnection();
+            connection.Open();
+            return (SQLiteDataProvider)Activator.CreateInstance(GetType(), connection);
+        }
+
+        public void Close()
+        {
+            if (connection != null)
+            {
+                connection.Close();
+                connection = null;
+            }
+        }
+        */
 
         /// <summary>
         /// CreateConnection

@@ -313,7 +313,10 @@ namespace Glue.Data.Providers.Sql
                 // Declare variables for all ordering members
                 int i = 0;
                 for (i = 0; i < order.Count; i++)
-                    s.Append("DECLARE @start_" + order[i].Substring(1) + " sql_variant\r\n");
+                {
+                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
+                    s.Append("DECLARE " + var + " sql_variant\r\n");
+                }
                 
                 // Create the first select
                 s.Append("SET ROWCOUNT " + limit.Index + "\r\n");
@@ -322,7 +325,8 @@ namespace Glue.Data.Providers.Sql
                 {
                     if (i > 0)
                         s.Append(",");
-                    s.Append("@start_" + order[i].Substring(1) + "=" + order[i].Substring(1));
+                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
+                    s.Append(var + "=" + order[i].Substring(1));
                 }
                 s.Append(" FROM ");
                 s.Append(SqlName(table));
@@ -342,13 +346,14 @@ namespace Glue.Data.Providers.Sql
                 for (i = order.Count-1; i >= 0; i--)
                 {
                     string col = order[i].Substring(1);
+                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
                     if (outside != null)
-                        outside = Filter.And("(" + col + " IS NULL) AND (@start_" + col + " IS NULL) OR (" + col + "=@start_" + col + ")", outside);
+                        outside = Filter.And("(" + col + " IS NULL) AND (" + var + " IS NULL) OR (" + col + "=" + var + ")", outside);
                     
                     if (order.GetDirection(i) > 0)
-                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (@start_" + col + " IS NULL) OR (" + col + ">@start_" + col + ")", outside);
+                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (" + var + " IS NULL) OR (" + col + ">" + var + ")", outside);
                     else
-                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(@start_" + col + " IS NULL) OR (" + col + "<@start_" + col + ")", outside);
+                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(" + var + " IS NULL) OR (" + col + "<" + var + ")", outside);
                 }
                 constraint = Filter.And(constraint, outside);
             }

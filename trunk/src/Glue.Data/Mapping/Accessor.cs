@@ -87,37 +87,6 @@ namespace Glue.Data.Mapping
             return list;
         }
 
-        /*
-        public virtual ArrayList ListFromReaderFixedOLD(IDataReader reader, Limit limit)
-        {
-            ArrayList list = new ArrayList();
-            if (limit == null)
-                limit = Limit.Unlimited;
-
-            if (limit.Count == 0)
-                return list;
-
-            // skip to first of limit
-            int n = limit.Index;
-            while (n > 0)
-            {
-                if (!reader.Read())
-                    return list;
-                n--;
-            }
-
-            n = limit.Count;
-            while (n != 0)
-            {
-                if (!reader.Read())
-                    return list;
-                list.Add(CreateFromReaderFixed(reader, 0));
-                n--;
-            }
-            return list;
-        }
-        */
-
         /// <summary>
         /// Instantiate an object from given IDataReader. Columns must be in fixed order,
         /// corresponding to the class member layout.

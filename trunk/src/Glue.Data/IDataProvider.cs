@@ -14,6 +14,12 @@ namespace Glue.Data
         string ConnectionString { get; }
 
         /// <summary>
+        /// Open transaction
+        /// </summary>
+        /// <returns></returns>
+        // IDataProvider Open(IsolationLevel level);
+        
+        /// <summary>
         /// Returns a new connection to this DataProvider
         /// </summary>
         /// <returns></returns>

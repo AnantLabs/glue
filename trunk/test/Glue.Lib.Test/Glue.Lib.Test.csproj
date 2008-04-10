@@ -3,22 +3,22 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{46246856-7109-4962-A291-E8DD114CAE56}</ProjectGuid>
+    <ProjectGuid>{D8254FE3-5C78-4BE0-84D5-6C4F3284AD9C}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>glue.data.sqlite</AssemblyName>
+    <AssemblyName>glue.lib.test</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <DelaySign>false</DelaySign>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Glue.Data.Providers.SQLite</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Glue.Lib.Test</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <StartupObject>
     </StartupObject>
@@ -34,13 +34,14 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
@@ -57,10 +58,13 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
     <DebugSymbols>false</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <Optimize>true</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
@@ -68,43 +72,89 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <DocumentationFile>bin\glue.data.sqlite.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <Name>nunit.framework</Name>
+      <HintPath>C:\Program Files\NUnit 2.2\bin\nunit.framework.dll</HintPath>
+      <AssemblyFolderKey>hklm\dn\nunit.framework</AssemblyFolderKey>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.48.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\sqlite\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="SQLiteDataProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SQLiteMappingProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SQLiteSchemaProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Glue.Data\Glue.Data.csproj">
+    <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
       <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
       <Name>Glue.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Glue.Lib\Glue.Lib.csproj">
-      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+    <ProjectReference Include="..\..\src\Glue.Lib\Glue.Lib.csproj">
       <Name>Glue.Lib</Name>
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Web\Glue.Web.csproj">
+      <Project>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</Project>
+      <Name>Glue.Web</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandLineTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConfigTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CsvTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DSONTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HttpServerTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="JSONTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MailTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MapperTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MimeTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Pop3Test.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SgmlTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SmtpServerTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringTemplateTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TextileTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WildCardTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="StringTemplateTest.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
