@@ -70,6 +70,16 @@ namespace Glue.Data.Providers.OleDb
         }
 
         /// <summary>
+        /// Add parameter
+        /// </summary>
+        public OleDbParameter AddParameter(OleDbCommand command, string name, object value)
+        {
+            OleDbParameter parameter = new OleDbParameter(name[0] != '?' ? "?" + name : name, value ?? DBNull.Value);
+            command.Parameters.Add(parameter);
+            return parameter;
+        }
+
+        /// <summary>
         /// SetParameter
         /// </summary>
         public OleDbParameter SetParameter(OleDbCommand command, string name, object value)

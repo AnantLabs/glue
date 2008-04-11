@@ -15,7 +15,7 @@ namespace Glue.Data.Providers.MySql
     /// </summary>
     public class MySqlDataProvider : IDataProvider
     {
-        private string connectionString;
+        string connectionString;
 
         /// <summary>
         /// MySqlHelper
@@ -71,28 +71,41 @@ namespace Glue.Data.Providers.MySql
         }
 
         /// <summary>
+        /// AddParameter
+        /// </summary>
+        public MySqlParameter AddParameter(MySqlCommand command, string name, object value)
+        {
+            MySqlParameter parameter = new MySqlParameter(name[0] != '?' ? "?" + name : name, value ?? DBNull.Value);
+            command.Parameters.Add(parameter);
+            return parameter;
+        }
+
+        /// <summary>
         /// SetParameter
         /// </summary>
         public MySqlParameter SetParameter(MySqlCommand command, string name, object value)
         {
-            object v = value == null ? DBNull.Value : value;
+            value = value ?? DBNull.Value;
             int i = command.Parameters.IndexOf(name);
             if (i < 0)
-                return command.Parameters.Add(name, v);
+                return command.Parameters.AddWithValue(name, value);
             MySqlParameter p = command.Parameters[i];
             p.Value = value;
-            if (v.GetType() == typeof(byte[]))
-                p.Size = ((byte[])v).Length;
+            if (value.GetType() == typeof(byte[]))
+                p.Size = ((byte[])value).Length;
             return p;
         }
 
+        /// <summary>
+        /// SetParameter
+        /// </summary>
         public MySqlParameter SetParameter(MySqlCommand command, string name, DbType type, object value)
         {
-            object v = value == null ? DBNull.Value : value;
+            value = value ?? DBNull.Value;
             int i = command.Parameters.IndexOf(name);
             if (i < 0)
             {
-                MySqlParameter p = command.Parameters.Add(name, value);
+                MySqlParameter p = command.Parameters.AddWithValue(name, value);
                 p.DbType = type;
                 return p;
             }
@@ -102,13 +115,13 @@ namespace Glue.Data.Providers.MySql
                 p.DbType = type;
                 p.Value = value;
                 if (type == DbType.Binary)
-                    p.Size = ((byte[])v).Length;
+                    p.Size = ((byte[])value).Length;
                 return p;
             }
         }
 
         /// <summary>
-        /// CreateParameters
+        /// SetParameters
         /// </summary>
         public void SetParameters(MySqlCommand command, params object[] paramNameValueList)
         {
@@ -143,9 +156,9 @@ namespace Glue.Data.Providers.MySql
                             for (int i = 0; i < rec.FieldCount; i++)
                             {
                                 if (rec[i] == null || rec[i] == DBNull.Value)
-                                    command.Parameters.Add("?" + rec.GetName(i), DBNull.Value);
+                                    command.Parameters.AddWithValue("?" + rec.GetName(i), DBNull.Value);
                                 else
-                                    command.Parameters.Add("?" + rec.GetName(i), rec.GetValue(i));
+                                    command.Parameters.AddWithValue("?" + rec.GetName(i), rec.GetValue(i));
                             }
                         }
                         else if (p.GetType() == typeof(object[]))
@@ -159,9 +172,9 @@ namespace Glue.Data.Providers.MySql
                         break;
                     case 1:
                         if (p == null)
-                            command.Parameters.Add(name, DBNull.Value);
+                            command.Parameters.AddWithValue(name, DBNull.Value);
                         else
-                            command.Parameters.Add(name, p);
+                            command.Parameters.AddWithValue(name, p);
                         name = null;
                         state = 0;
                         break;
@@ -354,11 +367,17 @@ namespace Glue.Data.Providers.MySql
             return command;
         }
 
+        /// <summary>
+        /// CreateUpdateCommand
+        /// </summary>
         public MySqlCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
             return CreateReplaceCommand(CreateConnection(), table, constraint, columnNameValueList);
         }
 
+        /// <summary>
+        /// CreateUpdateCommand
+        /// </summary>
         public MySqlCommand CreateReplaceCommand(MySqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
         {
             MySqlCommand command = new MySqlCommand();
@@ -478,16 +497,25 @@ namespace Glue.Data.Providers.MySql
             }
         }
         
+        /// <summary>
+        /// ExecuteScalar
+        /// </summary>
         public object ExecuteScalar(string commandText, params object[] paramNameValueList)
         {
             return ExecuteScalar(CreateCommand(commandText, paramNameValueList));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(MySqlCommand command)
         {
             return Convert.ToInt32(ExecuteScalar(command));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(string commandText, params object[] paramNameValueList)
         {
             return Convert.ToInt32(ExecuteScalar(commandText, paramNameValueList));
@@ -541,6 +569,16 @@ namespace Glue.Data.Providers.MySql
             return this.CreateCommand((MySqlConnection)connection, commandText, paramNameValueList);
         }
 
+        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
+        {
+            return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
+        }
+
+        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
+        {
+            return this.CreateStoredProcedureCommand((MySqlConnection)connection, storedProcedureName, paramNameValueList);
+        }
+
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
@@ -579,16 +617,6 @@ namespace Glue.Data.Providers.MySql
         IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
         {
             return this.CreateReplaceCommand((MySqlConnection)connection, table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand((MySqlConnection)connection, storedProcedureName, paramNameValueList);
         }
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
@@ -632,12 +660,14 @@ namespace Glue.Data.Providers.MySql
             if (t == typeof(String))
             {
                 StringBuilder result = new StringBuilder();
+                result.Append('\'');
                 foreach (char c in (string)v)
                 {
                     if ("\\\r\n\t\'\"%_".IndexOf(c) > -1) // needs escape?
                         result.Append('\\'); // escape it
                     result.Append(c);
                 }
+                result.Append('\'');
                 return result.ToString();
             }
             if (t == typeof(Boolean))
@@ -656,7 +686,6 @@ namespace Glue.Data.Providers.MySql
                 return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
             throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
         }
-
 
         #endregion
     }

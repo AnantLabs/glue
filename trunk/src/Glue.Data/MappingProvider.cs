@@ -21,20 +21,14 @@ namespace Glue.Data
         /// <returns></returns>
         public static IMappingProvider Get(string name)
         {
-            IMappingProvider prov;
-
-            if (!_providersByName.ContainsKey(name))
+            IMappingProvider provider = _providersByName[name];
+            if (provider == null)
             {
                 // initialize mappingprovider
-                prov = (IMappingProvider)Configuration.Get(name);
-                _providersByName.Add(name, prov);
+                provider = (IMappingProvider)Configuration.Get(name);
+                _providersByName.Add(name, provider);
             }
-            else
-            {
-                prov = _providersByName[name];
-            }
-
-            return prov;
+            return provider;
         }
 
         /// <summary>
@@ -44,24 +38,16 @@ namespace Glue.Data
         /// <returns>IMappingProvider</returns>
         public static IMappingProvider Get(Type type)
         {
-            IMappingProvider prov;
-
-            if (!_providersByType.ContainsKey(type))
+            IMappingProvider provider = _providersByType[type];
+            if (provider == null)
             {
                 // get mapping provider from type info
-                Entity ent = Entity.Obtain(type);
-                TableAttribute table = ent.Table;
-
-                // Log.Debug("Initializing MappingProvider for " + typeof(T).FullName + " from configuration element '" + table.MappingProvider + "'.");
-
-                prov = Get(table.MappingProvider);
-                _providersByType.Add(type, prov);
+                Entity info = Entity.Obtain(type);
+                // Log.Debug("Initializing MappingProvider for " + typeof(T).FullName + " from configuration element '" + info.Table.MappingProvider + "'.");
+                provider = Get(info.Table.MappingProvider);
+                _providersByType.Add(type, provider);
             }
-            else
-            {
-                prov = _providersByType[type];
-            }
-            return prov;
+            return provider;
         }
 
         /// <summary>

@@ -673,7 +673,7 @@ namespace Glue.Data.Providers.MySql
                 case DbType.Byte:                   return MySqlDbType.UByte;
                 case DbType.SByte:                  return MySqlDbType.Byte;
                 case DbType.Date:                   return MySqlDbType.Date; 
-                case DbType.DateTime:               return MySqlDbType.Datetime; 
+                case DbType.DateTime:               return MySqlDbType.DateTime; 
                 case DbType.Time:                   return MySqlDbType.Time; 
                 case DbType.Single:                 return MySqlDbType.Float; 
                 case DbType.Double:                 return MySqlDbType.Double; 

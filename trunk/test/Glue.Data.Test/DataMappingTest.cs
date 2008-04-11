@@ -46,12 +46,12 @@ namespace Glue.Data.Test
 
         public void ContactAddCategory(Contact contact, Category category)
         {
-            Provider.AddManyToMany(contact, category);
+            Provider.AddManyToMany(contact, category, "ContactCategory");
         }
 
         public void ContactRemoveCategory(Contact contact, Category category)
         {
-            Provider.DelManyToMany(contact, category);
+            Provider.DelManyToMany(contact, category, "ContactCategory");
         }
     }
 
@@ -84,7 +84,7 @@ namespace Glue.Data.Test
     [TestFixture]
     public class DataMappingTest
     {
-        public static IMappingProvider Provider2 = new Glue.Data.Providers.Sql.SqlMappingProvider(
+        public static IMappingProvider Provider1 = new Glue.Data.Providers.Sql.SqlMappingProvider(
             "calypso", 
             "glue_data_test", 
             "glue", 
@@ -92,7 +92,7 @@ namespace Glue.Data.Test
             MappingOptions.PrefixedColumns
             );
         
-        public static IMappingProvider Provider = new Glue.Data.Providers.MySql.MySqlMappingProvider(
+        public static IMappingProvider Provider2 = new Glue.Data.Providers.MySql.MySqlMappingProvider(
             "calypso",
             "glue_data_test",
             "glue",
@@ -100,7 +100,7 @@ namespace Glue.Data.Test
             MappingOptions.PrefixedColumns
             );
 
-        public static IMappingProvider Provider3 = new Glue.Data.Providers.SQLite.SQLiteMappingProvider(
+        public static IMappingProvider Provider = new Glue.Data.Providers.SQLite.SQLiteMappingProvider(
             null,
             "d:/temp/glue_data_test.db3",
             null,

@@ -6,6 +6,7 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using Glue.Lib;
+using Glue.Data;
 
 namespace Glue.Data.Providers.Sql
 {
@@ -15,10 +16,6 @@ namespace Glue.Data.Providers.Sql
     public class SqlDataProvider : IDataProvider
     {
         string connectionString;
-        string server;
-        string database;
-        string username;
-        string password;
 
         /// <summary>
         /// SqlHelper
@@ -34,10 +31,6 @@ namespace Glue.Data.Providers.Sql
         public SqlDataProvider(string server, string database, string username, string password)
         {
             this.connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
-            this.server = server;
-            this.database = database;
-            this.username = username;
-            this.password = password;
         }
 
         /// <summary>
@@ -48,10 +41,10 @@ namespace Glue.Data.Providers.Sql
             connectionString = Configuration.GetAttr(node, "connectionString", null);
             if (connectionString == null)
             {
-                server   = Configuration.GetAttr(node, "server");
-                database = Configuration.GetAttr(node, "database");
-                username = Configuration.GetAttr(node, "username", null);
-                password = Configuration.GetAttr(node, "password", null);
+                string server   = Configuration.GetAttr(node, "server");
+                string database = Configuration.GetAttr(node, "database");
+                string username = Configuration.GetAttr(node, "username", null);
+                string password = Configuration.GetAttr(node, "password", null);
                 if (username != null)
                     connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
                 else
@@ -77,7 +70,17 @@ namespace Glue.Data.Providers.Sql
 
         public ISchemaProvider GetSchemaProvider()
         {
-            return new SqlSchemaProvider(server, username, password);
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// AddParameter
+        /// </summary>
+        public SqlParameter AddParameter(SqlCommand command, string name, object value)
+        {
+            SqlParameter parameter = new SqlParameter(name[0] != '@' ? "@" + name : name, value ?? DBNull.Value);
+            command.Parameters.Add(parameter);
+            return parameter;
         }
 
         /// <summary>
@@ -96,6 +99,9 @@ namespace Glue.Data.Providers.Sql
             return p;
         }
 
+        /// <summary>
+        /// SetParameter
+        /// </summary>
         public SqlParameter SetParameter(SqlCommand command, string name, DbType type, object value)
         {
             object v = value == null ? DBNull.Value : value;
@@ -197,7 +203,6 @@ namespace Glue.Data.Providers.Sql
         public SqlCommand CreateCommand(SqlConnection connection, string commandText, params object[] paramNameValueList)
         {
             SqlCommand command = new SqlCommand(commandText, connection);
-            
             SetParameters(command, paramNameValueList);
             return command;
         }
@@ -216,7 +221,6 @@ namespace Glue.Data.Providers.Sql
         public SqlCommand CreateStoredProcedureCommand(SqlConnection connection, string storedProcedureName, params object[] paramNameValueList)
         {
             SqlCommand command = new SqlCommand(storedProcedureName, connection);
-            
             command.CommandType = CommandType.StoredProcedure;
             SetParameters(command, paramNameValueList);
             return command;
@@ -248,7 +252,7 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
-        /// CreatePagedCommand
+        /// CreateSelectCommand
         /// ASSUMPTION: The order clause contains the primary key (or keys in case of a combined primary key)
         /// </summary>
         public SqlCommand CreateSelectCommand(
@@ -393,7 +397,7 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
-        /// CreatePagedCommand
+        /// CreateSelectCommand
         /// </summary>
         public SqlCommand CreateSelectCommand(
             string table, 
@@ -412,7 +416,7 @@ namespace Glue.Data.Providers.Sql
                 limit,
                 paramNameValueList);
         }
-        
+
         /// <summary>
         /// CreateInsertCommand
         /// </summary>
@@ -448,7 +452,6 @@ namespace Glue.Data.Providers.Sql
             s.Append(')');
             command.CommandText = s.ToString();
             command.Connection = connection;
-
             return command;
         }
 
@@ -483,12 +486,11 @@ namespace Glue.Data.Providers.Sql
                 s.Append(" WHERE " + constraint);
             command.CommandText = s.ToString();
             command.Connection = connection;
-
             return command;
         }
 
         /// <summary>
-        /// CreateUpdateCommand
+        /// CreateReplaceCommand
         /// </summary>
         public SqlCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
@@ -496,7 +498,7 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
-        /// CreateUpdateCommand
+        /// CreateReplaceCommand
         /// </summary>
         public SqlCommand CreateReplaceCommand(SqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
         {
@@ -651,21 +653,11 @@ namespace Glue.Data.Providers.Sql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-            {
                 command.Connection = CreateConnection();
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
-                leaveOpen = false;
-            }
-            else if (command.Connection.State == ConnectionState.Closed)
-            {
-                command.Connection.Open();
-                leaveOpen = false;
-            }
             else
-            {
                 leaveOpen = true;
-            }
-
             try 
             {
                 return command.ExecuteScalar();
@@ -677,16 +669,25 @@ namespace Glue.Data.Providers.Sql
             }
         }
         
+        /// <summary>
+        /// ExecuteScalar
+        /// </summary>
         public object ExecuteScalar(string commandText, params object[] paramNameValueList)
         {
             return ExecuteScalar(CreateCommand(commandText, paramNameValueList));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(SqlCommand command)
         {
             return Convert.ToInt32(ExecuteScalar(command));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(string commandText, params object[] paramNameValueList)
         {
             return Convert.ToInt32(ExecuteScalar(commandText, paramNameValueList));
@@ -750,14 +751,14 @@ namespace Glue.Data.Providers.Sql
             return this.CreateStoredProcedureCommand((SqlConnection)connection, storedProcedureName, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
-        {
-            return this.CreateSelectCommand((SqlConnection)connection, table, columns, constraint, order, limit, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
+        }
+
+        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
+        {
+            return this.CreateSelectCommand((SqlConnection)connection, table, columns, constraint, order, limit, paramNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(string table, params object[] columnNameValueList)

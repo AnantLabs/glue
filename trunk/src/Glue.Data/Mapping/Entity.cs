@@ -24,7 +24,7 @@ namespace Glue.Data.Mapping
         public string DeleteCommandText;
         public string ReplaceCommandText;
         public Accessor Accessor;
-        public SortedList Cache;
+        public IDictionary Cache;
 
         public Entity(Type type)
         {

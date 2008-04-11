@@ -41,272 +41,69 @@ namespace Glue.Data.Providers.OleDb
         {
         }
 
-        /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        public UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel)
+        QueryBuilder CreateQueryBuilder()
         {
-            return UnitOfWork.Create((IMappingProvider)this, CreateConnection(), isolationLevel);
+            return new QueryBuilder('?', '[', ']');
         }
 
-        public Type GenerateAccessor(Type type)
+        Accessor GetAccessor(Type type)
         {
-            Entity info = Entity.Obtain(type);
-            string typeName = type.FullName.Replace('.','_');
-            string namespaceName = "Glue_Data_Mapping_Generated";
-            StringWriter code = new StringWriter();
-            code.WriteLine("using System;");
-            code.WriteLine("using System.Collections;");
-            code.WriteLine("using System.Data;");
-            code.WriteLine("using System.Data.OleDb;");
-            code.WriteLine("using Glue.Lib;");
-            code.WriteLine("using Glue.Data;");
-            code.WriteLine("using Glue.Data.Mapping;");
-            code.WriteLine("namespace " + namespaceName);
-            code.WriteLine("{");
-            code.WriteLine("  public class " + typeName + " : " + typeof(Accessor).FullName);
-            code.WriteLine("  {");
-            code.WriteLine("    public " + typeName + "(IMappingProvider provider, Type type) : base(provider, type) {} ");
-            code.WriteLine("    public override void InitFromReaderFixed(object obj, IDataReader reader, int index)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderFixed(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void InitFromReaderDynamic(object obj, IDataReader reader, IDictionary ordinals)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      object ordinal;");
-            foreach (EntityMember m in info.AllMembers)
-                GenerateInitFromReaderDynamic(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("    public override void AddParametersToCommandFixed(object obj, IDbCommand command)");
-            code.WriteLine("    {");
-            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
-            code.WriteLine("      OleDbParameterCollection parameters = (OleDbParameterCollection)command.Parameters;");
-            foreach (EntityMember m in info.KeyMembers)
-                GenerateAddParameter(code, m, "");
-            foreach (EntityMember m in EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers))
-                GenerateAddParameter(code, m, "");
-            code.WriteLine("    }");
-            code.WriteLine("  }");
-            code.WriteLine("}");
-            Log.Debug(code.ToString());
-            Glue.Lib.Compilation.SourceCompiler compiler = new Glue.Lib.Compilation.SourceCompiler();
-            compiler.Language = "C#";
-            compiler.Source = code.ToString();
-            try
-            {
-                compiler.Compile();
-            }
-            catch (Glue.Lib.Compilation.CompilationException e)
-            {
-                Log.Error(e.ErrorMessage);
-                throw;
-            }
-            return compiler.CompiledAssembly.GetType(namespaceName + "." + typeName);
+            return GetAccessor(Entity.Obtain(type));
         }
         
-        void GenerateInitFromReaderFixed(TextWriter code, EntityMember member, string prefix)
+        Accessor GetAccessor(Entity info)
         {
-            if (member.Aggregated)
+            if (info.Accessor == null)
             {
-                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
-                if (!readOnly)
-                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "(); // aggregated");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderFixed(code, child, member.Name + ".");
+                Type accessorType = AccessorHelper.GenerateAccessor(info.Type, "System.Data.SqlClient", "Sql", "@");
+                info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] { this, info.Type });
             }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.Write("        typeof(" + foreign.Type.FullName + ")");
-                foreach (EntityMember fk in foreign.KeyMembers)
-                {
-                    code.WriteLine(",");
-                    code.Write("        " + GetFromDataExpression(fk, "reader[index++]"));
-                }
-                code.WriteLine();
-                code.WriteLine("      );");
-            }
-            else
-            {
-                code.WriteLine("      instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[index++]") + ";");
-            }
+            return info.Accessor;
         }
-
-        void GenerateInitFromReaderDynamic(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                bool readOnly = (member.Field != null && member.Field.IsInitOnly || member.Property != null && member.Property.CanWrite);
-                if (!readOnly)
-                    code.WriteLine("      instance." + prefix + member.Name + " = new " + member.Type.FullName + "();");
-                foreach (EntityMember child in member.Children)
-                    GenerateInitFromReaderDynamic(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-                code.WriteLine("        instance." + prefix + member.Name + " = (" + member.Type.FullName + ")Provider.Find(");
-                code.WriteLine("          typeof(" + foreign.Type.FullName + "), ");
-                code.WriteLine("          " + GetFromDataExpression(foreign.KeyMembers[0], "reader[(int)ordinal]"));
-                code.WriteLine("        );");
-            }
-            else
-            {
-                code.WriteLine("      ordinal = ordinals[\"" + member.Column.Name + "\"];");
-                code.WriteLine("      if (ordinal != null)");
-                code.WriteLine("        instance." + prefix + member.Name + " = " + GetFromDataExpression(member, "reader[(int)ordinal]") + ";");
-            }
-        }
-
-        void GenerateAddParameter(TextWriter code, EntityMember member, string prefix)
-        {
-            if (member.Aggregated)
-            {
-                foreach (EntityMember child in member.Children)
-                    GenerateAddParameter(code, child, member.Name + ".");
-            }
-            else if (member.Foreign)
-            {
-                Entity foreign = Entity.Obtain(member.Type);
-                code.WriteLine("      if (instance." + prefix + member.Name + " == null)");
-                code.WriteLine("        parameters.Add(\"@" + member.Column.Name + "\", DBNull.Value);");
-                code.WriteLine("      else ");
-                code.Write    ("        parameters.Add(\"@" + member.Column.Name + "\", ");
-                code.WriteLine("instance." + prefix + member.Name + "." + foreign.KeyMembers[0].Name + ");");
-            }
-            else
-            {
-                code.Write("      parameters.Add(\"@" + member.Column.Name + "\", ");
-                code.Write(GetIntoDataExpression(member, "instance." + prefix + member.Name));
-                code.WriteLine(");");
-            }
-        }
-
-        string GetFromDataExpression(EntityMember member, string sourceExpression)
-        {
-            if (member.Column.Nullable)
-                if (member.Column.ConventionalNullValue != null)
-                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
-                else
-                    return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ")";
-            
-            if (member.Type == typeof(Guid))
-                return "(Guid)(" + sourceExpression + ")";
-            else if (member.Type.IsEnum)
-                return "(" + member.Type.FullName + ")" + "Convert.ToInt32(" + sourceExpression + ")";
-            else
-                return "Convert.To" + member.Type.Name + "(" + sourceExpression + ")";
-        }
-
-        string GetIntoDataExpression(EntityMember member, string sourceExpression)
-        {
-            if (member.Column.MaxLength > 0)
-                sourceExpression = "NullConvert.Truncate(" + sourceExpression + ", " + member.Column.MaxLength + ")";
-            if (member.Column.Nullable)
-                if (member.Column.ConventionalNullValue != null)
-                    return "NullConvert.From(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
-                else
-                    return "NullConvert.From(" + sourceExpression + ")";
-            else
-                return sourceExpression;
-        }
-
+        
         Entity Obtain(Type type)
         {
             Entity info = Entity.Obtain(type);
             if (info.Accessor == null)
             {
-                Type accessorType = GenerateAccessor(type);
-                info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] {this,type});
+                Type accessorType = AccessorHelper.GenerateAccessor(type, "System.Data.OleDb", "OleDb", "?");
+                info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] { this, type });
             }
             return info;
-        }
-
-        bool HasCache(Entity info)
-        {
-            if (info.Table.Cached)
-            {
-                if (info.Cache == null)
-                {
-                    StringBuilder s = new StringBuilder();
-                    s.Append("SELECT ");
-                    int i = 0;
-                    foreach (EntityMember m in EntityMemberList.Flatten(info.AllMembers))
-                        if (m.Column != null)
-                        {
-                            if (i > 0) 
-                                s.Append(","); 
-                            s.Append(m.Column.Name);
-                            i++;
-                        }
-                    s.Append(" FROM [");
-                    s.Append(info.Table.Name);
-                    s.Append("]");
-                    Log.Debug("Caching: " + s);
-                    info.Cache = System.Collections.Specialized.CollectionsUtil.CreateCaseInsensitiveSortedList();
-                    using (OleDbDataReader reader = ExecuteReader(s.ToString()))
-                        while (reader.Read())
-                            info.Cache[reader[0]] = info.Accessor.CreateFromReaderFixed(reader, 0);
-                }
-                return true;
-            }
-            return false;
         }
 
         public object Find(Type type, params object[] keys)
         {
             Entity info = Obtain(type);
-            
-            if (HasCache(info))
+
+            if (info.Table.Cached)
+            {
+                if (info.Cache == null)
+                    info.Cache = Map(type, null, null);
                 return info.Cache[keys[0]];
+            }
             
-            int i;
             if (info.FindCommandText == null)
             {
-                StringBuilder s = new StringBuilder();
+                QueryBuilder s = CreateQueryBuilder();
                 s.Append("SELECT ");
-                i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(info.AllMembers))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(","); 
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
-                s.Append(" FROM [");
-                s.Append(info.Table.Name);
-                s.Append("] WHERE ");
-                i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(info.KeyMembers))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(" AND "); 
-                        s.Append(m.Column.Name);
-                        s.Append("=@");
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
+                s.ColumnList(EntityMemberList.Flatten(info.AllMembers));
+                s.Append(" FROM ");
+                s.Identifier(info.Table.Name);
+                s.Append(" WHERE ");
+                s.ColumnAndParameterList(info.KeyMembers, "=", " AND ");
+                
                 info.FindCommandText = s.ToString();
+                Log.Debug("Find SQL: " + info.FindCommandText);
             }
-            Log.Debug("Find SQL: " + info.FindCommandText);
-            OleDbCommand cmd = CreateCommand(info.FindCommandText);
-            i = 0;
+
+            OleDbCommand command = CreateCommand(info.FindCommandText);
+            
+            int i = 0;
             foreach (EntityMember m in info.KeyMembers)
-            {
-                cmd.Parameters.AddWithValue("@" + m.Column.Name, keys[i]);
-                i++;
-            }
-            using (OleDbDataReader reader = ExecuteReader(cmd))
+                AddParameter(command, m.Column.Name, keys[i++]);
+
+            using (IDataReader reader = ExecuteReader(command))
                 if (reader.Read())
                     return info.Accessor.CreateFromReaderFixed(reader, 0);
                 else
@@ -427,7 +224,7 @@ namespace Glue.Data.Providers.OleDb
             if (table == null)
                 table = info.Table.Name;
             
-            StringBuilder s = new StringBuilder();
+            QueryBuilder s = CreateQueryBuilder();
             int i;
 
             if (limit.Index > 0)
@@ -471,33 +268,40 @@ namespace Glue.Data.Providers.OleDb
                 // Declare variables for all ordering members
                 EntityMember[] orderMembers = new EntityMember[order.Count];
                 for (i = 0; i < order.Count; i++)
+                {
                     orderMembers[i] = info.AllMembers.FindByColumnName(order[i]);
+                    if (orderMembers[i] == null)
+                    {
+                        orderMembers[i] = new EntityMember();
+                        orderMembers[i].Column = new EntityColumn();
+                        if (order[i][0] == '+' || order[i][0] == '-')
+                            orderMembers[i].Column.Name = order[i].Substring(1);
+                        else
+                            orderMembers[i].Column.Name = order[i];
+                        orderMembers[i].Column.Type = typeof(string);
+                    }
+                }
 
                 foreach (EntityMember m in orderMembers)
-                    s.Append("DECLARE @start_" + m.Column.Name + " " + GetSqlTypeSpecHack(m.Column.Type) + "\r\n");
-                
-                s.Append("SET ROWCOUNT " + limit.Index + "\r\n");
+                    s.AppendLine("DECLARE @start_").Append(m.Column.Name).Append(" ").Append(GetSqlTypeSpecHack(m.Column.Type));
+
+                s.AppendLine("SET ROWCOUNT " + limit.Index);
                 s.Append("SELECT ");
                 i = 0;
                 foreach (EntityMember m in orderMembers)
                 {
                     if (i > 0)
                         s.Append(",");
-                    s.Append("@start_" + m.Column.Name + "=" + m.Column.Name);
+                    s.Append("@start_").Append(m.Column.Name).Append("=").Identifier(m.Column.Name);
                     i++;
                 }
-                s.Append(" FROM [");
-                s.Append(table);
-                s.Append("]");
-                //s.Append(" WITH (NOLOCK) ");
-                if (filter != null && !filter.IsEmpty)
-                {
-                    s.Append(" WHERE ");
-                    s.Append(filter);
-                }
-                s.Append(" ORDER BY ");
-                s.Append(order);
-                s.Append("\r\n");
+                s.Append(" FROM ");
+                s.Identifier(table);
+                s.Append(" WITH (NOLOCK) ");
+                s.Filter(filter);
+                s.AppendLine();
+                s.Order(order);
+                s.AppendLine();
                 
                 // Now adapt the filter for use in the subsequent select.
                 Filter outside = null;
@@ -519,44 +323,22 @@ namespace Glue.Data.Providers.OleDb
             }
             
             if (limit.Count >= 0)
-            {
-                s.Append("SET ROWCOUNT " + limit.Count + "\r\n");
-            }
+                s.AppendLine("SET ROWCOUNT " + limit.Count);
 
             s.Append("SELECT ");
-            i = 0;
-            foreach (EntityMember m in EntityMemberList.Flatten(info.AllMembers))
-                if (m.Column != null)
-                {
-                    if (i > 0) 
-                        s.Append(","); 
-                    s.Append(m.Column.Name);
-                    i++;
-                }
-            s.Append(" FROM [");
-            s.Append(table);
-            s.Append("]");
-            //s.Append(" WITH (NOLOCK) ");
-            if (filter != null && !filter.IsEmpty)
-            {
-                s.Append(" WHERE ");
-                s.Append(filter);
-            }
-            if (order != null && !order.IsEmpty)
-            {
-                s.Append(" ORDER BY ");
-                s.Append(order);
-            }
-            s.Append("\r\n");
+            s.ColumnList(EntityMemberList.Flatten(info.AllMembers));
+            s.Append(" FROM ");
+            s.Identifier(table);
+            s.Append(" WITH (NOLOCK) ");
+            s.Filter(filter);
+            s.Order(order);
+            s.AppendLine();
             
             if (limit.Count >= 0)
-            {
-                s.Append("SET ROWCOUNT 0\r\n");
-            }
+                s.AppendLine("SET ROWCOUNT 0");
 
             Log.Debug("List SQL: " + s);
-            OleDbCommand cmd = CreateCommand(s.ToString());
-            using (OleDbDataReader reader = ExecuteReader(cmd))
+            using (IDataReader reader = ExecuteReader(s.ToString()))
             {
                 return info.Accessor.ListFromReaderFixed(reader).ToArray(type);
             }
@@ -565,234 +347,122 @@ namespace Glue.Data.Providers.OleDb
         public Array List(Type type, IDbCommand command)
         {
             Entity info = Obtain(type);
-            using (OleDbDataReader reader = ExecuteReader(command as OleDbCommand))
+            using (IDataReader reader = ExecuteReader((OleDbCommand)command))
             {
                 return info.Accessor.ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
             }
         }
 
-        public Array ListManyToMany(object left, Type right)
+        public Array ListManyToMany(object left, Type right, string jointable)
         {
-            return ListManyToMany(left, right, null, null, null);
+            return ListManyToMany(left, right, jointable, null, null, null);
         }
 
-        public Array ListManyToMany(object left, Type right, Filter filter, Order order, Limit limit)
+        public Array ListManyToMany(object left, Type right, string jointable, Filter filter, Order order, Limit limit)
         {
             if (order == null) order = Order.Empty;
             if (limit == null) limit = Limit.Unlimited;
-
-            Entity info = Obtain(left.GetType());
-            string leftds = info.Table.Name;
-            string leftpk = info.KeyMembers[0].Column.Name;
-            object leftid = info.KeyMembers[0].GetValue(left);
             
-            info = Obtain(right);
-            string rightds = info.Table.Name;
-            string rightpk = info.KeyMembers[0].Column.Name;
-
-            // Guess the linking table, e.g. 
-            //   Contact <--n:m--> Category implies a 'between'-table named ContactCategory.
-            string linkds = leftds + rightds;
-            string linkleftpk = leftpk.StartsWith(leftds) ? leftpk : leftds + leftpk;
-            string linkrightpk = rightpk.StartsWith(rightds) ? rightpk : rightds + rightpk;
+            // Get names and info of all stuff involved
+            ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right, jointable);
             
-            // Code below would expand to:
-            //   Category INNER JOIN ContactCategory ON Category.CategoryId=ContactCategory.CategoryId
-            string join = rightds + " WITH (NOLOCK) INNER JOIN " + 
-                          linkds + " WITH (NOLOCK) ON " + 
-                          rightds + "." + rightpk + "=" + linkds + "." + linkrightpk;
+            // For Contact <-- ContactCategory --> Category 
+            // code below would expand to:
+            //
+            //   Category INNER JOIN ContactCategory ON Category.Id=ContactCategory.CategoryId
+            QueryBuilder join = CreateQueryBuilder();
+            join.Identifier(info.RightTable).Append(" WITH (NOLOCK)");
+            join.Append(" INNER JOIN ");
+            join.Identifier(info.JoinTable).Append(" WITH (NOLOCK)");
+            join.Append(" ON ").Identifier(info.RightTable, info.RightKey).Append("=").Identifier(info.JoinTable, info.JoinRightKey);
 
             // Expand filter to be
-            //   ContactCategory.ContactId=@ContactId AND (..additonal..)
-            filter = Filter.And(linkds + "." + linkleftpk + "=@" + leftpk, filter);
-
-            // Be sure the order contains the primary key of the item sought, in this example
-            //   Category.CategoryId
-            if (!order.Contains(rightpk))
-                order = order.Append(rightds + "." + rightpk);
-
-            // Create command
-            OleDbCommand command = CreateSelectCommand(
-                join, rightds + ".*", filter, order, limit,
-                "@" + leftpk, leftid
-                );
-
-            // Get right-hand side objects
-            using (OleDbDataReader reader = ExecuteReader(command))
-            {
-                return info.Accessor.ListFromReaderFixed(reader).ToArray(right);
-            }
-        }
-        
-        public Array ListManyToMany(Type left, object right)
-        {
-            return ListManyToMany(left, right, null, null, null);
-        }
-
-        public Array ListManyToMany(Type left, object right, Filter filter, Order order, Limit limit)
-        {
-            if (order == null) order = Order.Empty;
-            if (limit == null) limit = Limit.Unlimited;
-
-            Entity info = Obtain(right.GetType());
-            string rightds = info.Table.Name;
-            string rightpk = info.KeyMembers[0].Column.Name;
-            object rightid = info.KeyMembers[0].GetValue(right);
-            
-            info = Obtain(left);
-            string leftds = info.Table.Name;
-            string leftpk = info.KeyMembers[0].Column.Name;
-            
-            // Guess the linking table, e.g. 
-            //   Contact <--n:m--> Category implies a 'between'-table named ContactCategory.
-            string linkds = leftds + rightds;
-            string linkleftpk = leftpk.StartsWith(leftds) ? leftpk : leftds + leftpk;
-            string linkrightpk = rightpk.StartsWith(rightds) ? rightpk : rightds + rightpk;
-
-            // Contact m - n Category implies a 'between'-table named ContactCategory.
-            // Code below would expand to:
-            //   Contact INNER JOIN ContactCategory ON Contact.ContactId=ContactCategory.ContactId
-            string join = leftds + " WITH (NOLOCK) INNER JOIN " + 
-                          linkds  + " WITH (NOLOCK) ON " + 
-                          leftds + "." + leftpk + "=" + linkds + "." + linkleftpk;
-
-            // Expand filter to be
-            //   ContactCategory.CategoryId=@CategoryId AND (..additonal..)
-            filter = Filter.And(linkds + "." + linkrightpk + "=@" + rightpk, filter);
+            //   ContactCategory.CategoryId=@CategoryId AND (..additonal if specified..)
+            filter = Filter.And(info.JoinTable + "." + info.JoinLeftKey + "=@" + info.JoinLeftKey, filter);
 
             // Be sure the order contains the primary key of the item sought, in this example
             //   Contact.ContactId
-            if (!order.Contains(leftpk))
-                order = order.Append(leftds + "." + leftpk);
+            if (!order.Contains(info.RightKey))
+                order = order.Append(info.RightTable + "." + info.RightKey);
+
+            // Create column list
+            QueryBuilder columns = CreateQueryBuilder();
+            columns.ColumnList(info.RightTable, EntityMemberList.Flatten(info.RightInfo.AllMembers), ",");
 
             // Create command
             OleDbCommand command = CreateSelectCommand(
-                join, leftds + ".*", filter, order, limit,
-                "@" + rightpk, rightid
+                join.ToString(), columns.ToString(), filter, order, limit,
+                "@" + info.JoinLeftKey, info.LeftKeyInfo.GetValue(left)
                 );
 
             // Get left-hand side objects
             using (OleDbDataReader reader = ExecuteReader(command))
             {
-                return info.Accessor.ListFromReaderFixed(reader).ToArray(left);
+                return GetAccessor(info.RightInfo).ListFromReaderFixed(reader).ToArray(right);
             }
         }
         
-        public void AddManyToMany(object left, object right)
+        public void AddManyToMany(object left, object right, string jointable)
         {
-            Entity leftInfo = Obtain(left.GetType());
-            Entity rightInfo = Obtain(right.GetType());
+            ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right.GetType(), jointable);
 
-            string leftkey = leftInfo.KeyMembers[0].Column.Name;
-            string rightkey = rightInfo.KeyMembers[0].Column.Name;
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append(" IF NOT EXISTS (");
+            s.Append("   SELECT * FROM ").Identifier(info.JoinTable);
+            s.Append("   WHERE ").Identifier(info.JoinLeftKey).Append("=").Parameter(info.JoinLeftKey);
+            s.Append("   AND ").Identifier(info.JoinRightKey).Append("=").Parameter(info.JoinRightKey);
+            s.Append(" ) ");
+            s.Append(" INSERT INTO ").Identifier(info.JoinTable);
+            s.Append(" (").Identifier(info.JoinLeftKey).Append(",").Identifier(info.JoinRightKey).Append(")");
+            s.Append(" VALUES (").Parameter(info.JoinLeftKey).Append(",").Parameter(info.JoinRightKey).Append(")");
             
-            if (!leftkey.StartsWith(leftInfo.Table.Name))
-                leftkey = leftInfo.Table.Name + leftkey;
-            if (!rightkey.StartsWith(rightInfo.Table.Name))
-                rightkey = rightInfo.Table.Name + rightkey;
-
-            string between = leftInfo.Table.Name + rightInfo.Table.Name;
-            string sql = string.Format(@"
-                IF NOT EXISTS(SELECT * FROM {0} WHERE {1}=@{1} AND {2}=@{2})
-                INSERT {0} ({1},{2}) VALUES(@{1},@{2})",
-                between, 
-                leftkey,
-                rightkey
-                );
-            OleDbCommand command = CreateCommand(
-                sql, 
-                "@" + leftkey,
-                leftInfo.KeyMembers[0].GetValue(left),
-                "@" + rightkey,
-                rightInfo.KeyMembers[0].GetValue(right)
-                );
+            OleDbCommand command = CreateCommand(s.ToString());
+            AddParameter(command, info.JoinLeftKey, info.LeftKeyInfo.GetValue(left));
+            AddParameter(command, info.JoinRightKey, info.RightKeyInfo.GetValue(right));
             ExecuteNonQuery(command);
         }
         
-        public void DelManyToMany(object left, object right)
+        public void DelManyToMany(object left, object right, string jointable)
         {
-            Entity leftInfo = Obtain(left.GetType());
-            Entity rightInfo = Obtain(right.GetType());
-
-            string leftkey = leftInfo.KeyMembers[0].Column.Name;
-            string rightkey = rightInfo.KeyMembers[0].Column.Name;
+            ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right.GetType(), jointable);
             
-            if (!leftkey.StartsWith(leftInfo.Table.Name))
-                leftkey = leftInfo.Table.Name + leftkey;
-            if (!rightkey.StartsWith(rightInfo.Table.Name))
-                rightkey = rightInfo.Table.Name + rightkey;
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append(" DELETE FROM ").Identifier(info.JoinTable);
+            s.Append(" WHERE ").Identifier(info.JoinLeftKey).Append("=").Parameter(info.JoinLeftKey);
+            s.Append(" AND ").Identifier(info.JoinRightKey).Append("=").Parameter(info.JoinRightKey);
 
-            string between = leftInfo.Table.Name + rightInfo.Table.Name;
-            string sql = string.Format(@"
-                DELETE {0} WHERE {1}=@{1} AND {2}=@{2}",
-                between, 
-                leftkey,
-                rightkey
-                );
-            OleDbCommand command = CreateCommand(
-                sql, 
-                "@" + leftkey,
-                leftInfo.KeyMembers[0].GetValue(left),
-                "@" + rightkey,
-                rightInfo.KeyMembers[0].GetValue(right)
-                );
+            OleDbCommand command = CreateCommand(s.ToString());
+            AddParameter(command, info.JoinLeftKey, info.LeftKeyInfo.GetValue(left));
+            AddParameter(command, info.JoinRightKey, info.RightKeyInfo.GetValue(right));
             ExecuteNonQuery(command);
         }
-        
+
         public void Insert(object obj)
         {
-            Insert(null, obj);
-        }
-
-        public void Insert(UnitOfWork unitOfWork, object obj)
-        {
             Entity info = Obtain(obj.GetType());
-            int i;
+
             if (info.InsertCommandText == null)
             {
-                StringBuilder s = new StringBuilder();
-                s.Append("INSERT ");
-                s.Append("INTO [");
-                s.Append(info.Table.Name);
-                s.Append("] (");
-                i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(EntityMemberList.Subtract(info.AllMembers, info.AutoMembers)))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(","); 
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
-                s.Append(") VALUES (");
+                QueryBuilder s = CreateQueryBuilder();
+                s.Append("INSERT INTO ");
+                s.Identifier(info.Table.Name);
+                s.Append(" (");
                 // Obtain a flattened list of all columns excluding 
                 // automatic ones (autoint, calculated fields)
-                i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(EntityMemberList.Subtract(info.AllMembers, info.AutoMembers)))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(","); 
-                        s.Append("@");
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
-                s.Append(")");
+                EntityMemberList cols = EntityMemberList.Flatten(EntityMemberList.Subtract(info.AllMembers, info.AutoMembers));
+                s.ColumnList(cols);
+                s.AppendLine(")");
+                s.Append(" VALUES (");
+                s.ParameterList(cols);
+                s.AppendLine(")");
+
                 info.InsertCommandText = s.ToString();
                 Log.Debug("Insert SQL: " + info.InsertCommandText);
             }
-            OleDbCommand cmd;
-            if (unitOfWork != null)
-            {
-                cmd = CreateCommand((OleDbConnection) unitOfWork.Connection, info.InsertCommandText);
-                cmd.Transaction = (OleDbTransaction) unitOfWork.Transaction;
-            }
-            else
-            {
-                cmd = CreateCommand(info.InsertCommandText);
-            }
-
+            
+            OleDbCommand cmd = CreateCommand(info.InsertCommandText);
             info.Accessor.AddParametersToCommandFixed(obj, cmd);
+            
             cmd.Connection.Open();
             try
             {
@@ -814,57 +484,24 @@ namespace Glue.Data.Providers.OleDb
 
         public void Update(object obj)
         {
-            Update(null, obj);
-        }
-
-        public void Update(UnitOfWork unitOfWork, object obj)
-        {
             Entity info = Obtain(obj.GetType());
-            int i;
             if (info.UpdateCommandText == null)
             {
-                StringBuilder s = new StringBuilder();
+                QueryBuilder s = CreateQueryBuilder();
                 s.Append("UPDATE ");
-                s.Append("[");
-                s.Append(info.Table.Name);
-                s.Append("] SET ");
-                i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers)))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(","); 
-                        s.Append(m.Column.Name);
-                        s.Append("=@");
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
-                s.Append(" WHERE ");
-                i = 0;
-                foreach (EntityMember m in info.KeyMembers)
-                {
-                    if (i > 0) 
-                        s.Append(" AND "); 
-                    s.Append(m.Column.Name);
-                    s.Append("=@");
-                    s.Append(m.Column.Name);
-                    i++;
-                }
+                s.Identifier(info.Table.Name);
+                s.AppendLine(" SET ");
+                // set all non-key, non-auto members
+                EntityMemberList cols = EntityMemberList.Flatten(EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers));
+                s.ColumnAndParameterList(cols, "=", ",");
+                s.AppendLine();
+                s.AppendLine(" WHERE ");
+                s.ColumnAndParameterList(info.KeyMembers, "=", " AND ");
                 info.UpdateCommandText = s.ToString();
                 Log.Debug("Update SQL: " + info.UpdateCommandText);
             }
-            
-            OleDbCommand cmd;
-            if (unitOfWork != null)
-            {
-                cmd = CreateCommand((OleDbConnection) unitOfWork.Connection, info.UpdateCommandText);
-                cmd.Transaction = (OleDbTransaction) unitOfWork.Transaction;
-            }
-            else
-            {
-                cmd = CreateCommand(info.UpdateCommandText);
-            }
 
+            OleDbCommand cmd = CreateCommand(info.UpdateCommandText);
             info.Accessor.AddParametersToCommandFixed(obj, cmd);
             ExecuteNonQuery(cmd);
 
@@ -876,158 +513,123 @@ namespace Glue.Data.Providers.OleDb
             throw new NotImplementedException();
         }
         
+        /// <summary>
+        /// Delete object.
+        /// </summary>
         public void Delete(object obj)
-        {
-            Delete((UnitOfWork) null, obj);
-        }
-
-        public void Delete(UnitOfWork unitOfWork, object obj)
         {
             Entity info = Obtain(obj.GetType());
             EntityMemberList keys = info.KeyMembers;
 
-            object[] keyValues = new object[keys.Count];
-            for (int n = 0; n < keys.Count; n++)
+            object[] values = new object[keys.Count];
+            for (int i = 0; i < keys.Count; i++)
             {
-                keyValues[n] = keys[n].GetValue(obj);
+                values[i] = keys[i].GetValue(obj);
             }
-            Delete(unitOfWork, obj.GetType(), keyValues);
+            Delete(obj.GetType(), values);
         }
 
+        /// <summary>
+        /// Delete object by keys
+        /// </summary>
+        /// <param name="type">Type of object</param>
+        /// <param name="keys">Keys</param>
         public void Delete(Type type, params object[] keys)
         {
-            Delete(null, type, keys);
-        }
-
-        private void Delete(UnitOfWork unitOfWork, Type type, params object[] keys)
-        {
             Entity info = Obtain(type);
-            int i;
+
             if (info.DeleteCommandText == null)
             {
-                StringBuilder s = new StringBuilder();
-                s.Append("DELETE ");
-                s.Append(" FROM [");
+                QueryBuilder s = CreateQueryBuilder();
+                s.Append("DELETE FROM ");
                 s.Append(info.Table.Name);
-                s.Append("] WHERE ");
-                i = 0;
-                foreach (EntityMember m in info.KeyMembers)
-                {
-                    if (i > 0)
-                        s.Append(" AND ");
-                    s.Append(m.Column.Name);
-                    s.Append("=@");
-                    s.Append(m.Column.Name);
-                    i++;
-                }
+                s.AppendLine(" WHERE ");
+                s.ColumnAndParameterList(info.KeyMembers, "=", " AND ");
+                
                 info.DeleteCommandText = s.ToString();
                 Log.Debug("Delete SQL: " + info.DeleteCommandText);
             }
 
-            OleDbCommand cmd;
-            if (unitOfWork != null)
-            {
-                cmd = CreateCommand((OleDbConnection) unitOfWork.Connection, info.DeleteCommandText);
-                cmd.Transaction = (OleDbTransaction) unitOfWork.Transaction;
-            }
-            else
-            {
-                cmd = CreateCommand(info.DeleteCommandText);
-            }
-
-            i = 0;
+            OleDbCommand cmd = CreateCommand(info.DeleteCommandText);
+            int i = 0;
             foreach (EntityMember m in info.KeyMembers)
-            {
-                cmd.Parameters.AddWithValue("@" + m.Column.Name, keys[i]);
-                i++;
-            }
+                // cmd.Parameters.Add(new OleDbParameter("?" + m.Column.Name, NullConvert.From(keys[i++])));
+                AddParameter(cmd, m.Column.Name, keys[i++]);
             ExecuteNonQuery(cmd);
+            info.Cache = null; // invalidate cache if present
         }
 
         public void DeleteAll(Type type, Filter filter)
         {
             Entity info = Obtain(type);
-            StringBuilder s = new StringBuilder();
-            s.Append("DELETE ");
-            s.Append(" FROM [");
-            s.Append(info.Table.Name);
-            s.Append("]");
-            if (filter != null && !filter.IsEmpty)
-            {
-                s.Append(" WHERE ");
-                s.Append(filter);
-            }
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("DELETE FROM ");
+            s.Identifier(info.Table.Name);
+            s.Filter(filter);
+            
             ExecuteNonQuery(s.ToString());
         }
 
         public int Count(Type type, Filter filter)
         {
             Entity info = Obtain(type);
-            string s = "SELECT COUNT(*) FROM [" + info.Table.Name + "]";
-            if (filter != null && !filter.IsEmpty)
-                s += " WHERE " + filter;
-            return (int)ExecuteScalar(s);
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT COUNT(*) FROM ");
+            s.Identifier(info.Table.Name);
+            s.Filter(filter);
+            
+            return Convert.ToInt32(ExecuteScalar(s.ToString()));
         }
 
-        public IDictionary Map(Type type, string key, string value, Filter filter, Order order)
+        public int Count<T>(Filter filter)
         {
-            OrderedDictionary result = new OrderedDictionary();
+            return Count(typeof(T), filter);
+        }
+
+        public IDictionary Map(Type type, Filter filter, Order order)
+        {
+            OrderedDictionary result = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
             Entity info = Obtain(type);
-            if (value == null)
-            {
-                if (key == null)
-                    key = info.KeyMembers[0].Column.Name;
-                StringBuilder s = new StringBuilder();
-                s.Append("SELECT ");
-                int i = 0;
-                foreach (EntityMember m in EntityMemberList.Flatten(info.AllMembers))
-                    if (m.Column != null)
-                    {
-                        if (i > 0) 
-                            s.Append(","); 
-                        s.Append(m.Column.Name);
-                        i++;
-                    }
-                s.Append(" FROM [");
-                s.Append(info.Table.Name);
-                s.Append("]");
-                if (filter != null && !filter.IsEmpty)
+            if (info.KeyMembers.Count != 1)
+                throw new InvalidOperationException("Entity should have precisely one key column: " + info.Type.ToString() + " - " + info.Table.Name);
+            EntityMember key = info.KeyMembers[0];
+
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT ");
+            s.ColumnList(EntityMemberList.Flatten(info.AllMembers));
+            s.Append(" FROM ");
+            s.Identifier(info.Table.Name);
+            s.Filter(filter);
+            s.Order(order);
+
+            Log.Debug("Map SQL: " + s);
+            using (IDataReader reader = ExecuteReader(s.ToString()))
+                while (reader.Read())
                 {
-                    s.Append(" WHERE ");
-                    s.Append(filter);
+                    object instance = info.Accessor.CreateFromReaderFixed(reader, 0);
+                    object keyvalue = key.Field.GetValue(instance);
+                    result.Add(keyvalue, instance);
                 }
-                if (order != null && !order.IsEmpty)
-                {
-                    s.Append(" ORDER BY ");
-                    s.Append(order);
-                }
-                Log.Debug("Map SQL: " + s);
-                OleDbCommand cmd = CreateCommand(s.ToString());
-                using (OleDbDataReader reader = ExecuteReader(cmd))
-                    while (reader.Read())
-                        result.Add(reader[key], info.Accessor.CreateFromReaderFixed(reader, 0));
-                return result;
-            }
-            else
-            {
-                StringBuilder s = new StringBuilder();
-                s.Append("SELECT ").Append(key).Append(",").Append(value);
-                s.Append(" FROM [").Append(info.Table.Name).Append("]");
-                if (filter != null && !filter.IsEmpty)
-                {
-                    s.Append(" WHERE ");
-                    s.Append(filter);
-                }
-                if (order != null && !order.IsEmpty)
-                {
-                    s.Append(" ORDER BY ");
-                    s.Append(order);
-                }
-                Log.Debug("Map SQL: " + s);
-                using (OleDbDataReader reader = ExecuteReader(s.ToString()))
-                    while (reader.Read())
-                        result.Add(reader[0], reader[1]);
-            }
+            return result;
+        }
+
+        public IDictionary Map(string table, string key, string value, Filter filter, Order order)
+        {
+            OrderedDictionary result = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT ");
+            s.Identifier(key);
+            s.Append(",");
+            s.Identifier(value);
+            s.Append(" FROM ");
+            s.Identifier(table);
+            s.Filter(filter);
+            s.Order(order);
+            
+            Log.Debug("Map SQL: " + s);
+            using (IDataReader reader = ExecuteReader(s.ToString()))
+                while (reader.Read())
+                    result.Add(reader[0], reader[1]);
             return result;
         }
     }

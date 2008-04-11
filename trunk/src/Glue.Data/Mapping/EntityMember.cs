@@ -96,12 +96,12 @@ namespace Glue.Data.Mapping
                     return item;
             return null;
         }
-       
-        
+
         public new EntityMember this[int i]
         {
             get { return (EntityMember)base[i]; }
         }
+        
         public static EntityMemberList Union(EntityMemberList a, EntityMemberList b)
         {
             EntityMemberList r = new EntityMemberList();
@@ -112,6 +112,7 @@ namespace Glue.Data.Mapping
                     r.Add(item);
             return r;
         }
+        
         public static EntityMemberList Subtract(EntityMemberList a, EntityMemberList b)
         {
             EntityMemberList r = new EntityMemberList();
@@ -120,6 +121,7 @@ namespace Glue.Data.Mapping
                     r.Add(item);
             return r;
         }
+        
         public static EntityMemberList Subtract(EntityMemberList a, EntityMemberList b, EntityMemberList c)
         {
             EntityMemberList r = new EntityMemberList();
@@ -128,12 +130,14 @@ namespace Glue.Data.Mapping
                     r.Add(item);
             return r;
         }
+        
         public static EntityMemberList Flatten(EntityMemberList list)
         {
             EntityMemberList r = new EntityMemberList();
             Flatten(r, list);
             return r;
         }
+        
         static void Flatten(EntityMemberList result, EntityMemberList list)
         {
             foreach (EntityMember item in list)

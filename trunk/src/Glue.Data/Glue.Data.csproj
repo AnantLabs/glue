@@ -35,7 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveRecord.cs" />
-    <Compile Include="ChildCollection.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IActiveRecord.cs" />
     <Compile Include="IDataExporter.cs" />
@@ -44,14 +43,16 @@
     <Compile Include="IMappingProvider.cs" />
     <Compile Include="ISchemaProvider.cs" />
     <Compile Include="Limit.cs" />
-    <Compile Include="MappingProvider.cs" />
-    <Compile Include="MappingProviderGeneric.cs" />
+    <Compile Include="MappingProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Mapping\Accessor.cs" />
     <Compile Include="Mapping\Attributes.cs" />
     <Compile Include="Mapping\AccessorHelper.cs" />
     <Compile Include="Mapping\Entity.cs" />
     <Compile Include="Mapping\EntityColumn.cs" />
     <Compile Include="Mapping\EntityMember.cs" />
+    <Compile Include="Mapping\Assocations.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="PrettyPrint.cs" />
     <Compile Include="Providers\OleDb\OleDbDataProvider.cs" />
@@ -76,9 +77,11 @@
     <Compile Include="Schema\Table.cs" />
     <Compile Include="Schema\Trigger.cs" />
     <Compile Include="Schema\View.cs" />
-    <Compile Include="UnitOfWork.cs" />
-    <Compile Include="Utility\Helper.cs" />
+    <Compile Include="Utility\Helper.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Utility\Management.cs" />
+    <Compile Include="Mapping\QueryBuilder.cs" />
     <Compile Include="Utility\SchemaDiff.cs" />
     <Compile Include="Utility\SimpleDataExporter.cs" />
     <Compile Include="Utility\SimpleDataImporter.cs" />

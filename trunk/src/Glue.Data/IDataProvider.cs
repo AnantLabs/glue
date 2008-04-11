@@ -9,7 +9,7 @@ namespace Glue.Data
 	public interface IDataProvider
 	{
         /// <summary>
-        /// Returns the ConnectionString to this DataProvider
+        /// Returns the ConnectionString for this DataProvider
         /// </summary>
         string ConnectionString { get; }
 
@@ -90,7 +90,10 @@ namespace Glue.Data
         /// </example>
         IDbCommand CreateCommand(IDbConnection connection, string commandText, params object[] paramNameValueList);
         
-
+        
+        /// <summary>
+        /// Create SELECT command
+        /// </summary>
         IDbCommand CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList);
         IDbCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList);
 
