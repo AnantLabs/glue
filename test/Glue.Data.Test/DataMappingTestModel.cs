@@ -198,19 +198,19 @@ CREATE TABLE [ContactCategory] (
         }
         public Category[] CategoryList()
         {
-            return (Category[])provider.ListManyToMany(this, typeof(Category));
+            return (Category[])provider.ListManyToMany(this, typeof(Category), "ContactCategory");
         }
         public Category[] CategoryList(int index, int count)
         {
-            return (Category[])provider.ListManyToMany(this, typeof(Category), null, null, new Limit(index,count));
+            return (Category[])provider.ListManyToMany(this, typeof(Category), "ContactCategory", null, null, new Limit(index,count));
         }
         public void CategoryAdd(Category category)
         {
-            provider.AddManyToMany(this, category);
+            provider.AddManyToMany(this, category, "ContactCategory");
         }
         public void CategoryDelete(Category category)
         {
-            provider.DelManyToMany(this, category);
+            provider.DelManyToMany(this, category, "ContactCategory");
         }
 
         // Static methods

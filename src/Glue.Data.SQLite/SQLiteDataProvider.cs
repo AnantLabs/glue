@@ -83,6 +83,16 @@ namespace Glue.Data.Providers.SQLite
         }
 
         /// <summary>
+        /// AddParameter
+        /// </summary>
+        public SQLiteParameter AddParameter(SQLiteCommand command, string name, object value)
+        {
+            SQLiteParameter parameter = new SQLiteParameter(name[0] != '@' ? "@" + name : name, value ?? DBNull.Value);
+            command.Parameters.Add(parameter);
+            return parameter;
+        }
+
+        /// <summary>
         /// SetParameter
         /// </summary>
         public SQLiteParameter SetParameter(SQLiteCommand command, string name, object value)
@@ -104,6 +114,9 @@ namespace Glue.Data.Providers.SQLite
             return p;
         }
 
+        /// <summary>
+        /// SetParameter
+        /// </summary>
         public SQLiteParameter SetParameter(SQLiteCommand command, string name, DbType type, object value)
         {
             object v = value == null ? DBNull.Value : value;
@@ -126,7 +139,7 @@ namespace Glue.Data.Providers.SQLite
         }
 
         /// <summary>
-        /// CreateParameters
+        /// SetParameters
         /// </summary>
         public void SetParameters(SQLiteCommand command, params object[] paramNameValueList)
         {
@@ -209,6 +222,22 @@ namespace Glue.Data.Providers.SQLite
             return command;
         }
 
+        /// <summary>
+        /// CreateStoredProcedureCommand
+        /// </summary>
+        public SQLiteCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// CreateStoredProcedureCommand
+        /// </summary>
+        public SQLiteCommand CreateStoredProcedureCommand(SQLiteConnection connection, string storedProcedureName, params object[] paramNameValueList)
+        {
+            throw new NotImplementedException();
+        }
+
         string SqlName(string s)
         {
             if (s[0] != '[' && s.IndexOf(' ') < 0)
@@ -217,6 +246,9 @@ namespace Glue.Data.Providers.SQLite
                 return s;
         }
 
+        /// <summary>
+        /// CreateSelectCommand
+        /// </summary>
         public SQLiteCommand CreateSelectCommand(
             string table, 
             string columns, 
@@ -355,11 +387,17 @@ namespace Glue.Data.Providers.SQLite
             return command;
         }
 
+        /// <summary>
+        /// CreateReplaceCommand
+        /// </summary>
         public SQLiteCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
             return CreateReplaceCommand(CreateConnection(), table, constraint, columnNameValueList);
         }
 
+        /// <summary>
+        /// CreateReplaceCommand
+        /// </summary>
         public SQLiteCommand CreateReplaceCommand(SQLiteConnection connection, string table, Filter constraint, params object[] columnNameValueList)
         {
             SQLiteCommand command = new SQLiteCommand();
@@ -381,22 +419,6 @@ namespace Glue.Data.Providers.SQLite
             command.CommandText = s.ToString();
             command.Connection = connection;
             return command;
-        }
-
-        /// <summary>
-        /// CreateStoredProcedureCommand
-        /// </summary>
-        public SQLiteCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// CreateStoredProcedureCommand
-        /// </summary>
-        public SQLiteCommand CreateStoredProcedureCommand(SQLiteConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -483,7 +505,7 @@ namespace Glue.Data.Providers.SQLite
             bool leaveOpen = false;
             if (command.Connection == null)
                 command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
@@ -498,16 +520,25 @@ namespace Glue.Data.Providers.SQLite
             }
         }
         
+        /// <summary>
+        /// ExecuteScalar
+        /// </summary>
         public object ExecuteScalar(string commandText, params object[] paramNameValueList)
         {
             return ExecuteScalar(CreateCommand(commandText, paramNameValueList));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(SQLiteCommand command)
         {
             return Convert.ToInt32(ExecuteScalar(command));
         }
 
+        /// <summary>
+        /// ExecuteScalarInt32
+        /// </summary>
         public int ExecuteScalarInt32(string commandText, params object[] paramNameValueList)
         {
             return Convert.ToInt32(ExecuteScalar(commandText, paramNameValueList));
@@ -561,6 +592,16 @@ namespace Glue.Data.Providers.SQLite
             return this.CreateCommand((SQLiteConnection)connection, commandText, paramNameValueList);
         }
 
+        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
+        {
+            return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
+        }
+
+        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
+        {
+            return this.CreateStoredProcedureCommand((SQLiteConnection)connection, storedProcedureName, paramNameValueList);
+        }
+
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
@@ -599,16 +640,6 @@ namespace Glue.Data.Providers.SQLite
         IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
         {
             return this.CreateReplaceCommand((SQLiteConnection)connection, table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand((SQLiteConnection)connection, storedProcedureName, paramNameValueList);
         }
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)

@@ -32,35 +32,23 @@ namespace Glue.Data
         Array  List(Type type, IDbCommand command);
         void   Save(object obj);
         void   Insert(object obj);
-        void   Insert(UnitOfWork unitOfWork, object obj);
         void   Update(object obj);
-        void   Update(UnitOfWork unitOfWork, object obj);
         void   Delete(object obj);
-        void   Delete(UnitOfWork unitOfWork, object obj);
         void   Delete(Type type, params object[] keys);
         void   DeleteAll(Type type, Filter filter);
         int    Count(Type type, Filter filter);
-        Array  ListManyToMany(object left, Type right);
-        Array  ListManyToMany(object left, Type right, Filter filter, Order order, Limit limit);
-        Array  ListManyToMany(Type left, object right);
-        Array  ListManyToMany(Type left, object right, Filter filter, Order order, Limit limit);
-        void   AddManyToMany(object left, object right);
-        void   DelManyToMany(object left, object right);
+        Array  ListManyToMany(object left, Type right, string jointable);
+        Array  ListManyToMany(object left, Type right, string jointable, Filter filter, Order order, Limit limit);
+        void   AddManyToMany(object left, object right, string jointable);
+        void   DelManyToMany(object left, object right, string jointable);
 
+        /// <summary>
+        /// Creates a dictionary of key-entity pairs for a given type. 
+        /// </summary>
+        IDictionary Map(Type type, Filter filter, Order order);
         /// <summary>
         /// Creates a dictionary of key-value pairs where the keys and values are taken from two columns in a table.
         /// </summary>
-        /// <param name="key">Column with keys</param>
-        /// <param name="value">Column with values</param>
-        /// <param name="filter">Filter</param>
-        /// <param name="order">Order</param>
-        IDictionary Map(Type type, string key, string value, Filter filter, Order order);
-
-        /// <summary>
-        /// Create new UnitOfWork-instance with a specified IsolationLevel
-        /// </summary>
-        /// <param name="isolationLevel">Transaction isolation level</param>
-        /// <returns>New UnitOfWork-instance</returns>
-        UnitOfWork CreateUnitOfWork(IsolationLevel isolationLevel);
+        IDictionary Map(string table, string key, string value, Filter filter, Order order);
     }
 }

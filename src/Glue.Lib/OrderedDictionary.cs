@@ -13,24 +13,24 @@ namespace Glue.Lib
     {
         Hashtable _hash;
         ArrayList _list;
-        IComparer _comparer;
+        IEqualityComparer _comparer;
         bool _readonly;
 
-        public OrderedDictionary() : this(0, null, null)
+        public OrderedDictionary() : this(0, null)
         {
         }
 
-        public OrderedDictionary(int capacity) : this(capacity, null, null)
+        public OrderedDictionary(int capacity) : this(capacity, null)
         {
         }
 
-        public OrderedDictionary(IComparer comparer) : this(0, null, comparer)
+        public OrderedDictionary(IEqualityComparer comparer) : this(0, comparer)
         {
         }
 
-        public OrderedDictionary(int capacity, IHashCodeProvider hashProvider, IComparer comparer)
+        public OrderedDictionary(int capacity, IEqualityComparer comparer)
         {
-            _hash = new Hashtable(capacity, hashProvider, comparer);
+            _hash = new Hashtable(capacity, comparer);
             _list = new ArrayList(capacity);
             _readonly = false;
             _comparer = comparer;
@@ -73,7 +73,7 @@ namespace Glue.Lib
             for (int i = 0; i < _list.Count; i++)
             {
                 DictionaryEntry e = (DictionaryEntry)_list[i];
-                if (_comparer != null && _comparer.Compare(e.Key, key) == 0)
+                if (_comparer != null && _comparer.Equals(e.Key, key))
                     return i;
                 else if (e.Key.Equals(key))
                     return i;
@@ -104,16 +104,27 @@ namespace Glue.Lib
             _hash.Remove(e.Key);
         }
 
-        public object this[int index]
+        public object GetAt(int index)
         {
-            get { return ((DictionaryEntry)_list[index]).Value; }
-            set 
-            { 
+            return ((DictionaryEntry)_list[index]).Value; 
+        }
+
+        public void SetAt(int index, object value)
+        {
                 DictionaryEntry e = (DictionaryEntry)_list[index];
                 e.Value = value;
                 _list[index] = e;
                 _hash[e.Key] = value;
-            }
+        }
+
+        /// <summary>
+        /// TODO: Replace by GetAt(int index)
+        /// </summary>
+        [Obsolete("Replace OrderdDictionary[index] with OrderDictionary.GetAt(index) and SetAt(index,value)")]
+        public object this[int index]
+        {
+            get { return GetAt(index); }
+            set { SetAt(index, value); }
         }
 
         public object this[object key]
