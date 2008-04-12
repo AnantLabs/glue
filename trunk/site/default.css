@@ -1,0 +1,42 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #333;
+}
+table {
+  border-collapse: collapse;
+}
+td {
+  padding: 0;
+  vertical-align: top;
+}
+h1, h2, h3 {
+  font-family: Segoe UI, Verdana, Helvetica, Arial, sans-serif;
+}
+body, p, td {
+  font-family: Segoe UI, Verdana, Helvetica, Arial, sans-serif;
+}
+p, td {
+  font-size: 1.1em;
+}
+a {
+  color: blue;
+}
+a:active {
+  color: blue;
+}
+a:visited {
+  color: blue;
+}
+#layout {
+  width: 80%;
+  min-height: 600px;
+  margin: auto;
+  background-color: #fff;
+}
+#header {
+  background-color: #d40000;
+}
+#content {
+  padding: 0 30px 50px 30px;
+}
