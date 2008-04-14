@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Text;
@@ -353,6 +354,21 @@ namespace Glue.Data.Providers.OleDb
             }
         }
 
+        public IList<T> List<T>(Filter filter, Order order, Limit limit)
+        {
+            return new List<T>((IEnumerable<T>)List(typeof(T), filter, order, limit));
+        }
+
+        public IList<T> List<T>(string table, Filter filter, Order order, Limit limit)
+        {
+            return new List<T>((IEnumerable<T>)List(table, typeof(T), filter, order, limit));
+        }
+
+        public IList<T> List<T>(IDbCommand command)
+        {
+            return new List<T>((IEnumerable<T>)List(typeof(T), command));
+        }
+
         public Array ListManyToMany(object left, Type right, string jointable)
         {
             return ListManyToMany(left, right, jointable, null, null, null);
@@ -579,6 +595,16 @@ namespace Glue.Data.Providers.OleDb
             s.Filter(filter);
             
             return Convert.ToInt32(ExecuteScalar(s.ToString()));
+        }
+
+        public void Delete<T>(params object[] keys)
+        {
+            Delete(typeof(T), keys);
+        }
+
+        public void DeleteAll<T>(Filter filter)
+        {
+            DeleteAll(typeof(T), filter);
         }
 
         public int Count<T>(Filter filter)

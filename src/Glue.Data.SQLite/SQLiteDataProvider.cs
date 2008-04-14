@@ -79,7 +79,7 @@ namespace Glue.Data.Providers.SQLite
 
         public ISchemaProvider GetSchemaProvider()
         {
-            throw new NotImplementedException();
+            return new SQLiteSchemaProvider(this);
         }
 
         /// <summary>

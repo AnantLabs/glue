@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
@@ -30,13 +31,24 @@ namespace Glue.Data
         Array  List(Type type, Filter filter, Order order, Limit limit);
         Array  List(string table, Type type, Filter filter, Order order, Limit limit);
         Array  List(Type type, IDbCommand command);
+
+        IList<T> List<T>(Filter filter, Order order, Limit limit);
+        IList<T> List<T>(string table, Filter filter, Order order, Limit limit);
+        IList<T> List<T>(IDbCommand command);
+        
         void   Save(object obj);
         void   Insert(object obj);
         void   Update(object obj);
         void   Delete(object obj);
+
         void   Delete(Type type, params object[] keys);
         void   DeleteAll(Type type, Filter filter);
         int    Count(Type type, Filter filter);
+
+        void   Delete<T>(params object[] keys);
+        void   DeleteAll<T>(Filter filter);
+        int    Count<T>(Filter filter);
+
         Array  ListManyToMany(object left, Type right, string jointable);
         Array  ListManyToMany(object left, Type right, string jointable, Filter filter, Order order, Limit limit);
         void   AddManyToMany(object left, object right, string jointable);

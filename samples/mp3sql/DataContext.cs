@@ -43,7 +43,7 @@ namespace mp3sql
 
         public void AddTrackToAlbum(Track track, Album album)
         {
-            Provider.AddManyToMany(track, album);
+            Provider.AddManyToMany(track, album, "track_album");
         }
 
         public void CreateTables()

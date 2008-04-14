@@ -7,6 +7,7 @@ using System.IO;
 using IdSharp.Tagging.ID3v1;
 using Glue.Lib;
 using Glue.Data;
+using Glue.Data.Schema;
 using Glue.Data.Providers.SQLite;
 
 namespace mp3sql
@@ -23,7 +24,7 @@ namespace mp3sql
 
         static void Main(string[] args)
         {
-            Log.Level = Level.Info;
+            Log.Level = Level.Fatal;
 
             //args = new string[] { "add", "../../fl.mp3" };
 
@@ -53,6 +54,9 @@ namespace mp3sql
                     return;
                 case "add":
                     Add(args);
+                    return;
+                case "schema":
+                    Schema();
                     return;
                 default:
                     PrintUsage();
@@ -108,16 +112,36 @@ namespace mp3sql
         }
 
         /// <summary>
-        /// List all tracks int database
+        /// List all tracks in database
         /// </summary>
         static void List()
         {
-            using (context.Provider.CreateConnection())
-            {
-                PrettyPrint.Print(Console.Out, context.Provider.ExecuteReader("SELECT * FROM track"));
-            }
+            IList<Track> ts = context.Provider.List<Track>(null, null, null);
+            foreach (Track t in ts) 
+                Console.WriteLine(t.Title + " (" + t.Artist + ")");
         }
 
+        /// <summary>
+        /// Print database schema
+        /// </summary>
+        static void Schema()
+        {
+            ISchemaProvider schema = context.Provider.GetSchemaProvider();
+            Database[] dbs = schema.GetDatabases();
+            Table[] tables = schema.GetTables(dbs[0]);
 
+            //IDataReader reader = context.Provider.ExecuteReader("pragma table_info(album)", null);
+            // IDataReader reader = context.Provider.ExecuteReader("pragma table_info(@test)", "@test", "test"); // doesnt work :(
+
+            //PrettyPrint.Print(Console.Out, reader);
+
+            // write database schema XML
+            System.Xml.XmlWriter w = System.Xml.XmlWriter.Create(Console.Out);
+            dbs[0].Write(w);
+            w.Flush();
+
+            // Write create script for this schema in SQLite
+            //schema.Script(schema.GetDatabase(null), Console.Out);
+        }
     }
 }

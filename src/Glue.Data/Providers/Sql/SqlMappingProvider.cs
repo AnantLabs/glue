@@ -208,11 +208,6 @@ namespace Glue.Data.Providers.Sql
         {
             return List(null, type, filter, order, limit);
         }
-
-        public List<T> List<T>(Filter filter, Order order, Limit limit)
-        {
-            return new List<T>((IEnumerable<T>)List(typeof(T), filter, order, limit));
-        }
  
         public Array List(string table, Type type, Filter filter, Order order, Limit limit)
         {
@@ -350,6 +345,21 @@ namespace Glue.Data.Providers.Sql
             {
                 return info.Accessor.ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
             }
+        }
+
+        public IList<T> List<T>(Filter filter, Order order, Limit limit)
+        {
+            return new List<T>((IEnumerable<T>)List(typeof(T), filter, order, limit));
+        }
+
+        public IList<T> List<T>(string table, Filter filter, Order order, Limit limit)
+        {
+            return new List<T>((IEnumerable<T>)List(table, typeof(T), filter, order, limit));
+        }
+
+        public IList<T> List<T>(IDbCommand command)
+        {
+            return new List<T>((IEnumerable<T>)List(typeof(T), command));
         }
 
         public Array ListManyToMany(object left, Type right, string jointable)
@@ -580,6 +590,16 @@ namespace Glue.Data.Providers.Sql
             s.Filter(filter);
             
             return Convert.ToInt32(ExecuteScalar(s.ToString()));
+        }
+
+        public void Delete<T>(params object[] keys)
+        {
+            Delete(typeof(T), keys);
+        }
+
+        public void DeleteAll<T>(Filter filter)
+        {
+            DeleteAll(typeof(T), filter);
         }
 
         public int Count<T>(Filter filter)
