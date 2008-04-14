@@ -2,13 +2,14 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.SQLite;
 using Glue.Data;
 using Glue.Data.Schema;
 
-namespace Glue.Data.Providers.Schema.SQLite
+namespace Glue.Data.Providers.SQLite
 {
 	/// <summary>
 	/// SQLiteProvider
@@ -17,19 +18,26 @@ namespace Glue.Data.Providers.Schema.SQLite
 	{
         private string name = null;
         private string connectionString = null;
+        private SQLiteDataProvider provider;
         
-        /// <summary>
-        /// SQLiteProvider
-        /// </summary>
-        public SQLiteSchemaProvider()
-		{
-		}
+        ///// <summary>
+        ///// SQLiteProvider
+        ///// </summary>
+        //public SQLiteSchemaProvider()
+        //{
+        //}
+
+        public SQLiteSchemaProvider(SQLiteDataProvider provider)
+        {
+            this.provider = provider;
+        }
+
 	
         #region ISchemaProvider Members
 
         /// <summary>
         /// Initialize the provider. Returns true if successful, false on invalid 
-        /// credentials, throws an exceptionon all other errors.
+        /// credentials, throws an exception on all other errors.
         /// </summary>
         public bool Initialize(string connectionString)
         {
@@ -60,7 +68,7 @@ namespace Glue.Data.Providers.Schema.SQLite
         /// </summary>
         public string Scheme 
         { 
-            get { return "mysql"; }
+            get { return "sqlite"; }
         }
         
         /// <summary>
@@ -113,9 +121,8 @@ namespace Glue.Data.Providers.Schema.SQLite
 
         public Table[] GetTables(Database database)
         {
-            using (SQLiteDataReader reader = ExecuteReader(
-                       "SHOW TABLES FROM {0}",
-                       database.Name))
+            using (SQLiteDataReader reader = provider.ExecuteReader(
+                "SELECT name FROM sqlite_master WHERE type='table'", null))
             {
                 ArrayList list = new ArrayList();
                 while (reader.Read())
@@ -124,38 +131,81 @@ namespace Glue.Data.Providers.Schema.SQLite
                 }
                 return (Table[])list.ToArray(typeof(Table));
             }
+
+            //using (SQLiteDataReader reader = ExecuteReader(
+            //           "SHOW TABLES FROM {0}",
+            //           database.Name))
+            //{
+            //    ArrayList list = new ArrayList();
+            //    while (reader.Read())
+            //    {
+            //        list.Add(new Table(database, (string)reader[0]));
+            //    }
+            //    return (Table[])list.ToArray(typeof(Table));
+            //}
         }
 
         public Column[] GetColumns(Container container)
         {
-            using (SQLiteDataReader reader = ExecuteReader(
-                       "SHOW COLUMNS FROM {0}",
-                       container.Name))
+            using (SQLiteDataReader reader = provider.ExecuteReader(
+                "pragma table_info(" + container.Name + ")", null))
             {
                 ArrayList list = new ArrayList();
+
                 while (reader.Read())
                 {
-                    string nativeType = reader["Type"].ToString();
-                    DbType dataType = DbType.String; // TODO
-                    int size = 0; // TODO
-                    // NativeTypeToDataType(nativeType, out dataType, out size);
-                    list.Add(new Column(
-                        container, 
-                        reader["Field"].ToString(),
-                        dataType,
-                        nativeType,
-                        reader["Null"].ToString() == "YES",
-                        0,
-                        0,
-                        size,
-                        reader["Default"].ToString(),
-                        "",
-                        reader["Extra"].ToString()=="auto_increment",
-                        false,
-                        null));
+                    string type = (string)reader["type"];
+                    object o = reader["dflt_value"];
+                    string dflt = o.GetType() == typeof(DBNull)? null: (string)o;
+
+                    Column c = new Column(
+                        container,
+                        (string)reader["name"],
+                        GetDataType(type),
+                        type,
+                        (long)reader["notnull"] != 99, // nullable
+                        0, // precision
+                        0, // scale
+                        0, // size
+                        dflt, // string default value
+                        null, // string description
+                        false, // bool identity??
+                        false, // bool computed
+                        null // string expression
+                    );
+                    list.Add(c);
                 }
                 return (Column[])list.ToArray(typeof(Column));
             }
+
+            //using (SQLiteDataReader reader = ExecuteReader(
+            //           "SHOW COLUMNS FROM {0}",
+            //           container.Name))
+            //{
+            //    ArrayList list = new ArrayList();
+            //    while (reader.Read())
+            //    {
+            //        string nativeType = reader["Type"].ToString();
+            //        DbType dataType = DbType.String; // TODO
+            //        int size = 0; // TODO
+            //        // NativeTypeToDataType(nativeType, out dataType, out size);
+            //        list.Add(new Column(
+            //            container, 
+            //            reader["Field"].ToString(),
+            //            dataType,
+            //            nativeType,
+            //            reader["Null"].ToString() == "YES",
+            //            0,
+            //            0,
+            //            size,
+            //            reader["Default"].ToString(),
+            //            "",
+            //            reader["Extra"].ToString()=="auto_increment",
+            //            false,
+            //            null));
+            //    }
+            //    return (Column[])list.ToArray(typeof(Column));
+            //}
         }
 
         public View[] GetViews(Database database)
@@ -175,37 +225,27 @@ namespace Glue.Data.Providers.Schema.SQLite
         public Key[] GetKeys(Table table)
         {
             ArrayList list = new ArrayList();
-            using (SQLiteDataReader reader = ExecuteReader(
-                       "SHOW KEYS FROM {0}",
-                       table.Name))
+
+            // primary key
+            IDataReader reader = provider.ExecuteReader("pragma table_info(" + table.Name + ")", null);
+            //Console.WriteLine("Finding Primary key...");
+            List<string> PK_columns = new List<string>();
+            while (reader.Read())
             {
-                string last = null;
-                ArrayList cols = new ArrayList();
-                while (reader.Read())
+                // Add all columns who have a value of '1' in column 'pk'.
+                if ((long)reader["pk"] == 1)
                 {
-                    if (last != null && last != (string)reader["Key_name"])
-                    {
-                        if (last == "PRIMARY")
-                            list.Add(new PrimaryKey(table, last, (string[])cols.ToArray(typeof(string))));
-                        else
-                            list.Add(new Key(table, last, (string[])cols.ToArray(typeof(string))));
-                        cols.Clear();
-                    }
-                    else
-                    {
-                        cols.Add((string)reader["Column_name"]);
-                    }
-                    last = (string)reader["Key_name"];
-                }
-                if (last != null && last != (string)reader["Key_name"])
-                {
-                    if (last == "PRIMARY")
-                        list.Add(new PrimaryKey(table, last, (string[])cols.ToArray(typeof(string))));
-                    else
-                        list.Add(new Key(table, last, (string[])cols.ToArray(typeof(string))));
-                    cols.Clear();
+                    //Console.WriteLine(reader["name"].ToString() + reader["pk"].ToString());
+                    PK_columns.Add(reader["name"].ToString());
                 }
             }
+            if (PK_columns.Count > 0)
+                list.Add(new Key(table, "PRIMARY_KEY", PK_columns.ToArray()));
+
+            // TODO: Add other keys
+            // use pragma index_list and pragma index_info
+
+
             return (Key[])list.ToArray(typeof(Key));
         }
 
@@ -243,6 +283,12 @@ namespace Glue.Data.Providers.Schema.SQLite
         private SQLiteDataReader ExecuteReader(string commandText, params object[] args)
         {
             return ExecuteReader(string.Format(commandText, args));
+        }
+
+        private DbType GetDataType(string s)
+        {
+            // TODO detect type from string, "INTEGER", "VARCHAR(30)", etc
+            return DbType.Object;
         }
     }
 }

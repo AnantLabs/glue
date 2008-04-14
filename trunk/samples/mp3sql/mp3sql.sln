@@ -2,14 +2,46 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mp3sql", "mp3sql.csproj", "{CFCCFEB6-3D64-4446-932B-EEBF4A226F21}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data", "..\..\src\Glue.Data\Glue.Data.csproj", "{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Lib", "..\..\src\Glue.Lib\Glue.Lib.csproj", "{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.SQLite", "..\..\src\Glue.Data.SQLite\Glue.Data.SQLite.csproj", "{46246856-7109-4962-A291-E8DD114CAE56}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.MySql", "..\..\src\Glue.Data.MySql\Glue.Data.MySql.csproj", "{9B40F644-C1A6-4F69-B249-5BE517E06C04}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mp3web", "..\mp3web\mp3web.csproj", "{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Web", "..\..\src\Glue.Web\Glue.Web.csproj", "{306F21B0-6B55-4A25-8D8D-C949FC374D49}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +69,14 @@ Global
 		{9B40F644-C1A6-4F69-B249-5BE517E06C04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B40F644-C1A6-4F69-B249-5BE517E06C04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B40F644-C1A6-4F69-B249-5BE517E06C04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
