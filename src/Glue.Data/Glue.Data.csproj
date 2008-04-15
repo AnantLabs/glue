@@ -35,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveRecord.cs" />
+    <Compile Include="BaseDataProvider.cs" />
+    <Compile Include="BaseMappingProvider.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IActiveRecord.cs" />
     <Compile Include="IDataExporter.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="PrettyPrint.cs" />
     <Compile Include="Providers\OleDb\OleDbDataProvider.cs" />
     <Compile Include="Providers\OleDb\OleDbMappingProvider.cs" />
+    <Compile Include="Providers\Sql\SqlDataProvider2.cs" />
     <Compile Include="Providers\Sql\SqlDataProvider.cs" />
     <Compile Include="Providers\Sql\SqlMappingProvider.cs" />
     <Compile Include="Providers\Sql\SqlSchemaProvider.cs" />
@@ -81,7 +84,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Utility\Management.cs" />
-    <Compile Include="Mapping\QueryBuilder.cs" />
+    <Compile Include="QueryBuilder.cs" />
     <Compile Include="Utility\SchemaDiff.cs" />
     <Compile Include="Utility\SimpleDataExporter.cs" />
     <Compile Include="Utility\SimpleDataImporter.cs" />

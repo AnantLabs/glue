@@ -55,43 +55,17 @@ namespace Glue.Data.Test
         }
     }
 
-    public class Session : IDisposable
-    {
-        IMappingProvider provider;
-        System.Data.IDbTransaction transaction;
-
-        public static Session Open(IMappingProvider provider)
-        {
-            return new Session(provider);
-        }
-
-        private Session(IMappingProvider provider)
-        {
-            this.provider = provider;
-            System.Data.IDbConnection connection = provider.CreateConnection();
-            //connection.Open();
-            //this.transaction = connection.BeginTransaction();
-        }
-
-        public void Dispose()
-        {
-            //this.transaction.Commit();
-            //this.transaction.Connection.Close();
-            Log.Info("Closing session.");
-        }
-    }
-
     [TestFixture]
     public class DataMappingTest
     {
-        public static IMappingProvider Provider1 = new Glue.Data.Providers.Sql.SqlMappingProvider(
-            "calypso", 
+        public static IMappingProvider Provider3 = new Glue.Data.Providers.Sql.SqlMappingProvider(
+            "localhost", 
             "glue_data_test", 
             "glue", 
             "glue",
             MappingOptions.PrefixedColumns
             );
-        
+
         public static IMappingProvider Provider2 = new Glue.Data.Providers.MySql.MySqlMappingProvider(
             "calypso",
             "glue_data_test",
@@ -249,8 +223,8 @@ namespace Glue.Data.Test
             foreach (Category cat in c.CategoryList())
                 Log.Info("  Cat: " + cat.CategoryName);
 
-            using (Session.Open(Provider))
-            {
+            //using (Session.Open(Provider))
+            //{
                 for (int i = 1; i <= 100; i++)
                 {
                     Category cat = new Category();
@@ -259,9 +233,9 @@ namespace Glue.Data.Test
                 }
                 for (int i = 1; i <= 100; i++)
                 {
-                    Provider.ExecuteNonQuery("delete from Category where CategoryName=" + Provider.ToSql("Cat" + i));
+                    Provider.ExecuteNonQuery("delete from Category where CategoryName=@Name", "Name", "Cat" + i);
                 }
-            }
+            //}
 
             c.LastName = "Wok888";
             c.Insert();

@@ -15,8 +15,10 @@ namespace Glue.Data.Test
         static void Main(string[] args)
         {
             Glue.Lib.Log.Level = Glue.Lib.Level.Debug;
-            // Data mapping
-            DataMappingTest.Test();
+            // DataProvider
+            DataProviderTest.Test();
+            // DataMapping
+            // DataMappingTest.Test();
         }
     }
 }

@@ -14,15 +14,21 @@ namespace Glue.Data
         }
 
         /// <summary>
-        /// Returns new Filter where and fills parameters in expression with placeholders.
+        /// Returns new Filter where and fills parameters in expression with placeholders. Uses standard
+        /// SQL escaping for strings.
+        /// 
+        /// Example:
+        /// <code>
+        ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+        ///   =>
+        ///   "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+        /// </code>
         /// </summary>
         /// <remarks>
         /// <code>
         ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
-        /// </code>
-        /// returns
-        /// <code>
-        ///   City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'
+        ///   =>
+        ///   "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
         /// </code>
         /// Strings will be correctly quoted, dates will have ISO representation, so they'll
         /// always work.
@@ -114,15 +120,21 @@ namespace Glue.Data
         public static readonly Filter Empty = new Filter(null);
 
         /// <summary>
-        /// Returns new Filter where and fills parameters in expression with placeholders.
+        /// Returns new Filter where and fills parameters in expression with placeholders. Uses standard
+        /// SQL escaping for strings.
+        /// 
+        /// Example:
+        /// <code>
+        ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+        ///   =>
+        ///   "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+        /// </code>
         /// </summary>
         /// <remarks>
         /// <code>
         ///   Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
-        /// </code>
-        /// returns
-        /// <code>
-        ///   City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'
+        ///   =>
+        ///   "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
         /// </code>
         /// Strings will be correctly quoted, dates will have ISO representation, so they'll
         /// always work.

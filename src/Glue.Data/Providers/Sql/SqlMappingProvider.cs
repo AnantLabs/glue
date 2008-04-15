@@ -17,22 +17,26 @@ namespace Glue.Data.Providers.Sql
     /// </summary>
     public class SqlMappingProvider : SqlDataProvider, IMappingProvider
     {
-        MappingOptions options;
+        MappingOptions _options;
 
-        public SqlMappingProvider(string connectionString): base(connectionString)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SqlMappingProvider(string connectionString) : base(connectionString)
         {
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SqlMappingProvider(
-            string server, 
-            string database, 
-            string user, 
+            string server,
+            string database,
+            string user,
             string pass,
-            MappingOptions options
-            ) : 
-            base(server, database, user, pass)
+            MappingOptions options) : base(server, database, user, pass)
         {
-            this.options = options;
+            _options = options;
         }
 
         /// <summary>
@@ -42,9 +46,40 @@ namespace Glue.Data.Providers.Sql
         {
         }
 
-        QueryBuilder CreateQueryBuilder()
+        /// <summary>
+        /// Copy constructor for opening sessions and transactions.
+        /// </summary>
+        protected SqlMappingProvider(SqlMappingProvider provider) : base(provider)
         {
-            return new QueryBuilder('@', '[', ']');
+            _options = provider._options;
+        }
+
+        /// <summary>
+        /// Copy method
+        /// </summary>
+        protected override SqlDataProvider Copy()
+        {
+            return new SqlMappingProvider(this);
+        }
+
+        public new SqlMappingProvider Open()
+        {
+            return (SqlMappingProvider)base.Open();
+        }
+
+        public new SqlMappingProvider Open(IsolationLevel level)
+        {
+            return (SqlMappingProvider)base.Open(level);
+        }
+
+        IMappingProvider IMappingProvider.Open()
+        {
+            return Open();
+        }
+
+        IMappingProvider IMappingProvider.Open(IsolationLevel level)
+        {
+            return Open(level);
         }
 
         Accessor GetAccessor(Type type)
@@ -219,7 +254,6 @@ namespace Glue.Data.Providers.Sql
                 table = info.Table.Name;
             
             QueryBuilder s = CreateQueryBuilder();
-            int i;
 
             if (limit.Index > 0)
             {
@@ -261,6 +295,7 @@ namespace Glue.Data.Providers.Sql
 
                 // Declare variables for all ordering members
                 EntityMember[] orderMembers = new EntityMember[order.Count];
+                int i = 0;
                 for (i = 0; i < order.Count; i++)
                 {
                     orderMembers[i] = info.AllMembers.FindByColumnName(order[i]);
@@ -340,10 +375,9 @@ namespace Glue.Data.Providers.Sql
 
         public Array List(Type type, IDbCommand command)
         {
-            Entity info = Obtain(type);
             using (IDataReader reader = ExecuteReader((SqlCommand)command))
             {
-                return info.Accessor.ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
+                return GetAccessor(type).ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
             }
         }
 
