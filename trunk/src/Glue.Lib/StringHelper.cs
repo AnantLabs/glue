@@ -349,6 +349,19 @@ namespace Glue.Lib
             return string.Join("\n", lines);
         }
 
+
+        /// <summary>
+        /// Returns array of strings present in both arrays a and b.
+        /// </summary>
+        public static string[] Intersect(string[] a, string[] b, bool ignoreCase)
+        {
+            ArrayList list = new ArrayList();
+            foreach (string s in a)
+                if (IndexOfString(b, s, ignoreCase) >= 0)
+                    list.Add(s);
+            return (string[])list.ToArray(typeof(string));
+        }
+
         /// <summary>
         /// Returns array of strings present in only *one* of given arrays a or b.
         /// </summary>
