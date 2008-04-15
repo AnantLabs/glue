@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Data;
+using Glue.Data.Mapping;
 
-namespace Glue.Data.Mapping
+namespace Glue.Data
 {
     public class QueryBuilder
     {
@@ -39,7 +41,10 @@ namespace Glue.Data.Mapping
 
         public QueryBuilder Identifier(string name)
         {
-            inner.Append(IdentifierStart).Append(name).Append(IdentifierEnd);
+            if (name[0] != IdentifierStart)
+                inner.Append(IdentifierStart).Append(name).Append(IdentifierEnd);
+            else
+                inner.Append(name);
             return this;
         }
 
@@ -47,7 +52,10 @@ namespace Glue.Data.Mapping
         {
             inner.Append(IdentifierStart).Append(name).Append(IdentifierEnd);
             foreach (string next in rest)
-                inner.Append('.').Append(IdentifierStart).Append(next).Append(IdentifierEnd);
+                if (name[0] != IdentifierStart)
+                    inner.Append('.').Append(IdentifierStart).Append(next).Append(IdentifierEnd);
+                else
+                    inner.Append(name);
             return this;
         }
 
@@ -78,6 +86,31 @@ namespace Glue.Data.Mapping
             return this;
         }
 
+        public QueryBuilder ColumnList(IDataParameterCollection list)
+        {
+            return ColumnList(null, list, ",");
+        }
+
+        public QueryBuilder ColumnList(IDataParameterCollection list, string separator)
+        {
+            return ColumnList(null, list, separator);
+        }
+
+        public QueryBuilder ColumnList(string table, IDataParameterCollection list, string separator)
+        {
+            bool first = true;
+            foreach (IDbDataParameter p in list)
+            {
+                if (!first) inner.Append(separator);
+                if (table != null)
+                    Identifier(table, p.ParameterName);
+                else
+                    Identifier(p.ParameterName);
+                first = false;
+            }
+            return this;
+        }
+
         public QueryBuilder ColumnList(EntityMemberList list)
         {
             return ColumnList(null, list, ",");
@@ -85,7 +118,7 @@ namespace Glue.Data.Mapping
 
         public QueryBuilder ColumnList(EntityMemberList list, string separator)
         {
-            return ColumnList(null, separator);
+            return ColumnList(null, list, separator);
         }
 
         public QueryBuilder ColumnList(string table, EntityMemberList list, string separator)
@@ -122,6 +155,23 @@ namespace Glue.Data.Mapping
             return this;
         }
 
+        public QueryBuilder ParameterList(IDataParameterCollection list)
+        {
+            return ParameterList(list, ",");
+        }
+
+        public QueryBuilder ParameterList(IDataParameterCollection list, string separator)
+        {
+            bool first = true;
+            foreach (IDbDataParameter p in list)
+            {
+                if (!first) inner.Append(separator);
+                Parameter(p.ParameterName);
+                first = false;
+            }
+            return this;
+        }
+
         public QueryBuilder ColumnAndParameterList(EntityMemberList list, string op, string separator)
         {
             return ColumnAndParameterList(null, list, op, separator);
@@ -142,6 +192,28 @@ namespace Glue.Data.Mapping
                     Parameter(m.Column.Name);
                     first = false;
                 }
+            return this;
+        }
+
+        public QueryBuilder ColumnAndParameterList(IDataParameterCollection list, string op, string separator)
+        {
+            return ColumnAndParameterList(null, list, op, separator);
+        }
+
+        public QueryBuilder ColumnAndParameterList(string table, IDataParameterCollection list, string op, string separator)
+        {
+            bool first = true;
+            foreach (IDbDataParameter p in list)
+            {
+                if (!first) inner.Append(separator);
+                if (table != null)
+                    Identifier(table, p.ParameterName);
+                else
+                    Identifier(p.ParameterName);
+                inner.Append(op);
+                Parameter(p.ParameterName);
+                first = false;
+            }
             return this;
         }
 

@@ -10,27 +10,26 @@ using Glue.Data;
 
 namespace Glue.Data.Providers.Sql
 {
-    /// <summary>
-    /// Summary description for SqlHelper.
-    /// </summary>
     public class SqlDataProvider : IDataProvider
     {
-        string connectionString;
+        string _connectionString;
+        SqlConnection _connection;
+        SqlTransaction _transaction;
 
         /// <summary>
         /// SqlHelper
         /// </summary>
         public SqlDataProvider(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         /// <summary>
-        /// SqlHelper
+        /// SqlDataProvider
         /// </summary>
         public SqlDataProvider(string server, string database, string username, string password)
         {
-            this.connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+            _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
 
         /// <summary>
@@ -38,26 +37,132 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         protected SqlDataProvider(XmlNode node)
         {
-            connectionString = Configuration.GetAttr(node, "connectionString", null);
-            if (connectionString == null)
+            _connectionString = Configuration.GetAttr(node, "connectionString", null);
+            if (_connectionString == null)
             {
                 string server   = Configuration.GetAttr(node, "server");
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
                 if (username != null)
-                    connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+                    _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
                 else
-                    connectionString = "server=" + server + ";database=" + database + ";integrated security=true";
+                    _connectionString = "server=" + server + ";database=" + database + ";integrated security=true";
             }
         }
 
         /// <summary>
-        /// CreateConnection
+        /// Copy constructor for opening sessions and transactions
+        /// </summary>
+        protected SqlDataProvider(SqlDataProvider provider)
+        {
+            _connectionString = provider._connectionString;
+        }
+
+        /// <summary>
+        /// Create a copy of current instance. Derived classes should
+        /// override this to create a copy of their own.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual SqlDataProvider Copy()
+        {
+            return new SqlDataProvider(this);
+        }
+
+        /// <summary>
+        /// Open session
+        /// </summary>
+        public SqlDataProvider Open()
+        {
+            return Open(IsolationLevel.Unspecified);
+        }
+
+        public SqlDataProvider Open(IsolationLevel level)
+        {
+            SqlDataProvider copy = Copy();
+            copy.OpenInternal(level);
+            return copy;
+        }
+
+        protected virtual void OpenInternal(IsolationLevel level)
+        {
+            _connection = CreateConnection();
+            _connection.Open();
+            if (level != IsolationLevel.Unspecified)
+                _transaction = _connection.BeginTransaction(level);
+        }
+
+        public void Cancel()
+        {
+            if (_connection != null)
+                if (_transaction != null) {
+                    _transaction.Rollback();
+                    _transaction.Dispose();
+                    _transaction = null;
+                }
+        }
+
+        public void Close()
+        {
+            if (_connection != null)
+            {
+                if (_transaction != null)
+                {
+                    _transaction.Commit();
+                    _transaction.Dispose();
+                }
+                _connection.Close();
+                _transaction = null;
+                _connection = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Converts a native value to the SQL representation for this provider.
+        /// </summary>
+        string ToSql(object v)
+        {
+            if (v == null)
+                throw new ArgumentException("Cannot convert null to a SQL constant.");
+            Type t = v.GetType();
+            if (t == typeof(String))
+                return "'" + ((String)v).Replace("'", "''") + "'";
+            if (t == typeof(Boolean))
+                return (Boolean)v ? "1" : "0";
+            if (t == typeof(Char))
+                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
+            if (t == typeof(Int32))
+                return ((Int32)v).ToString();
+            if (t == typeof(Byte))
+                return ((Byte)v).ToString();
+            if (t.IsPrimitive)
+                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
+            if (t == typeof(Guid))
+                return "'{" + ((Guid)v).ToString("D") + "}'";
+            if (t == typeof(DateTime))
+                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
+            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
+        }
+
+        /// <summary>
+        /// Create a QueryBuilder
+        /// </summary>
+        protected QueryBuilder CreateQueryBuilder()
+        {
+            return new QueryBuilder('@', '[', ']');
+        }
+
+        /// <summary>
+        /// ConnectionString
         /// </summary>
         public string ConnectionString
         {
-            get { return connectionString; }
+            get { return _connectionString; }
         }
 
         /// <summary>
@@ -65,7 +170,12 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlConnection CreateConnection()
         {
-            return new SqlConnection(this.connectionString);
+            return new SqlConnection(this._connectionString);
+        }
+
+        public SqlConnection GetConnection()
+        {
+            return _connection ?? CreateConnection();
         }
 
         public ISchemaProvider GetSchemaProvider()
@@ -78,8 +188,10 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlParameter AddParameter(SqlCommand command, string name, object value)
         {
-            SqlParameter parameter = new SqlParameter(name[0] != '@' ? "@" + name : name, value ?? DBNull.Value);
+            SqlParameter parameter = new SqlParameter(name, value ?? DBNull.Value);
             command.Parameters.Add(parameter);
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
             return parameter;
         }
 
@@ -88,49 +200,31 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlParameter SetParameter(SqlCommand command, string name, object value)
         {
-            object v = value == null ? DBNull.Value : value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
-                return command.Parameters.AddWithValue(name, v);
-            SqlParameter p = command.Parameters[i];
-            p.Value = value;
-            if (v.GetType() == typeof(byte[]))
-                p.Size = ((byte[])v).Length;
-            return p;
-        }
-
-        /// <summary>
-        /// SetParameter
-        /// </summary>
-        public SqlParameter SetParameter(SqlCommand command, string name, DbType type, object value)
-        {
-            object v = value == null ? DBNull.Value : value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
+            int index = command.Parameters.IndexOf(name);
+            SqlParameter parameter;
+            if (index < 0)
             {
-                SqlParameter p = command.Parameters.AddWithValue(name, value);
-                p.DbType = type;
-                return p;
+                parameter = new SqlParameter(name, value ?? DBNull.Value);
+                command.Parameters.Add(parameter);
             }
             else
             {
-                SqlParameter p = command.Parameters[i];
-                p.DbType = type;
-                p.Value = value;
-                if (type == DbType.Binary)
-                    p.Size = ((byte[])v).Length;
-                return p;
+                parameter = command.Parameters[index];
+                parameter.Value = value ?? DBNull.Value;
             }
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
+            return parameter;
         }
 
         /// <summary>
-        /// SetParameters
+        /// CollectParameters
         /// </summary>
-        public void SetParameters(SqlCommand command, params object[] paramNameValueList)
+        internal IEnumerable CollectParameters(params object[] paramNameValueList)
         {
             if (paramNameValueList == null)
-                return;
-            int state = 0; 
+                yield break;
+            int state = 0;
             string name = null;
             foreach (object p in paramNameValueList)
             {
@@ -139,45 +233,28 @@ namespace Glue.Data.Providers.Sql
                     case 0:
                         if (p == null)
                             throw new ApplicationException("Null value encountered, expected parameter name string.");
-                        if (p.GetType() == typeof(string))
+                        if (p is string)
                         {
                             name = (string)p;
-                            if (name[0] == '-')
-                            {
-                                command.Parameters.RemoveAt("@" + name.Substring(1));
-                            } 
-                            else
-                            {
-                                if (name[0] != '@')
-                                    name = "@" + name;
-                                state = 1;
-                            }
-                        } 
+                            state = 1;
+                        }
                         else if (p is IDataRecord)
                         {
-                            IDataRecord rec = (IDataRecord)p;
-                            for (int i = 0; i < rec.FieldCount; i++)
-                            {
-                                if (rec[i] == null || rec[i] == DBNull.Value)
-                                    command.Parameters.AddWithValue("@" + rec.GetName(i), DBNull.Value);
-                                else
-                                    command.Parameters.AddWithValue("@" + rec.GetName(i), rec.GetValue(i));
-                            }
+                            IDataRecord record = (IDataRecord)p;
+                            for (int i = 0; i < record.FieldCount; i++)
+                                yield return new SqlParameter(record.GetName(i), record.GetValue(i) ?? DBNull.Value);
                         }
-                        else if (p.GetType() == typeof(object[]))
+                        else if (p is object[])
                         {
-                            SetParameters(command, (object[])p);
+                            yield return CollectParameters((object[])p);
                         }
-                        else 
+                        else
                         {
-                            throw new ApplicationException("Expected parameter name or Row object");
+                            throw new ApplicationException("Expected parameter name or IDataRecord");
                         }
                         break;
                     case 1:
-                        if (p == null)
-                            command.Parameters.AddWithValue(name, DBNull.Value);
-                        else
-                            command.Parameters.AddWithValue(name, p);
+                        yield return new SqlParameter(name, p ?? DBNull.Value);
                         name = null;
                         state = 0;
                         break;
@@ -190,20 +267,35 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
+        /// AddParameters
+        /// </summary>
+        public void AddParameters(SqlCommand command, params object[] paramNameValueList)
+        {
+            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
+                command.Parameters.Add(parameter);
+        }
+
+        /// <summary>
+        /// SetParameters
+        /// </summary>
+        public void SetParameters(SqlCommand command, params object[] paramNameValueList)
+        {
+            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
+            {
+                int index = command.Parameters.IndexOf(parameter.ParameterName);
+                if (index >= 0)
+                    command.Parameters.RemoveAt(index);
+                command.Parameters.Add(parameter);
+            }
+        }
+
+        /// <summary>
         /// CreateCommand
         /// </summary>
         public SqlCommand CreateCommand(string commandText, params object[] paramNameValueList)
         {
-            return CreateCommand(CreateConnection(), commandText, paramNameValueList);
-        }
-        
-        /// <summary>
-        /// CreateCommand
-        /// </summary>
-        public SqlCommand CreateCommand(SqlConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            SqlCommand command = new SqlCommand(commandText, connection);
-            SetParameters(command, paramNameValueList);
+            SqlCommand command = new SqlCommand(commandText, GetConnection());
+            AddParameters(command, paramNameValueList);
             return command;
         }
 
@@ -212,42 +304,9 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
         {
-            return CreateStoredProcedureCommand(CreateConnection(), storedProcedureName, paramNameValueList);
-        }
-
-        /// <summary>
-        /// CreateStoredProcedureCommand
-        /// </summary>
-        public SqlCommand CreateStoredProcedureCommand(SqlConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            SqlCommand command = new SqlCommand(storedProcedureName, connection);
+            SqlCommand command = new SqlCommand(storedProcedureName, GetConnection());
             command.CommandType = CommandType.StoredProcedure;
-            SetParameters(command, paramNameValueList);
-            return command;
-        }
-
-        string SqlName(string s)
-        {
-            if (s[0] != '[' && s.IndexOf(' ') < 0)
-                return "[" + s + "]";
-            else
-                return s;
-        }
-
-        /// <summary>
-        /// CreateSelectCommand
-        /// </summary>
-        public SqlCommand CreateSelectCommand(SqlConnection connection, string table, string columns, Filter constraint, Order order, params object[] paramNameValueList)
-        {
-            SqlCommand command = new SqlCommand();
-            SetParameters(command, paramNameValueList);
-            command.Connection = connection;
-            
-            command.CommandText = "SELECT " + columns + " FROM " + SqlName(table);
-            if (constraint != null && !constraint.IsEmpty)
-                command.CommandText = command.CommandText + " WHERE " + constraint;
-            if (order != null && !order.IsEmpty)
-                command.CommandText = command.CommandText + " ORDER BY " + order;
+            AddParameters(command, paramNameValueList);
             return command;
         }
 
@@ -255,25 +314,15 @@ namespace Glue.Data.Providers.Sql
         /// CreateSelectCommand
         /// ASSUMPTION: The order clause contains the primary key (or keys in case of a combined primary key)
         /// </summary>
-        public SqlCommand CreateSelectCommand(
-            SqlConnection connection, 
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
+        public SqlCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
-            SqlCommand command = new SqlCommand();
-            SetParameters(command, paramNameValueList);
-            command.Connection = connection;
+            QueryBuilder s = CreateQueryBuilder();
 
-            StringBuilder s = new StringBuilder();
-
-            order = Order.Coalesce(order);
             constraint = Filter.Coalesce(constraint);
+            order = Order.Coalesce(order);
             limit = Limit.Coalesce(limit);
 
+            // HACK: check if there's a WITH option clause in the data source.
             bool nolock = table.IndexOf(" WITH ") < 0;
 
             if (limit.Index > 0)
@@ -314,107 +363,67 @@ namespace Glue.Data.Providers.Sql
                 
                 // This ONLY WORKS if the order by clause contains all key columns
                 
+                // Get ordering columns
+                string[] ordernames = new string[order.Count];
+                for (int i = 0; i < order.Count; i++)
+                    ordernames[i] = order[i].Substring(1).Replace('.', '_');
+
                 // Declare variables for all ordering members
-                int i = 0;
-                for (i = 0; i < order.Count; i++)
-                {
-                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
-                    s.Append("DECLARE " + var + " sql_variant\r\n");
-                }
+                for (int i = 0; i < ordernames.Length; i++)
+                    s.Append("DECLARE @start_").Append(ordernames[i]).AppendLine(" sql_variant");
                 
-                // Create the first select
-                s.Append("SET ROWCOUNT " + limit.Index + "\r\n");
+                // Create the first select, for skipping unwanted rows
+                s.AppendLine("SET ROWCOUNT " + limit.Index);
                 s.Append("SELECT ");
-                for (i = 0; i < order.Count; i++)
+                for (int i = 0; i < ordernames.Length; i++)
                 {
-                    if (i > 0)
+                    if (i > 0) 
                         s.Append(",");
-                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
-                    s.Append(var + "=" + order[i].Substring(1));
+                    s.Append("@start_").Append(ordernames[i]).Append("=").Append(ordernames[i]);
                 }
                 s.Append(" FROM ");
-                s.Append(SqlName(table));
+                s.Identifier(table);
                 if (nolock)
                     s.Append(" WITH (NOLOCK) ");
-                if (!constraint.IsEmpty)
-                {
-                    s.Append(" WHERE ");
-                    s.Append(constraint);
-                }
-                s.Append(" ORDER BY ");
-                s.Append(order);
-                s.Append("\r\n");
+                s.AppendLine();
+                s.Filter(constraint);
+                s.Order(order);
+                s.AppendLine();
 
                 // Now adapt the constraint for use in the subsequent select.
                 Filter outside = null;
-                for (i = order.Count-1; i >= 0; i--)
+                for (int i = ordernames.Length - 1; i >= 0; i--)
                 {
-                    string col = order[i].Substring(1);
-                    string var = "@start_" + order[i].Substring(1).Replace('.', '_');
+                    string col = ordernames[i];
+                    string start = "@start_" + ordernames[i];
                     if (outside != null)
-                        outside = Filter.And("(" + col + " IS NULL) AND (" + var + " IS NULL) OR (" + col + "=" + var + ")", outside);
+                        outside = Filter.And("(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + "=" + start + ")", outside);
                     
                     if (order.GetDirection(i) > 0)
-                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (" + var + " IS NULL) OR (" + col + ">" + var + ")", outside);
+                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + ">" + start + ")", outside);
                     else
-                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(" + var + " IS NULL) OR (" + col + "<" + var + ")", outside);
+                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(" + start + " IS NULL) OR (" + col + "<" + start + ")", outside);
                 }
                 constraint = Filter.And(constraint, outside);
             }
 
+            // Create main select
             if (limit.Count >= 0)
-            {
-                s.Append("SET ROWCOUNT " + limit.Count + "\r\n");
-            }
-
+                s.AppendLine("SET ROWCOUNT " + limit.Count);
             s.Append("SELECT ");
             s.Append(columns);
             s.Append(" FROM ");
-            s.Append(SqlName(table));
+            s.Identifier(table);
             if (nolock)
                 s.Append(" WITH (NOLOCK) ");
-            if (!constraint.IsEmpty)
-            {
-                s.Append(" WHERE ");
-                s.Append(constraint);
-            }
-            if (!order.IsEmpty)
-            {
-                s.Append(" ORDER BY ");
-                s.Append(order);
-            }
-            s.Append("\r\n");
-            
+            s.Filter(constraint);
+            s.Order(order);
+            s.AppendLine();
             if (limit.Count >= 0)
-            {
-                s.Append("SET ROWCOUNT 0\r\n");
-            }
+                s.AppendLine("SET ROWCOUNT 0");
             Log.Debug("List SQL: " + s);
-            
-            command.CommandText = s.ToString();
-            
-            return command;
-        }
 
-        /// <summary>
-        /// CreateSelectCommand
-        /// </summary>
-        public SqlCommand CreateSelectCommand(
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
-        {
-            return CreateSelectCommand(
-                CreateConnection(),
-                table,
-                columns,
-                constraint,
-                order,
-                limit,
-                paramNameValueList);
+            return CreateCommand(s.ToString(), paramNameValueList);
         }
 
         /// <summary>
@@ -422,36 +431,13 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlCommand CreateInsertCommand(string table, params object[] columnNameValueList)
         {
-            return CreateInsertCommand(CreateConnection(), table, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateInsertCommand
-        /// </summary>
-        public SqlCommand CreateInsertCommand(SqlConnection connection, string table, params object[] columnNameValueList)
-        {
             SqlCommand command = new SqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("INSERT ");
-            s.Append(SqlName(table));
-            s.Append(" (");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(") VALUES (");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(')');
+            AddParameters(command, columnNameValueList);
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("INSERT INTO ").Identifier(table);
+            s.Append("(").ColumnList(command.Parameters).Append(") VALUES ");
+            s.Append("(").ParameterList(command.Parameters).Append(")");
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
         }
 
@@ -460,97 +446,38 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public SqlCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
-            return CreateUpdateCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateUpdateCommand
-        /// </summary>
-        public SqlCommand CreateUpdateCommand(SqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
             SqlCommand command = new SqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("UPDATE ");
-            s.Append(SqlName(table));
-            s.Append(" SET ");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
+            AddParameters(command, columnNameValueList);
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("UPDATE ").Identifier(table).Append(" SET ");
+            s.ColumnAndParameterList(command.Parameters, "=", ",");
+            s.Filter(constraint);
             command.CommandText = s.ToString();
-            command.Connection = connection;
+            command.Connection = GetConnection();
             return command;
         }
 
         /// <summary>
         /// CreateReplaceCommand
         /// </summary>
-        public SqlCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
+        public SqlCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
-            return CreateReplaceCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
+            throw new NotImplementedException();
 
-        /// <summary>
-        /// CreateReplaceCommand
-        /// </summary>
-        public SqlCommand CreateReplaceCommand(SqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
-            SqlCommand command = new SqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            
-            s.Append("UPDATE ");
-            s.Append(SqlName(table));
-            s.Append(" SET ");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
-            
-            s.Append(" IF @@ROWCOUNT=0 ");
-            s.Append(" INSERT ");
-            s.Append(SqlName(table));
-            s.Append(" (");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(") VALUES (");
-            foreach (SqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(')');
-
-            command.CommandText = s.ToString();
-            command.Connection = connection;
-
-            return command;
-        }
-
-        private bool Contains(string[] strings, string value)
-        {
-            foreach (string s in strings)
-                if (string.Compare(s, value, true) == 0)
-                    return true;
-            return false;
+            //SqlCommand command = new SqlCommand();
+            //AddParameters(command, columnNameValueList);
+            //QueryBuilder s = CreateQueryBuilder();
+            //s.Append("UPDATE ").Identifier(table).Append(" SET ");
+            //s.ColumnAndParameterList(command.Parameters, "=", ",");
+            //s.Filter(constraint);
+            //s.AppendLine();
+            //s.Append("IF @@ROWCOUNT=0 ");
+            //s.Append("INSERT INTO ").Identifier(table);
+            //s.Append("(").ColumnList(command.Parameters).Append(") VALUES ");
+            //s.Append("(").ParameterList(command.Parameters).Append(")");
+            //s.AppendLine();
+            //command.CommandText = s.ToString();
+            //return command;
         }
 
         /// <summary>
@@ -560,33 +487,16 @@ namespace Glue.Data.Providers.Sql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-            {
-                command.Connection = CreateConnection();
+                command.Connection = GetConnection();
+            command.Transaction = _transaction;
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
-                leaveOpen = false;
-            }
-            else if (command.Connection.State == ConnectionState.Closed)
-            {
-                command.Connection.Open();
-                leaveOpen = false;
-            }
             else
-            {
                 leaveOpen = true;
-            }
-
             try 
             {
                 return command.ExecuteNonQuery();
             }
-            /*
-            catch
-            {
-                foreach (SqlParameter p in command.Parameters)
-                    Log.Debug("Parameter: " + p.ParameterName + "(" + p.SqlDbType + ")=" + (Convert.IsDBNull(p.Value) ? "NULL" : Convert.ToString(p.Value)));
-                throw;
-            }
-            */
             finally
             {
                 if (!leaveOpen)
@@ -609,26 +519,14 @@ namespace Glue.Data.Providers.Sql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-            {
-                command.Connection = CreateConnection();
+                command.Connection = GetConnection();
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
-                leaveOpen = false;
-            }
-            else if (command.Connection.State == ConnectionState.Closed)
-            {
-                command.Connection.Open();
-                leaveOpen = false;
-            }
             else
-            {
                 leaveOpen = true;
-            }
-
             try 
             {
-                CommandBehavior behavior = 
-                    leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection;
-                return command.ExecuteReader(behavior);
+                return command.ExecuteReader(leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection);
             }
             catch
             {
@@ -653,7 +551,7 @@ namespace Glue.Data.Providers.Sql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
+                command.Connection = GetConnection();
             if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
@@ -711,19 +609,29 @@ namespace Glue.Data.Providers.Sql
  
         #region IDataProvider Members
 
-        IDbConnection Glue.Data.IDataProvider.CreateConnection()
+        IDataProvider IDataProvider.Open()
         {
-            return this.CreateConnection();
+            return Open();
+        }
+
+        IDataProvider IDataProvider.Open(IsolationLevel level)
+        {
+            return Open(level);
+        }
+
+        IDbDataParameter Glue.Data.IDataProvider.AddParameter(IDbCommand command, string name, object value)
+        {
+            return this.AddParameter((SqlCommand)command, name, value);
+        }
+
+        void Glue.Data.IDataProvider.AddParameters(IDbCommand command, params object[] paramNameValueList)
+        {
+            this.AddParameters((SqlCommand)command, paramNameValueList);
         }
 
         IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, object value)
         {
             return this.SetParameter((SqlCommand)command, name, value);
-        }
-
-        IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, DbType type, object value)
-        {
-            return this.SetParameter((SqlCommand)command, name, type, value);
         }
 
         void Glue.Data.IDataProvider.SetParameters(IDbCommand command, params object[] paramNameValueList)
@@ -736,19 +644,9 @@ namespace Glue.Data.Providers.Sql
             return this.CreateCommand(commandText, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateCommand(IDbConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            return this.CreateCommand((SqlConnection)connection, commandText, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
         {
             return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand((SqlConnection)connection, storedProcedureName, paramNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
@@ -756,19 +654,9 @@ namespace Glue.Data.Providers.Sql
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
-        {
-            return this.CreateSelectCommand((SqlConnection)connection, table, columns, constraint, order, limit, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(string table, params object[] columnNameValueList)
         {
             return this.CreateInsertCommand(table, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(IDbConnection connection, string table, params object[] columnNameValueList)
-        {
-            return this.CreateInsertCommand((SqlConnection)connection, table, columnNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
@@ -776,19 +664,9 @@ namespace Glue.Data.Providers.Sql
             return this.CreateUpdateCommand(table, constraint, columnNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
+        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
-            return this.CreateUpdateCommand((SqlConnection)connection, table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand(table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand((SqlConnection)connection, table, constraint, columnNameValueList);
+            return this.CreateReplaceCommand(table, columnNameValueList);
         }
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
@@ -819,33 +697,6 @@ namespace Glue.Data.Providers.Sql
         string Glue.Data.IDataProvider.ExecuteScalarString(IDbCommand command)
         {
             return this.ExecuteScalarString((SqlCommand)command);
-        }
-
-        /// <summary>
-        /// Converts a native value to the SQL representation for this provider.
-        /// </summary>
-        string Glue.Data.IDataProvider.ToSql(object v)
-        {
-            if (v == null)
-                throw new ArgumentException("Cannot convert null to a SQL constant.");
-            Type t = v.GetType();
-            if (t == typeof(String))
-                return "'" + ((String)v).Replace("'","''") + "'";
-            if (t == typeof(Boolean))
-                return (Boolean)v ? "1" : "0";
-            if (t == typeof(Char))
-                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
-            if (t == typeof(Int32))
-                return ((Int32)v).ToString();
-            if (t == typeof(Byte))
-                return ((Byte)v).ToString();
-            if (t.IsPrimitive)
-                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
-            if (t == typeof(Guid))
-                return "'{" + ((Guid)v).ToString("D") + "}'";
-            if (t == typeof(DateTime))
-                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
-            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
         }
 
         #endregion

@@ -42,43 +42,29 @@ namespace Glue.Data.Providers.SQLite
         {
         }
 
-        protected SQLiteMappingProvider(SQLiteConnection connection) : base(connection)
+        public new SQLiteMappingProvider Open()
         {
+            return (SQLiteMappingProvider)base.Open();
         }
 
-        QueryBuilder CreateQueryBuilder()
+        public new SQLiteMappingProvider Open(IsolationLevel level)
         {
-            return new QueryBuilder('@', '[', ']');
+            return (SQLiteMappingProvider)base.Open(level);
         }
 
-        /*
-        IMappingProvider MyProvider;
+        IMappingProvider IMappingProvider.Open()
+        {
+            return this.Open();
+        }
+
+        IMappingProvider IMappingProvider.Open(IsolationLevel level)
+        {
+            return this.Open();
+        }
         
-         * foreach (Item i in MyProvider.List...) {
-         *  ...
-         * }
-         * using (IMappingProvider provider = MyProvider.Open()) {
-         *      foreach (Item i in provider.List...) {
-         *      }
-         *      provider.Insert(new Item(1,"x"));
-         *      provider.Delete<Item>(1);
-         * }
-        */
-
-        public IMappingProvider Open()
-        {
-            return new SQLiteMappingProvider(CreateConnection());
-        }
-
-        public void Close()
-        {
-            if (connection != null)
-            {
-                connection.Close();
-                connection = null;
-            }
-        }
-
+        /// <summary>
+        /// Get Accessor class to reading / writing object instances.
+        /// </summary>
         Accessor GetAccessor(Type type)
         {
             Entity info = Obtain(type);

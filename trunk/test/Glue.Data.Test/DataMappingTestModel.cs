@@ -6,7 +6,7 @@ using Glue.Data.Mapping;
 
 namespace Glue.Data.Test.Model
 {
-    public class Scripts
+    public static class Scripts
     {
         public static string CreateSQL = @"
 CREATE DATABASE [Glue_Data_Test]

@@ -100,6 +100,8 @@ namespace Glue.Data.Schema
         /// </summary>
         public static Database OpenDatabaseFromConfiguration(string elementname)
         {
+            throw new NotImplementedException("GetSchemaProvider is removed from IDataProvider interface");
+            /*
             elementname = NullConvert.Coalesce(elementname, "dataprovider");
             // <dataprovider
             //  type="Glue.Data.Providers.Sql.SqlMappingProvider"
@@ -113,6 +115,7 @@ namespace Glue.Data.Schema
             ISchemaProvider schemaprovider = dataprovider.GetSchemaProvider();
             Database database = schemaprovider.GetDatabase(Configuration.GetElement(elementname).GetAttribute("database"));
             return database;
+            */
         }
 
         /// <summary>

@@ -17,22 +17,26 @@ namespace Glue.Data.Providers.OleDb
     /// </summary>
     public class OleDbMappingProvider : OleDbDataProvider, IMappingProvider
     {
-        MappingOptions options;
+        MappingOptions _options;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public OleDbMappingProvider(string connectionString): base(connectionString)
         {
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public OleDbMappingProvider(
             string server, 
             string database, 
             string user, 
             string pass,
-            MappingOptions options
-            ) : 
-            base(server, database, user, pass)
+            MappingOptions options) : base(server, database, user, pass)
         {
-            this.options = options;
+            _options = options;
         }
 
         /// <summary>
@@ -42,26 +46,51 @@ namespace Glue.Data.Providers.OleDb
         {
         }
 
-        QueryBuilder CreateQueryBuilder()
+        /// <summary>
+        /// Copy constructor for opening sessions and transactions.
+        /// </summary>
+        protected OleDbMappingProvider(OleDbMappingProvider provider) : base(provider)
         {
-            return new QueryBuilder('?', '[', ']');
+            _options = provider._options;
+        }
+
+        /// <summary>
+        /// Copy method
+        /// </summary>
+        protected override OleDbDataProvider Copy()
+        {
+            return new OleDbMappingProvider(this);
+        }
+
+        public new OleDbMappingProvider Open()
+        {
+            return (OleDbMappingProvider)base.Open();
+        }
+
+        public new OleDbMappingProvider Open(IsolationLevel level)
+        {
+            return (OleDbMappingProvider)base.Open(level);
+        }
+
+        IMappingProvider IMappingProvider.Open()
+        {
+            return Open();
+        }
+
+        IMappingProvider IMappingProvider.Open(IsolationLevel level)
+        {
+            return Open(level);
         }
 
         Accessor GetAccessor(Type type)
         {
-            return GetAccessor(Entity.Obtain(type));
-        }
-        
-        Accessor GetAccessor(Entity info)
-        {
-            if (info.Accessor == null)
-            {
-                Type accessorType = AccessorHelper.GenerateAccessor(info.Type, "System.Data.SqlClient", "Sql", "@");
-                info.Accessor = (Accessor)Activator.CreateInstance(accessorType, new object[] { this, info.Type });
-            }
+            Entity info = Obtain(type);
             return info.Accessor;
         }
         
+        /// <summary>
+        /// Obtain cached Entity information for given type.
+        /// </summary>
         Entity Obtain(Type type)
         {
             Entity info = Entity.Obtain(type);
@@ -99,7 +128,6 @@ namespace Glue.Data.Providers.OleDb
             }
 
             OleDbCommand command = CreateCommand(info.FindCommandText);
-            
             int i = 0;
             foreach (EntityMember m in info.KeyMembers)
                 AddParameter(command, m.Column.Name, keys[i++]);
@@ -226,7 +254,6 @@ namespace Glue.Data.Providers.OleDb
                 table = info.Table.Name;
             
             QueryBuilder s = CreateQueryBuilder();
-            int i;
 
             if (limit.Index > 0)
             {
@@ -268,6 +295,7 @@ namespace Glue.Data.Providers.OleDb
 
                 // Declare variables for all ordering members
                 EntityMember[] orderMembers = new EntityMember[order.Count];
+                int i = 0;
                 for (i = 0; i < order.Count; i++)
                 {
                     orderMembers[i] = info.AllMembers.FindByColumnName(order[i]);
@@ -341,16 +369,15 @@ namespace Glue.Data.Providers.OleDb
             Log.Debug("List SQL: " + s);
             using (IDataReader reader = ExecuteReader(s.ToString()))
             {
-                return info.Accessor.ListFromReaderFixed(reader).ToArray(type);
+                return GetAccessor(type).ListFromReaderFixed(reader).ToArray(type);
             }
         }
 
         public Array List(Type type, IDbCommand command)
         {
-            Entity info = Obtain(type);
             using (IDataReader reader = ExecuteReader((OleDbCommand)command))
             {
-                return info.Accessor.ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
+                return GetAccessor(type).ListFromReaderDynamic(reader, Limit.Unlimited).ToArray(type);
             }
         }
 
@@ -411,13 +438,17 @@ namespace Glue.Data.Providers.OleDb
                 "@" + info.JoinLeftKey, info.LeftKeyInfo.GetValue(left)
                 );
 
-            // Get left-hand side objects
-            using (OleDbDataReader reader = ExecuteReader(command))
+            // Get right-hand side objects
+            using (IDataReader reader = ExecuteReader(command))
             {
-                return GetAccessor(info.RightInfo).ListFromReaderFixed(reader).ToArray(right);
+                return GetAccessor(info.RightType).ListFromReaderFixed(reader).ToArray(info.RightType);
             }
         }
         
+        /// <summary>
+        /// Add a :m relation between object left and object right. Explicitly specify the
+        /// joining table.
+        /// </summary>
         public void AddManyToMany(object left, object right, string jointable)
         {
             ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right.GetType(), jointable);
@@ -438,6 +469,10 @@ namespace Glue.Data.Providers.OleDb
             ExecuteNonQuery(command);
         }
         
+        /// <summary>
+        /// Remove a n:m relation between object left and object right. Explicitly specify the
+        /// joining table.
+        /// </summary>
         public void DelManyToMany(object left, object right, string jointable)
         {
             ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right.GetType(), jointable);
@@ -584,6 +619,7 @@ namespace Glue.Data.Providers.OleDb
             s.Filter(filter);
             
             ExecuteNonQuery(s.ToString());
+            info.Cache = null; // invalidate cache if present
         }
 
         public int Count(Type type, Filter filter)

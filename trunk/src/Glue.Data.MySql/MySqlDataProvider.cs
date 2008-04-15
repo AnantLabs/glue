@@ -10,19 +10,18 @@ using Glue.Data;
 
 namespace Glue.Data.Providers.MySql
 {
-    /// <summary>
-    /// Summary description for SqlHelper.
-    /// </summary>
     public class MySqlDataProvider : IDataProvider
     {
-        string connectionString;
+        string _connectionString;
+        MySqlConnection _connection;
+        MySqlTransaction _transaction;
 
         /// <summary>
         /// MySqlHelper
         /// </summary>
         public MySqlDataProvider(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         /// <summary>
@@ -30,7 +29,7 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlDataProvider(string server, string database, string username, string password)
         {
-            this.connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+            _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
 
         /// <summary>
@@ -38,23 +37,140 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         protected MySqlDataProvider(XmlNode node)
         {
-            connectionString = Configuration.GetAttr(node, "connectionString", null);
-            if (connectionString == null)
+            _connectionString = Configuration.GetAttr(node, "connectionString", null);
+            if (_connectionString == null)
             {
                 string server   = Configuration.GetAttr(node, "server");
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
-                connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+                _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
             }
         }
 
         /// <summary>
-        /// CreateConnection
+        /// Copy constructor for opening sessions and transactions
+        /// </summary>
+        protected MySqlDataProvider(MySqlDataProvider provider)
+        {
+            _connectionString = provider._connectionString;
+        }
+
+        /// <summary>
+        /// Create a copy of current instance. Derived classes should
+        /// override this to create a copy of their own.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual MySqlDataProvider Copy()
+        {
+            return new MySqlDataProvider(this);
+        }
+
+        /// <summary>
+        /// Open session
+        /// </summary>
+        public MySqlDataProvider Open()
+        {
+            return Open(IsolationLevel.Unspecified);
+        }
+
+        public MySqlDataProvider Open(IsolationLevel level)
+        {
+            MySqlDataProvider copy = Copy();
+            copy.OpenInternal(level);
+            return copy;
+        }
+
+        protected virtual void OpenInternal(IsolationLevel level)
+        {
+            _connection = CreateConnection();
+            _connection.Open();
+            if (level != IsolationLevel.Unspecified)
+                _transaction = _connection.BeginTransaction(level);
+        }
+
+        public void Cancel()
+        {
+            if (_connection != null)
+                if (_transaction != null) {
+                    _transaction.Rollback();
+                    _transaction.Dispose();
+                    _transaction = null;
+                }
+        }
+
+        public void Close()
+        {
+            if (_connection != null)
+            {
+                if (_transaction != null)
+                {
+                    _transaction.Commit();
+                    _transaction.Dispose();
+                }
+                _connection.Close();
+                _transaction = null;
+                _connection = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Converts a native value to the SQL representation for this provider.
+        /// </summary>
+        string ToSql(object v)
+        {
+            if (v == null)
+                throw new ArgumentException("Cannot convert null to a SQL constant.");
+            Type t = v.GetType();
+            if (t == typeof(String))
+            {
+                StringBuilder result = new StringBuilder();
+                result.Append('\'');
+                foreach (char c in (string)v)
+                {
+                    if ("\\\r\n\t\'\"%_".IndexOf(c) > -1) // needs escape?
+                        result.Append('\\'); // escape it
+                    result.Append(c);
+                }
+                result.Append('\'');
+                return result.ToString();
+            }
+            if (t == typeof(Boolean))
+                return (Boolean)v ? "1" : "0";
+            if (t == typeof(Char))
+                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
+            if (t == typeof(Int32))
+                return ((Int32)v).ToString();
+            if (t == typeof(Byte))
+                return ((Byte)v).ToString();
+            if (t.IsPrimitive)
+                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
+            if (t == typeof(Guid))
+                return "'{" + ((Guid)v).ToString("D") + "}'";
+            if (t == typeof(DateTime))
+                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
+            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
+        }
+
+        /// <summary>
+        /// Create a QueryBuilder
+        /// </summary>
+        protected QueryBuilder CreateQueryBuilder()
+        {
+            return new QueryBuilder('?', '`', '`');
+        }
+
+        /// <summary>
+        /// ConnectionString
         /// </summary>
         public string ConnectionString
         {
-            get { return connectionString; }
+            get { return _connectionString; }
         }
 
         /// <summary>
@@ -62,7 +178,12 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlConnection CreateConnection()
         {
-            return new MySqlConnection(this.connectionString);
+            return new MySqlConnection(this._connectionString);
+        }
+
+        public MySqlConnection GetConnection()
+        {
+            return _connection ?? CreateConnection();
         }
 
         public ISchemaProvider GetSchemaProvider()
@@ -75,7 +196,9 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlParameter AddParameter(MySqlCommand command, string name, object value)
         {
-            MySqlParameter parameter = new MySqlParameter(name[0] != '?' ? "?" + name : name, value ?? DBNull.Value);
+            MySqlParameter parameter = new MySqlParameter(name, value ?? DBNull.Value);
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
             command.Parameters.Add(parameter);
             return parameter;
         }
@@ -85,39 +208,29 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlParameter SetParameter(MySqlCommand command, string name, object value)
         {
-            value = value ?? DBNull.Value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
-                return command.Parameters.AddWithValue(name, value);
-            MySqlParameter p = command.Parameters[i];
-            p.Value = value;
-            if (value.GetType() == typeof(byte[]))
-                p.Size = ((byte[])value).Length;
-            return p;
-        }
-
-        /// <summary>
-        /// SetParameter
-        /// </summary>
-        public MySqlParameter SetParameter(MySqlCommand command, string name, DbType type, object value)
-        {
-            value = value ?? DBNull.Value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
+            int index = command.Parameters.IndexOf(name);
+            MySqlParameter parameter;
+            if (index < 0)
             {
-                MySqlParameter p = command.Parameters.AddWithValue(name, value);
-                p.DbType = type;
-                return p;
+                parameter = new MySqlParameter(name, value ?? DBNull.Value);
+                command.Parameters.Add(parameter);
             }
             else
             {
-                MySqlParameter p = command.Parameters[i];
-                p.DbType = type;
-                p.Value = value;
-                if (type == DbType.Binary)
-                    p.Size = ((byte[])value).Length;
-                return p;
+                parameter = command.Parameters[index];
+                parameter.Value = value ?? DBNull.Value;
             }
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
+            return parameter;
+        }
+
+        /// <summary>
+        /// SetParameters
+        /// </summary>
+        public void AddParameters(MySqlCommand command, params object[] paramNameValueList)
+        {
+            SetParameters(command, paramNameValueList);
         }
 
         /// <summary>
@@ -191,19 +304,11 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlCommand CreateCommand(string commandText, params object[] paramNameValueList)
         {
-            return CreateCommand(CreateConnection(), commandText, paramNameValueList);
-        }
-        
-        /// <summary>
-        /// CreateCommand
-        /// </summary>
-        public MySqlCommand CreateCommand(MySqlConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            MySqlCommand command = new MySqlCommand(commandText, connection);
-            SetParameters(command, paramNameValueList);
+            MySqlCommand command = new MySqlCommand(commandText, GetConnection());
+            AddParameters(command, paramNameValueList);
             return command;
         }
-
+        
         /// <summary>
         /// CreateStoredProcedureCommand
         /// </summary>
@@ -213,86 +318,24 @@ namespace Glue.Data.Providers.MySql
         }
 
         /// <summary>
-        /// CreateStoredProcedureCommand
-        /// </summary>
-        public MySqlCommand CreateStoredProcedureCommand(MySqlConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            throw new NotImplementedException();
-        }
-
-        string SqlName(string s)
-        {
-            if (s[0] != '`' && s.IndexOf(' ') < 0)
-                return "`" + s + "`";
-            else
-                return s;
-        }
-
-        public MySqlCommand CreateSelectCommand(
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
-        {
-            return CreateSelectCommand(CreateConnection(), table, columns, constraint, order, limit, paramNameValueList);
-        }
-
-            /// <summary>
         /// CreateSelectCommand
         /// </summary>
-        public MySqlCommand CreateSelectCommand(
-            MySqlConnection connection, 
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
+        public MySqlCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             MySqlCommand command = new MySqlCommand();
-            SetParameters(command, paramNameValueList);
-            command.Connection = connection;
+            AddParameters(command, paramNameValueList);
 
-            constraint = Filter.Coalesce(constraint);
-            order = Order.Coalesce(order);
-            limit = Limit.Coalesce(limit);
-            table = SqlName(table);
-            
-            StringBuilder s = new StringBuilder();
+            QueryBuilder s = CreateQueryBuilder();
             s.Append("SELECT ");
-
             s.Append(columns);
             s.Append(" FROM ");
-            s.Append(table);
-            
-            if (!constraint.IsEmpty)
-                s.Append(" WHERE ").Append(constraint);
-
-            if (!order.IsEmpty)
-                s.Append(" ORDER BY ").Append(order);
-
-            if (limit != null && !limit.IsUnlimited)
-            {
-                s.Append(" LIMIT " + limit.Index + "," + limit.Count);
-            }
-            /*if (limit.Index > 0 && limit.Count >= 0)
-                s.Append(" LIMIT ").Append(limit.Index).Append(',').Append(limit.Count);
-            else
-                s.Append(" LIMIT ").Append(limit.Index);*/
+            s.Identifier(table);
+            s.Filter(constraint);
+            s.Order(order);
+            s.Limit(limit);
 
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
-        }
-
-        /// <summary>
-        /// CreateInsertCommand
-        /// </summary>
-        public MySqlCommand CreateInsertCommand(string table, string columns)
-        {
-            return CreateInsertCommand(CreateConnection(), table, columns);
         }
 
         /// <summary>
@@ -300,36 +343,19 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlCommand CreateInsertCommand(string table, params object[] columnNameValueList)
         {
-            return CreateInsertCommand(CreateConnection(), table, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateInsertCommand
-        /// </summary>
-        public MySqlCommand CreateInsertCommand(MySqlConnection connection, string table, params object[] columnNameValueList)
-        {
             MySqlCommand command = new MySqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("INSERT ");
-            s.Append(SqlName(table));
+            AddParameters(command, columnNameValueList);
+
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("INSERT INTO ");
+            s.Identifier(table);
             s.Append(" (");
-            foreach (MySqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
+            s.ColumnList(command.Parameters);
             s.Append(") VALUES (");
-            foreach (MySqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(')');
+            s.ParameterList(command.Parameters);
+            s.Append(")");
+            
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
         }
 
@@ -338,75 +364,39 @@ namespace Glue.Data.Providers.MySql
         /// </summary>
         public MySqlCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
-            return CreateUpdateCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateUpdateCommand
-        /// </summary>
-        public MySqlCommand CreateUpdateCommand(MySqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
             MySqlCommand command = new MySqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
+            AddParameters(command, columnNameValueList);
+
+            QueryBuilder s = CreateQueryBuilder();
             s.Append("UPDATE ");
-            s.Append(SqlName(table));
+            s.Identifier(table);
             s.Append(" SET ");
-            foreach (MySqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
+            s.ColumnAndParameterList(command.Parameters, "=", ",");
+            s.Filter(constraint);
+            
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
         }
 
         /// <summary>
         /// CreateUpdateCommand
         /// </summary>
-        public MySqlCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return CreateReplaceCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateUpdateCommand
-        /// </summary>
-        public MySqlCommand CreateReplaceCommand(MySqlConnection connection, string table, Filter constraint, params object[] columnNameValueList)
+        public MySqlCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
             MySqlCommand command = new MySqlCommand();
-            SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("REPLACE ");
-            s.Append(SqlName(table));
-            s.Append(" SET ");
-            foreach (MySqlParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
-            command.CommandText = s.ToString();
-            command.Connection = connection;
-            return command;
-        }
+            AddParameters(command, columnNameValueList);
 
-        private bool Contains(string[] strings, string value)
-        {
-            foreach (string s in strings)
-                if (string.Compare(s, value, true) == 0)
-                    return true;
-            return false;
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("REPLACE INTO ");
+            s.Identifier(table);
+            s.Append(" (");
+            s.ColumnList(command.Parameters);
+            s.Append(") VALUES (");
+            s.ParameterList(command.Parameters);
+            s.Append(")");
+
+            command.CommandText = s.ToString();
+            return command;
         }
 
         /// <summary>
@@ -416,8 +406,9 @@ namespace Glue.Data.Providers.MySql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+                command.Connection = GetConnection();
+            command.Transaction = _transaction;
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
@@ -447,16 +438,14 @@ namespace Glue.Data.Providers.MySql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+                command.Connection = GetConnection();
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
             try 
             {
-                CommandBehavior behavior = 
-                    leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection;
-                return command.ExecuteReader(behavior);
+                return command.ExecuteReader(leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection);
             }
             catch
             {
@@ -481,8 +470,8 @@ namespace Glue.Data.Providers.MySql
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+                command.Connection = GetConnection();
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
@@ -539,19 +528,29 @@ namespace Glue.Data.Providers.MySql
  
         #region IDataProvider Members
 
-        IDbConnection Glue.Data.IDataProvider.CreateConnection()
+        IDataProvider IDataProvider.Open()
         {
-            return this.CreateConnection();
+            return ((MySqlDataProvider)this).Open(IsolationLevel.Unspecified);
+        }
+
+        IDataProvider IDataProvider.Open(IsolationLevel level)
+        {
+            return Open(level);
+        }
+
+        IDbDataParameter Glue.Data.IDataProvider.AddParameter(IDbCommand command, string name, object value)
+        {
+            return this.AddParameter((MySqlCommand)command, name, value);
+        }
+
+        void Glue.Data.IDataProvider.AddParameters(IDbCommand command, params object[] paramNameValueList)
+        {
+            this.AddParameters((MySqlCommand)command, paramNameValueList);
         }
 
         IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, object value)
         {
             return this.SetParameter((MySqlCommand)command, name, value);
-        }
-
-        IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, DbType type, object value)
-        {
-            return this.SetParameter((MySqlCommand)command, name, type, value);
         }
 
         void Glue.Data.IDataProvider.SetParameters(IDbCommand command, params object[] paramNameValueList)
@@ -564,19 +563,9 @@ namespace Glue.Data.Providers.MySql
             return this.CreateCommand(commandText, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateCommand(IDbConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            return this.CreateCommand((MySqlConnection)connection, commandText, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
         {
             return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand((MySqlConnection)connection, storedProcedureName, paramNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
@@ -584,19 +573,9 @@ namespace Glue.Data.Providers.MySql
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
-        {
-            return this.CreateSelectCommand((MySqlConnection)connection, table, columns, constraint, order, limit, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(string table, params object[] columnNameValueList)
         {
             return this.CreateInsertCommand(table, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(IDbConnection connection, string table, params object[] columnNameValueList)
-        {
-            return this.CreateInsertCommand((MySqlConnection)connection, table, columnNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
@@ -604,19 +583,9 @@ namespace Glue.Data.Providers.MySql
             return this.CreateUpdateCommand(table, constraint, columnNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
+        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
-            return this.CreateUpdateCommand((MySqlConnection)connection, table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand(table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand((MySqlConnection)connection, table, constraint, columnNameValueList);
+            return this.CreateReplaceCommand(table, columnNameValueList);
         }
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
@@ -647,44 +616,6 @@ namespace Glue.Data.Providers.MySql
         string Glue.Data.IDataProvider.ExecuteScalarString(IDbCommand command)
         {
             return this.ExecuteScalarString((MySqlCommand)command);
-        }
-
-        /// <summary>
-        /// Converts a native value to the SQL representation for this provider.
-        /// </summary>
-        string Glue.Data.IDataProvider.ToSql(object v)
-        {
-            if (v == null)
-                throw new ArgumentException("Cannot convert null to a SQL constant.");
-            Type t = v.GetType();
-            if (t == typeof(String))
-            {
-                StringBuilder result = new StringBuilder();
-                result.Append('\'');
-                foreach (char c in (string)v)
-                {
-                    if ("\\\r\n\t\'\"%_".IndexOf(c) > -1) // needs escape?
-                        result.Append('\\'); // escape it
-                    result.Append(c);
-                }
-                result.Append('\'');
-                return result.ToString();
-            }
-            if (t == typeof(Boolean))
-                return (Boolean)v ? "1" : "0";
-            if (t == typeof(Char))
-                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
-            if (t == typeof(Int32))
-                return ((Int32)v).ToString();
-            if (t == typeof(Byte))
-                return ((Byte)v).ToString();
-            if (t.IsPrimitive)
-                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
-            if (t == typeof(Guid))
-                return "'{" + ((Guid)v).ToString("D") + "}'";
-            if (t == typeof(DateTime))
-                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
-            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
         }
 
         #endregion

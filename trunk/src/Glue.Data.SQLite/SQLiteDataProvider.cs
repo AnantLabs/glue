@@ -10,20 +10,18 @@ using Glue.Data;
 
 namespace Glue.Data.Providers.SQLite
 {
-    /// <summary>
-    /// Summary description for SqlHelper.
-    /// </summary>
     public class SQLiteDataProvider : IDataProvider
     {
-        protected string connectionString;
-        protected SQLiteConnection connection;
+        string _connectionString;
+        SQLiteConnection _connection;
+        SQLiteTransaction _transaction;
 
         /// <summary>
         /// SQLiteHelper
         /// </summary>
         public SQLiteDataProvider(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         /// <summary>
@@ -31,8 +29,7 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteDataProvider(string server, string database, string username, string password)
         {
-            this.connectionString = "Data Source=" + database + "; Pooling=True; Version=3; UTF8Encoding=True;";
-            //this.connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+            _connectionString = "Data Source=" + database + "; Pooling=True; Version=3; UTF8Encoding=True;";
         }
 
         /// <summary>
@@ -40,30 +37,129 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         protected SQLiteDataProvider(XmlNode node)
         {
-            connectionString = Configuration.GetAttr(node, "connectionString", null);
-            if (connectionString == null)
+            _connectionString = Configuration.GetAttr(node, "connectionString", null);
+            if (_connectionString == null)
             {
                 string server   = Configuration.GetAttr(node, "server");
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
-                this.connectionString = "Data Source=" + database;
-                //connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+                _connectionString = "Data Source=" + database;
             }
         }
 
-        protected SQLiteDataProvider(SQLiteConnection connection)
+        /// <summary>
+        /// Copy constructor for opening sessions and transactions
+        /// </summary>
+        protected SQLiteDataProvider(SQLiteDataProvider provider)
         {
-            this.connection = connection;
-            this.connection.Open();
+            _connectionString = provider._connectionString;
         }
 
         /// <summary>
-        /// CreateConnection
+        /// Create a copy of current instance. Derived classes should
+        /// override this to create a copy of their own.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual SQLiteDataProvider Copy()
+        {
+            return new SQLiteDataProvider(this);
+        }
+
+        /// <summary>
+        /// Open session
+        /// </summary>
+        public SQLiteDataProvider Open()
+        {
+            return Open(IsolationLevel.Unspecified);
+        }
+
+        public SQLiteDataProvider Open(IsolationLevel level)
+        {
+            SQLiteDataProvider copy = Copy();
+            copy.OpenInternal(level);
+            return copy;
+        }
+
+        protected virtual void OpenInternal(IsolationLevel level)
+        {
+            _connection = CreateConnection();
+            _connection.Open();
+            if (level != IsolationLevel.Unspecified)
+                _transaction = _connection.BeginTransaction(level);
+        }
+
+        public void Cancel()
+        {
+            if (_connection != null)
+                if (_transaction != null) {
+                    _transaction.Rollback();
+                    _transaction.Dispose();
+                    _transaction = null;
+                }
+        }
+
+        public void Close()
+        {
+            if (_connection != null)
+            {
+                if (_transaction != null)
+                {
+                    _transaction.Commit();
+                    _transaction.Dispose();
+                }
+                _connection.Close();
+                _transaction = null;
+                _connection = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Converts a native value to the SQL representation for this provider.
+        /// </summary>
+        string ToSql(object v)
+        {
+            if (v == null)
+                throw new ArgumentException("Cannot convert null to a SQL constant.");
+            Type t = v.GetType();
+            if (t == typeof(String))
+                return "'" + ((String)v).Replace("'", "''") + "'";
+            if (t == typeof(Boolean))
+                return (Boolean)v ? "1" : "0";
+            if (t == typeof(Char))
+                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
+            if (t == typeof(Int32))
+                return ((Int32)v).ToString();
+            if (t == typeof(Byte))
+                return ((Byte)v).ToString();
+            if (t.IsPrimitive)
+                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
+            if (t == typeof(Guid))
+                return "'{" + ((Guid)v).ToString("D") + "}'";
+            if (t == typeof(DateTime))
+                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
+            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
+        }
+
+        /// <summary>
+        /// Create a QueryBuilder
+        /// </summary>
+        protected QueryBuilder CreateQueryBuilder()
+        {
+            return new QueryBuilder('?', '`', '`');
+        }
+
+        /// <summary>
+        /// ConnectionString
         /// </summary>
         public string ConnectionString
         {
-            get { return connectionString; }
+            get { return _connectionString; }
         }
 
         /// <summary>
@@ -71,10 +167,12 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteConnection CreateConnection()
         {
-            if (this.connection != null)
-                return this.connection;
-            else
-                return new SQLiteConnection(this.connectionString);
+            return new SQLiteConnection(this._connectionString);
+        }
+
+        public SQLiteConnection GetConnection()
+        {
+            return _connection ?? CreateConnection();
         }
 
         public ISchemaProvider GetSchemaProvider()
@@ -87,7 +185,9 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteParameter AddParameter(SQLiteCommand command, string name, object value)
         {
-            SQLiteParameter parameter = new SQLiteParameter(name[0] != '@' ? "@" + name : name, value ?? DBNull.Value);
+            SQLiteParameter parameter = new SQLiteParameter(name, value ?? DBNull.Value);
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
             command.Parameters.Add(parameter);
             return parameter;
         }
@@ -97,45 +197,29 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteParameter SetParameter(SQLiteCommand command, string name, object value)
         {
-            SQLiteParameter p;
-            object v = value == null ? DBNull.Value : value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
+            int index = command.Parameters.IndexOf(name);
+            SQLiteParameter parameter;
+            if (index < 0)
             {
-                //return command.Parameters[command.Parameters.Add(new SQLiteParameter(name, value))];
-                p = new SQLiteParameter(name, value);
-                command.Parameters.Add(p);
-                return p;
-            }
-            p = command.Parameters[i];
-            p.Value = value;
-            if (v.GetType() == typeof(byte[]))
-                p.Size = ((byte[])v).Length;
-            return p;
-        }
-
-        /// <summary>
-        /// SetParameter
-        /// </summary>
-        public SQLiteParameter SetParameter(SQLiteCommand command, string name, DbType type, object value)
-        {
-            object v = value == null ? DBNull.Value : value;
-            int i = command.Parameters.IndexOf(name);
-            if (i < 0)
-            {
-                SQLiteParameter p = command.Parameters.Add(name, type);
-                p.Value = value;
-                return p;
+                parameter = new SQLiteParameter(name, value ?? DBNull.Value);
+                command.Parameters.Add(parameter);
             }
             else
             {
-                SQLiteParameter p = command.Parameters[i];
-                p.DbType = type;
-                p.Value = value;
-                if (type == DbType.Binary)
-                    p.Size = ((byte[])v).Length;
-                return p;
+                parameter = command.Parameters[index];
+                parameter.Value = value ?? DBNull.Value;
             }
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
+            return parameter;
+        }
+
+        /// <summary>
+        /// SetParameters
+        /// </summary>
+        public void AddParameters(SQLiteCommand command, params object[] paramNameValueList)
+        {
+            SetParameters(command, paramNameValueList);
         }
 
         /// <summary>
@@ -209,16 +293,8 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteCommand CreateCommand(string commandText, params object[] paramNameValueList)
         {
-            return CreateCommand(CreateConnection(), commandText, paramNameValueList);
-        }
-        
-        /// <summary>
-        /// CreateCommand
-        /// </summary>
-        public SQLiteCommand CreateCommand(SQLiteConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            SQLiteCommand command = new SQLiteCommand(commandText, connection);
-            SetParameters(command, paramNameValueList);
+            SQLiteCommand command = new SQLiteCommand(commandText, GetConnection());
+            AddParameters(command, paramNameValueList);
             return command;
         }
 
@@ -231,88 +307,24 @@ namespace Glue.Data.Providers.SQLite
         }
 
         /// <summary>
-        /// CreateStoredProcedureCommand
-        /// </summary>
-        public SQLiteCommand CreateStoredProcedureCommand(SQLiteConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            throw new NotImplementedException();
-        }
-
-        string SqlName(string s)
-        {
-            if (s[0] != '[' && s.IndexOf(' ') < 0)
-                return "[" + s + "]";
-            else
-                return s;
-        }
-
-        /// <summary>
         /// CreateSelectCommand
         /// </summary>
-        public SQLiteCommand CreateSelectCommand(
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
-        {
-            return CreateSelectCommand(CreateConnection(), table, columns, constraint, order, limit, paramNameValueList);
-        }
-
-        /// <summary>
-        /// CreateSelectCommand
-        /// </summary>
-        public SQLiteCommand CreateSelectCommand(
-            SQLiteConnection connection, 
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
+        public SQLiteCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             SQLiteCommand command = new SQLiteCommand();
             SetParameters(command, paramNameValueList);
-            command.Connection = connection;
             
-            constraint = Filter.Coalesce(constraint);
-            order = Order.Coalesce(order);
-            limit = Limit.Coalesce(limit);
-            table = SqlName(table);
-
-            StringBuilder s = new StringBuilder();
-            if (limit.Index == 0 && limit.Count >= 0)
-                s.Append("SELECT TOP ").Append(limit.Count).Append(" ");
-            else
-                s.Append("SELECT ");
-
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT ");
             s.Append(columns);
             s.Append(" FROM ");
-            s.Append(table);
-            
-            if (!constraint.IsEmpty)
-                s.Append(" WHERE ").Append(constraint);
-
-            if (!order.IsEmpty)
-                s.Append(" ORDER BY ").Append(order);
-
-            if (limit.Index > 0 && limit.Count >= 0)
-                s.Append(" LIMIT ").Append(limit.Index).Append(',').Append(limit.Count);
-            else
-                s.Append(" LIMIT ").Append(limit.Index);
+            s.Identifier(table);
+            s.Filter(constraint);
+             s.Order(order);
+            s.Limit(limit);
 
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
-        }
-
-        /// <summary>
-        /// CreateInsertCommand
-        /// </summary>
-        public SQLiteCommand CreateInsertCommand(string table, string columns)
-        {
-            return CreateInsertCommand(CreateConnection(), table, columns);
         }
 
         /// <summary>
@@ -320,36 +332,19 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteCommand CreateInsertCommand(string table, params object[] columnNameValueList)
         {
-            return CreateInsertCommand(CreateConnection(), table, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateInsertCommand
-        /// </summary>
-        public SQLiteCommand CreateInsertCommand(SQLiteConnection connection, string table, params object[] columnNameValueList)
-        {
             SQLiteCommand command = new SQLiteCommand();
             SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("INSERT ");
-            s.Append(SqlName(table));
+            
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("INSERT INTO ");
+            s.Identifier(table);
             s.Append(" (");
-            foreach (SQLiteParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
+            s.ColumnList(command.Parameters);
             s.Append(") VALUES (");
-            foreach (SQLiteParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            s.Append(')');
+            s.ParameterList(command.Parameters);
+            s.Append(")");
+            
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
         }
 
@@ -358,78 +353,39 @@ namespace Glue.Data.Providers.SQLite
         /// </summary>
         public SQLiteCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
-            return CreateUpdateCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateUpdateCommand
-        /// </summary>
-        public SQLiteCommand CreateUpdateCommand(SQLiteConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
             SQLiteCommand command = new SQLiteCommand();
             SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
+
+            QueryBuilder s = CreateQueryBuilder();
             s.Append("UPDATE ");
-            s.Append(SqlName(table));
+            s.Identifier(table);
             s.Append(" SET ");
-            foreach (SQLiteParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
+            s.ColumnAndParameterList(command.Parameters, "=", ",");
+            s.Filter(constraint);
+            
             command.CommandText = s.ToString();
-            command.Connection = connection;
             return command;
         }
 
         /// <summary>
         /// CreateReplaceCommand
         /// </summary>
-        public SQLiteCommand CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return CreateReplaceCommand(CreateConnection(), table, constraint, columnNameValueList);
-        }
-
-        /// <summary>
-        /// CreateReplaceCommand
-        /// </summary>
-        public SQLiteCommand CreateReplaceCommand(SQLiteConnection connection, string table, Filter constraint, params object[] columnNameValueList)
+        public SQLiteCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
             SQLiteCommand command = new SQLiteCommand();
             SetParameters(command, columnNameValueList);
-            StringBuilder s = new StringBuilder();
-            s.Append("REPLACE ");
-            s.Append(SqlName(table));
-            s.Append(" SET ");
-            foreach (SQLiteParameter param in command.Parameters)
-            {
-                s.Append(param.ParameterName.Substring(1));
-                s.Append('=');
-                s.Append(param.ParameterName);
-                s.Append(',');
-            }
-            s.Length = s.Length - 1;
-            if (constraint != null && !constraint.IsEmpty)
-                s.Append(" WHERE " + constraint);
-            command.CommandText = s.ToString();
-            command.Connection = connection;
-            return command;
-        }
 
-        /// <summary>
-        /// Contains
-        /// </summary>
-        private bool Contains(string[] strings, string value)
-        {
-            foreach (string s in strings)
-                if (string.Compare(s, value, true) == 0)
-                    return true;
-            return false;
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("REPLACE INTO ");
+            s.Identifier(table);
+            s.Append(" (");
+            s.ColumnList(command.Parameters);
+            s.Append(") VALUES (");
+            s.ParameterList(command.Parameters);
+            s.Append(")");
+
+            command.CommandText = s.ToString();
+            return command;
         }
 
         /// <summary>
@@ -439,8 +395,9 @@ namespace Glue.Data.Providers.SQLite
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+                command.Connection = GetConnection();
+            command.Transaction = _transaction;
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
@@ -470,16 +427,14 @@ namespace Glue.Data.Providers.SQLite
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
-            else if (command.Connection.State == ConnectionState.Closed)
+                command.Connection = GetConnection();
+            if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
                 leaveOpen = true;
             try 
             {
-                CommandBehavior behavior = 
-                    leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection;
-                return command.ExecuteReader(behavior);
+                return command.ExecuteReader(leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection);
             }
             catch
             {
@@ -504,7 +459,7 @@ namespace Glue.Data.Providers.SQLite
         {
             bool leaveOpen = false;
             if (command.Connection == null)
-                command.Connection = CreateConnection();
+                command.Connection = GetConnection();
             if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
             else
@@ -562,19 +517,29 @@ namespace Glue.Data.Providers.SQLite
  
         #region IDataProvider Members
 
-        IDbConnection Glue.Data.IDataProvider.CreateConnection()
+        IDataProvider IDataProvider.Open()
         {
-            return this.CreateConnection();
+            return ((SQLiteDataProvider)this).Open(IsolationLevel.Unspecified);
+        }
+
+        IDataProvider IDataProvider.Open(IsolationLevel level)
+        {
+            return Open(level);
+        }
+
+        IDbDataParameter Glue.Data.IDataProvider.AddParameter(IDbCommand command, string name, object value)
+        {
+            return this.AddParameter((SQLiteCommand)command, name, value);
+        }
+
+        void Glue.Data.IDataProvider.AddParameters(IDbCommand command, params object[] paramNameValueList)
+        {
+            this.SetParameters((SQLiteCommand)command, paramNameValueList);
         }
 
         IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, object value)
         {
             return this.SetParameter((SQLiteCommand)command, name, value);
-        }
-
-        IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, DbType type, object value)
-        {
-            return this.SetParameter((SQLiteCommand)command, name, type, value);
         }
 
         void Glue.Data.IDataProvider.SetParameters(IDbCommand command, params object[] paramNameValueList)
@@ -587,19 +552,9 @@ namespace Glue.Data.Providers.SQLite
             return this.CreateCommand(commandText, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateCommand(IDbConnection connection, string commandText, params object[] paramNameValueList)
-        {
-            return this.CreateCommand((SQLiteConnection)connection, commandText, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
         {
             return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(IDbConnection connection, string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand((SQLiteConnection)connection, storedProcedureName, paramNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
@@ -607,19 +562,9 @@ namespace Glue.Data.Providers.SQLite
             return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(IDbConnection connection, string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
-        {
-            return this.CreateSelectCommand((SQLiteConnection)connection, table, columns, constraint, order, limit, paramNameValueList);
-        }
-
         IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(string table, params object[] columnNameValueList)
         {
             return this.CreateInsertCommand(table, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(IDbConnection connection, string table, params object[] columnNameValueList)
-        {
-            return this.CreateInsertCommand((SQLiteConnection)connection, table, columnNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
@@ -627,19 +572,9 @@ namespace Glue.Data.Providers.SQLite
             return this.CreateUpdateCommand(table, constraint, columnNameValueList);
         }
 
-        IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
+        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
-            return this.CreateUpdateCommand((SQLiteConnection)connection, table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand(table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(IDbConnection connection, string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand((SQLiteConnection)connection, table, constraint, columnNameValueList);
+            return this.CreateReplaceCommand(table, columnNameValueList);
         }
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
@@ -670,33 +605,6 @@ namespace Glue.Data.Providers.SQLite
         string Glue.Data.IDataProvider.ExecuteScalarString(IDbCommand command)
         {
             return this.ExecuteScalarString((SQLiteCommand)command);
-        }
-
-        /// <summary>
-        /// Converts a native value to the SQL representation for this provider.
-        /// </summary>
-        string Glue.Data.IDataProvider.ToSql(object v)
-        {
-            if (v == null)
-                throw new ArgumentException("Cannot convert null to a SQL constant.");
-            Type t = v.GetType();
-            if (t == typeof(String))
-                return "'" + ((String)v).Replace("'","''") + "'";
-            if (t == typeof(Boolean))
-                return (Boolean)v ? "1" : "0";
-            if (t == typeof(Char))
-                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
-            if (t == typeof(Int32))
-                return ((Int32)v).ToString();
-            if (t == typeof(Byte))
-                return ((Byte)v).ToString();
-            if (t.IsPrimitive)
-                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
-            if (t == typeof(Guid))
-                return "'{" + ((Guid)v).ToString("D") + "}'";
-            if (t == typeof(DateTime))
-                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
-            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
         }
 
         #endregion

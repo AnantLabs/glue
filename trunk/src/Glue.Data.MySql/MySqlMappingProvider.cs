@@ -42,11 +42,26 @@ namespace Glue.Data.Providers.MySql
         {
         }
 
-        QueryBuilder CreateQueryBuilder()
+        public new MySqlMappingProvider Open()
         {
-            return new QueryBuilder('?', '`', '`');
+            return (MySqlMappingProvider)base.Open();
         }
 
+        public new MySqlMappingProvider Open(IsolationLevel level)
+        {
+            return (MySqlMappingProvider)base.Open(level);
+        }
+
+        IMappingProvider IMappingProvider.Open()
+        {
+            return this.Open();
+        }
+
+        IMappingProvider IMappingProvider.Open(IsolationLevel level)
+        {
+            return this.Open();
+        }
+        
         Accessor GetAccessor(Type type)
         {
             Entity info = Obtain(type);
