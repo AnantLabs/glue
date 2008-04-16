@@ -219,6 +219,7 @@
     <Compile Include="NullConvert.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ObjectDumper.cs" />
     <Compile Include="Options\OptionAttribute.cs">
       <SubType>Code</SubType>
     </Compile>

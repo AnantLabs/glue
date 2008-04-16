@@ -40,7 +40,7 @@ namespace Glue.Data.Mapping
         /// <summary>
         /// Name of mappingprovider configuration element
         /// </summary>
-        public string MappingProvider = "dataprovider";
+        public string DataProvider = "dataprovider";
     }
 
     /// <summary>

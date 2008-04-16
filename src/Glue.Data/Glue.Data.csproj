@@ -36,19 +36,18 @@
   <ItemGroup>
     <Compile Include="ActiveRecord.cs" />
     <Compile Include="BaseDataProvider.cs" />
-    <Compile Include="BaseMappingProvider.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IActiveRecord.cs" />
     <Compile Include="IDataExporter.cs" />
     <Compile Include="IDataImporter.cs" />
     <Compile Include="IDataProvider.cs" />
-    <Compile Include="IMappingProvider.cs" />
     <Compile Include="ISchemaProvider.cs" />
     <Compile Include="Limit.cs" />
     <Compile Include="MappingProvider.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Mapping\Accessor.cs" />
+    <Compile Include="Mapping\AccessorInfo.cs" />
     <Compile Include="Mapping\Attributes.cs" />
     <Compile Include="Mapping\AccessorHelper.cs" />
     <Compile Include="Mapping\Entity.cs" />
@@ -56,12 +55,7 @@
     <Compile Include="Mapping\EntityMember.cs" />
     <Compile Include="Mapping\Assocations.cs" />
     <Compile Include="Order.cs" />
-    <Compile Include="PrettyPrint.cs" />
-    <Compile Include="Providers\OleDb\OleDbDataProvider.cs" />
-    <Compile Include="Providers\OleDb\OleDbMappingProvider.cs" />
     <Compile Include="Providers\Sql\SqlDataProvider2.cs" />
-    <Compile Include="Providers\Sql\SqlDataProvider.cs" />
-    <Compile Include="Providers\Sql\SqlMappingProvider.cs" />
     <Compile Include="Providers\Sql\SqlSchemaProvider.cs" />
     <Compile Include="Schema\BinHexEncoding.cs" />
     <Compile Include="Schema\Column.cs" />
@@ -99,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="Providers\OleDb\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

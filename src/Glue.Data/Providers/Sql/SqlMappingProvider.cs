@@ -42,7 +42,7 @@ namespace Glue.Data.Providers.Sql
         /// <summary>
         /// Initialisation from config.
         /// </summary>
-        protected SqlMappingProvider(System.Xml.XmlNode node) : base(node)
+        public SqlMappingProvider(System.Xml.XmlNode node) : base(node)
         {
         }
 

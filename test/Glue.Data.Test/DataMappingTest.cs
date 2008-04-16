@@ -6,100 +6,15 @@ using NUnit.Framework;
 using Glue.Lib;
 using Glue.Data;
 using Glue.Data.Mapping;
-using Glue.Data.Test.Model;
 
 namespace Glue.Data.Test
 {
-    public class DAL
-    {
-        public IMappingProvider Provider;
-        
-        public DAL(IMappingProvider provider)
-        {
-            Provider = provider;
-        }
-
-        public Contact[] ContactList(Filter filter, Order order, Limit limit)
-        {
-            return (Contact[])Provider.List(typeof(Contact), filter, order, limit);
-        }
-
-        public Contact ContactFind(int id)
-        {
-            return (Contact)Provider.Find(typeof(Contact), id);
-        }
-
-        public Contact ContactFind(Filter filter, Order order)
-        {
-            return (Contact)Provider.FindByFilter(typeof(Contact), filter, order);
-        }
-
-        public void ContactSave(Contact contact)
-        {
-            Provider.Save(contact);
-        }
-
-        public void ContactDelete(int id)
-        {
-            Provider.Delete(typeof(Contact), id);
-        }
-
-        public void ContactAddCategory(Contact contact, Category category)
-        {
-            Provider.AddManyToMany(contact, category, "ContactCategory");
-        }
-
-        public void ContactRemoveCategory(Contact contact, Category category)
-        {
-            Provider.DelManyToMany(contact, category, "ContactCategory");
-        }
-    }
-
-    [TestFixture]
     public class DataMappingTest
     {
-        public static IMappingProvider Provider3 = new Glue.Data.Providers.Sql.SqlMappingProvider(
-            "localhost", 
-            "glue_data_test", 
-            "glue", 
-            "glue",
-            MappingOptions.PrefixedColumns
-            );
-
-        public static IMappingProvider Provider2 = new Glue.Data.Providers.MySql.MySqlMappingProvider(
-            "calypso",
-            "glue_data_test",
-            "glue",
-            "glue",
-            MappingOptions.PrefixedColumns
-            );
-
-        public static IMappingProvider Provider = new Glue.Data.Providers.SQLite.SQLiteMappingProvider(
-            null,
-            "d:/temp/glue_data_test.db3",
-            null,
-            null,
-            MappingOptions.PrefixedColumns
-            );
-
-        //public static IMappingProvider Provider = Configuration.Get("dataprovider");
+        public IDataProvider Provider;
 
         [Test]
-        public static void Test()
-        {
-            TestPrimitives();
-            TestMapping();
-            TestEntities();
-        }
-
-        [Test]
-        public static void TestMapping()
-        {
-            //(Provider as Glue.Data.Providers.Sql.SqlMappingProvider).GenerateAccessor(typeof(Contact));
-        }
-
-        [Test]
-        public static void TestPrimitives()
+        public void TestPrimitives()
         {
             string s = "id desc";
             Order o = s;
@@ -129,7 +44,8 @@ namespace Glue.Data.Test
             Log.Info("Limit: " + l);
         }
 
-        static void InitData()
+        [Test]
+        public void TestInsertEntities()
         {
             Category cat = new Category();
             cat.CategoryName = "Food";
@@ -187,12 +103,9 @@ namespace Glue.Data.Test
         }
 
         [Test]
-        public static void TestEntities()
+        public void TestEntities()
         {
-            // InitData();
-            Contact c = new Contact();
-            
-            c = Contact.Find(1);
+            Contact c = Contact.Find(1);
             Log.Info("Contact: " + c.Id + "=" + c.DisplayName);
             c = (Contact)Provider.FindByFilter(typeof(Contact), (Filter)"ContactId=1");
             
@@ -223,19 +136,19 @@ namespace Glue.Data.Test
             foreach (Category cat in c.CategoryList())
                 Log.Info("  Cat: " + cat.CategoryName);
 
-            //using (Session.Open(Provider))
-            //{
+            using (IDataProvider session = Provider.Open(System.Data.IsolationLevel.ReadCommitted))
+            {
                 for (int i = 1; i <= 100; i++)
                 {
                     Category cat = new Category();
                     cat.CategoryName = "Cat" + i;
-                    Provider.Insert(cat);
+                    session.Insert(cat);
                 }
                 for (int i = 1; i <= 100; i++)
                 {
-                    Provider.ExecuteNonQuery("delete from Category where CategoryName=@Name", "Name", "Cat" + i);
+                    session.ExecuteNonQuery("delete from Category where CategoryName=@Name", "Name", "Cat" + i);
                 }
-            //}
+            }
 
             c.LastName = "Wok888";
             c.Insert();
@@ -247,6 +160,39 @@ namespace Glue.Data.Test
             c.Delete();
             c = Contact.Find(id);
             Log.Info("Contact: '" + c + "' should be empty");
+        }
+    }
+    
+    [TestFixture]
+    public class SqlDataMappingTest : DataMappingTest
+    {
+        [SetUp]
+        public void Setup()
+        {
+            Context.Current = (Context)Configuration.Get("context-sql");
+            Provider = Context.Current.Provider;
+        }
+    }
+
+    [TestFixture]
+    public class MySqlDataMappingTest : DataMappingTest
+    {
+        [SetUp]
+        public void Setup()
+        {
+            Context.Current = (Context)Configuration.Get("context-mysql");
+            Provider = Context.Current.Provider;
+        }
+    }
+
+    [TestFixture]
+    public class SQLiteDataMappingTest : DataMappingTest
+    {
+        [SetUp]
+        public void Setup()
+        {
+            Context.Current = (Context)Configuration.Get("context-sqlite");
+            Provider = Context.Current.Provider;
         }
     }
 }

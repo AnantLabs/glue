@@ -18,12 +18,12 @@ namespace Glue.Data.Mapping
         public EntityMember AutoKeyMember;
         public Type Type;
         public TableAttribute Table;
-        public string FindCommandText;
-        public string InsertCommandText;
-        public string UpdateCommandText;
-        public string DeleteCommandText;
-        public string ReplaceCommandText;
-        public Accessor Accessor;
+        private string FindCommandText;
+        private string InsertCommandText;
+        private string UpdateCommandText;
+        private string DeleteCommandText;
+        private string ReplaceCommandText;
+        private Accessor Accessor;
         public IDictionary Cache;
 
         public Entity(Type type)

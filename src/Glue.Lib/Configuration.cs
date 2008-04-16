@@ -75,6 +75,7 @@ namespace Glue.Lib
         /// Returns the configuration object mounted at given key,
         /// returns null if no object is found.
         /// </summary>
+        [System.Diagnostics.DebuggerNonUserCode]
         public static object Get(string key)
         {
             return Get(key, null);
@@ -87,6 +88,7 @@ namespace Glue.Lib
         /// If no information is found, registeres type _default and 
         /// returns an instance of this type. 
         /// </summary>
+        [System.Diagnostics.DebuggerNonUserCode]
         public static object Get(string key, Type type)
         {
             object obj = HttpRuntime.Cache["#Glue.Lib.Configuration#Cached#" + key + "#" + type];

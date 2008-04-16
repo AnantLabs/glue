@@ -364,22 +364,26 @@ namespace Glue.Data.Providers.Sql
                 // This ONLY WORKS if the order by clause contains all key columns
                 
                 // Get ordering columns
-                string[] ordernames = new string[order.Count];
+                string[] ordervars = new string[order.Count];
+                string[] ordercols = new string[order.Count];
                 for (int i = 0; i < order.Count; i++)
-                    ordernames[i] = order[i].Substring(1).Replace('.', '_');
+                {
+                    ordervars[i] = "@start_" + order[i].Substring(1).Replace('.', '_');
+                    ordercols[i] = order[i].Substring(1);
+                }
 
                 // Declare variables for all ordering members
-                for (int i = 0; i < ordernames.Length; i++)
-                    s.Append("DECLARE @start_").Append(ordernames[i]).AppendLine(" sql_variant");
+                for (int i = 0; i < ordervars.Length; i++)
+                    s.Append("DECLARE ").Append(ordervars[i]).AppendLine(" sql_variant");
                 
                 // Create the first select, for skipping unwanted rows
                 s.AppendLine("SET ROWCOUNT " + limit.Index);
                 s.Append("SELECT ");
-                for (int i = 0; i < ordernames.Length; i++)
+                for (int i = 0; i < ordervars.Length; i++)
                 {
-                    if (i > 0) 
+                    if (i > 0)
                         s.Append(",");
-                    s.Append("@start_").Append(ordernames[i]).Append("=").Append(ordernames[i]);
+                    s.Append(ordervars[i]).Append("=").Append(ordercols[i]);
                 }
                 s.Append(" FROM ");
                 s.Identifier(table);
@@ -392,17 +396,15 @@ namespace Glue.Data.Providers.Sql
 
                 // Now adapt the constraint for use in the subsequent select.
                 Filter outside = null;
-                for (int i = ordernames.Length - 1; i >= 0; i--)
+                for (int i = ordervars.Length - 1; i >= 0; i--)
                 {
-                    string col = ordernames[i];
-                    string start = "@start_" + ordernames[i];
                     if (outside != null)
-                        outside = Filter.And("(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + "=" + start + ")", outside);
-                    
+                        outside = Filter.And("(" + ordercols[i] + " IS NULL) AND (" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + "=" + ordervars[i] + ")", outside);
+
                     if (order.GetDirection(i) > 0)
-                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + ">" + start + ")", outside);
+                        outside = Filter.Or("NOT(" + ordercols[i] + " IS NULL) AND (" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + ">" + ordervars[i] + ")", outside);
                     else
-                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(" + start + " IS NULL) OR (" + col + "<" + start + ")", outside);
+                        outside = Filter.Or("(" + ordercols[i] + " IS NULL) AND NOT(" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + "<" + ordervars[i] + ")", outside);
                 }
                 constraint = Filter.And(constraint, outside);
             }

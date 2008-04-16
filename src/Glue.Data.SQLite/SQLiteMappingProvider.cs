@@ -38,7 +38,7 @@ namespace Glue.Data.Providers.SQLite
         /// <summary>
         /// Initialisation from config.
         /// </summary>
-        protected SQLiteMappingProvider(System.Xml.XmlNode node) : base(node)
+        public SQLiteMappingProvider(System.Xml.XmlNode node) : base(node)
         {
         }
 

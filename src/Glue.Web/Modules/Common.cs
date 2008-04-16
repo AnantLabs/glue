@@ -174,7 +174,7 @@ namespace Glue.Web.Modules
         /// <summary>
         /// LogAppender method
         /// </summary>
-        public override void Write(string s)
+        public override void Write(Level level, string s)
         {
             string content = (string)trace_content[Thread.CurrentThread];
             content += Helper.HtmlEncode(s) + "\r\n";
