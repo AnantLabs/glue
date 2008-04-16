@@ -65,6 +65,7 @@ namespace Glue.Lib
     /// ]]>
     /// </code>
     /// </remarks>
+    [System.Diagnostics.DebuggerNonUserCode]
     public class Log : IDisposable
     {
         // Static members
@@ -164,7 +165,6 @@ namespace Glue.Lib
         {
             Instance.Write(Level.Info, e);
         }
-        
 
         public static void Debug(object o)
         {
@@ -283,7 +283,7 @@ namespace Glue.Lib
                     string s = h + m;
 
                     foreach (LogAppender appender in _appenders)
-                        try   { appender.Write(s); }
+                        try   { appender.Write(level, s); }
                         catch { }
                 }
             }
@@ -324,7 +324,7 @@ namespace Glue.Lib
         public virtual void Close()
         {
         }
-        public abstract void Write(string s);
+        public abstract void Write(Level level, string s);
     }
 
     /// <summary>
@@ -353,6 +353,7 @@ namespace Glue.Lib
     /// ]]>
     /// </code>
     /// </remarks>
+    [System.Diagnostics.DebuggerNonUserCode]
     public class DefaultAppender : LogAppender
     {
         public DefaultAppender()
@@ -363,7 +364,7 @@ namespace Glue.Lib
         {
         }
 
-        public override void Write(string s)
+        public override void Write(Level level, string s)
         {
             System.Diagnostics.Debug.WriteLine(s);
         }
@@ -395,15 +396,26 @@ namespace Glue.Lib
     /// ]]>
     /// </code>
     /// </remarks>
+    [System.Diagnostics.DebuggerNonUserCode]
     public class ConsoleAppender : LogAppender
     {
         public ConsoleAppender(XmlNode node)
         {
         }
 
-        public override void Write(string s)
+        public override void Write(Level level, string s)
         {
+            ConsoleColor color = Console.ForegroundColor;
+            if (level == Level.Error || level == Level.Fatal)
+                Console.ForegroundColor = ConsoleColor.Red;
+            else if (level == Level.Warn)
+                Console.ForegroundColor = ConsoleColor.Magenta;
+            else if (level == Level.Info)
+                Console.ForegroundColor = ConsoleColor.White;
+            else
+                Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(s);
+            Console.ForegroundColor = color;
         }
     }
 
@@ -487,7 +499,7 @@ namespace Glue.Lib
             writer = null;
         }
 
-        public override void Write(string s)
+        public override void Write(Level level, string s)
         {
             if (DateTime.Now > check)
                 RollOver();

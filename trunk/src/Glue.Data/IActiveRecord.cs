@@ -7,22 +7,22 @@ namespace Glue.Data
     public interface IActiveRecord
     {
         /// <summary>
-        /// Return the MappingProvider for this class
+        /// Return the DataProvider for this class
         /// </summary>
         /// <remarks>
-        /// The MappingProvider can to be declared in the Table-attribute.
+        /// The DataProvider can to be declared in the Table-attribute.
         ///
-        /// If the MappingProvider is not declared, the default MappingProvider is initialized
+        /// If the DataProvider is not declared, the default DataProvider is initialized
         /// from the element "dataprovider" (which, obviously, has to be there...).
         /// </remarks>
         /// <example>
-        /// [Table(MappingProvider="dataprovider-account")]
+        /// [Table(DataProvider="dataprovider-account")]
         /// public class Account : ActiveRecord
         /// {
         /// [...]
         /// }
         /// </example>
-        IMappingProvider Provider { get; }
+        IDataProvider Provider { get; }
 
 
         /// <summary>

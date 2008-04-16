@@ -24,7 +24,7 @@ namespace Glue.Web.Modules
 	/// </summary>
 	public class Traffic : IModule
 	{
-        static IMappingProvider provider = (IMappingProvider)Configuration.Get("dataprovider");
+        static IDataProvider provider = (IDataProvider)Configuration.Get("dataprovider");
 
         /// <summary>
         /// Before

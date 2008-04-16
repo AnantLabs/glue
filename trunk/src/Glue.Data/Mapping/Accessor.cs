@@ -13,12 +13,12 @@ namespace Glue.Data.Mapping
         /// Type forthis accessor
         /// </summary>
         public readonly Type Type;
-        public readonly IMappingProvider Provider;
+        public readonly IDataProvider Provider;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        protected Accessor(IMappingProvider provider, Type type)
+        protected Accessor(IDataProvider provider, Type type)
         {
             this.Provider = provider;
             this.Type = type;

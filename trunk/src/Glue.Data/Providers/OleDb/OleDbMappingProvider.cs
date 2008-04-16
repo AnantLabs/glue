@@ -42,7 +42,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// Initialisation from config.
         /// </summary>
-        protected OleDbMappingProvider(System.Xml.XmlNode node) : base(node)
+        public OleDbMappingProvider(System.Xml.XmlNode node) : base(node)
         {
         }
 

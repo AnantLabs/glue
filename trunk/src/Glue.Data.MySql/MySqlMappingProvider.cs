@@ -38,7 +38,7 @@ namespace Glue.Data.Providers.MySql
         /// <summary>
         /// Initialisation from config.
         /// </summary>
-        protected MySqlMappingProvider(System.Xml.XmlNode node) : base(node)
+        public MySqlMappingProvider(System.Xml.XmlNode node) : base(node)
         {
         }
 

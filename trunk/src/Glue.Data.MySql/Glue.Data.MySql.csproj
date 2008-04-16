@@ -87,12 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MySqlDataProvider2.cs" />
-    <Compile Include="MySqlDataProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MySqlMappingProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="MySqlSchemaProvider.cs">
       <SubType>Code</SubType>
     </Compile>

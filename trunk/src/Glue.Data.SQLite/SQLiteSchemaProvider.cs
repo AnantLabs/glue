@@ -18,7 +18,7 @@ namespace Glue.Data.Providers.SQLite
 	{
         private string name = null;
         private string connectionString = null;
-        private SQLiteDataProvider provider;
+        private SQLiteDataProvider2 provider;
         
         ///// <summary>
         ///// SQLiteProvider
@@ -27,7 +27,7 @@ namespace Glue.Data.Providers.SQLite
         //{
         //}
 
-        public SQLiteSchemaProvider(SQLiteDataProvider provider)
+        public SQLiteSchemaProvider(SQLiteDataProvider2 provider)
         {
             this.provider = provider;
         }
@@ -121,7 +121,7 @@ namespace Glue.Data.Providers.SQLite
 
         public Table[] GetTables(Database database)
         {
-            using (SQLiteDataReader reader = provider.ExecuteReader(
+            using (IDataReader reader = provider.ExecuteReader(
                 "SELECT name FROM sqlite_master WHERE type='table'", null))
             {
                 ArrayList list = new ArrayList();
@@ -147,7 +147,7 @@ namespace Glue.Data.Providers.SQLite
 
         public Column[] GetColumns(Container container)
         {
-            using (SQLiteDataReader reader = provider.ExecuteReader(
+            using (IDataReader reader = provider.ExecuteReader(
                 "pragma table_info(" + container.Name + ")", null))
             {
                 ArrayList list = new ArrayList();

@@ -40,11 +40,8 @@ namespace Glue.Data.Providers.SQLite
             _connectionString = Configuration.GetAttr(node, "connectionString", null);
             if (_connectionString == null)
             {
-                string server   = Configuration.GetAttr(node, "server");
                 string database = Configuration.GetAttr(node, "database");
-                string username = Configuration.GetAttr(node, "username", null);
-                string password = Configuration.GetAttr(node, "password", null);
-                _connectionString = "Data Source=" + database;
+                _connectionString = "Data Source=" + database + "; Pooling=True; Version=3; UTF8Encoding=True;";
             }
         }
 

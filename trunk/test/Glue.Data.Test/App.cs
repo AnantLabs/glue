@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using Glue.Lib;
 
 namespace Glue.Data.Test
 {
@@ -14,11 +15,18 @@ namespace Glue.Data.Test
         [STAThread]
         static void Main(string[] args)
         {
-            Glue.Lib.Log.Level = Glue.Lib.Level.Debug;
+            Glue.Lib.Log.Level = Glue.Lib.Level.Info;
+            ObjectDumper.Write(Console.Out, new Contact(), 1);
+
             // DataProvider
-            DataProviderTest.Test();
+            // Tester.Run<SqlDataProviderTest>();
+            Tester.Run<MySqlDataProviderTest>();
+            // Tester.Run<SQLiteDataProviderTest>();
+
             // DataMapping
-            // DataMappingTest.Test();
+            // Tester.Run<SqlDataMappingTest>();
+            Tester.Run<MySqlDataMappingTest>();
+            // Tester.Run<SQLiteDataMappingTest>();
         }
     }
 }

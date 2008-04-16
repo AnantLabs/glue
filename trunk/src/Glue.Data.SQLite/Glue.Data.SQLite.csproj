@@ -87,12 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SQLiteDataProvider2.cs" />
-    <Compile Include="SQLiteDataProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SQLiteMappingProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="SQLiteSchemaProvider.cs">
       <SubType>Code</SubType>
     </Compile>

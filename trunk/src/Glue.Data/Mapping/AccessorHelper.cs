@@ -26,7 +26,7 @@ namespace Glue.Data.Mapping
             code.WriteLine("{");
             code.WriteLine("  public class " + typeName + " : " + typeof(Accessor).FullName);
             code.WriteLine("  {");
-            code.WriteLine("    public " + typeName + "(IMappingProvider provider, Type type) : base(provider, type) {} ");
+            code.WriteLine("    public " + typeName + "(IDataProvider provider, Type type) : base(provider, type) {} ");
             code.WriteLine("    public override void InitFromReaderFixed(object obj, IDataReader reader, int index)");
             code.WriteLine("    {");
             code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");

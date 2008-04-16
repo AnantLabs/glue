@@ -39,10 +39,10 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="DataMappingTest.cs" />
-    <Compile Include="DataMappingTestModel.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="DataProviderTest.cs" />
-    <Compile Include="MySqlTest.cs" />
-    <Compile Include="Setup.cs" />
+    <Compile Include="Context.cs" />
+    <Compile Include="Tester.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Glue.Data.MySql\Glue.Data.MySql.csproj">
@@ -61,6 +61,9 @@
       <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
       <Name>Glue.Lib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

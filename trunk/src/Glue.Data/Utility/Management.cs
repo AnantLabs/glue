@@ -104,7 +104,7 @@ namespace Glue.Data.Schema
             /*
             elementname = NullConvert.Coalesce(elementname, "dataprovider");
             // <dataprovider
-            //  type="Glue.Data.Providers.Sql.SqlMappingProvider"
+            //  type="Glue.Data.Providers.Sql.SqlDataProvider"
             //  database="database_name"
             //  username="glue_user"
             //  server="server_name"
