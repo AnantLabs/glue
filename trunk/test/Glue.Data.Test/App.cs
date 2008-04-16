@@ -17,16 +17,19 @@ namespace Glue.Data.Test
         {
             Glue.Lib.Log.Level = Glue.Lib.Level.Info;
             ObjectDumper.Write(Console.Out, new Contact(), 1);
+            // SqlDataMappingTest test = new SqlDataMappingTest();
+            // test.Setup();
+            // test.TestEntities();
 
             // DataProvider
-            // Tester.Run<SqlDataProviderTest>();
+            Tester.Run<SqlDataProviderTest>();
             Tester.Run<MySqlDataProviderTest>();
-            // Tester.Run<SQLiteDataProviderTest>();
+            Tester.Run<SQLiteDataProviderTest>();
 
             // DataMapping
-            // Tester.Run<SqlDataMappingTest>();
+            Tester.Run<SqlDataMappingTest>();
             Tester.Run<MySqlDataMappingTest>();
-            // Tester.Run<SQLiteDataMappingTest>();
+            Tester.Run<SQLiteDataMappingTest>();
         }
     }
 }

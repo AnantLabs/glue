@@ -18,7 +18,7 @@ namespace Glue.Data.Providers.SQLite
 	{
         private string name = null;
         private string connectionString = null;
-        private SQLiteDataProvider2 provider;
+        private SQLiteDataProvider provider;
         
         ///// <summary>
         ///// SQLiteProvider
@@ -27,7 +27,7 @@ namespace Glue.Data.Providers.SQLite
         //{
         //}
 
-        public SQLiteSchemaProvider(SQLiteDataProvider2 provider)
+        public SQLiteSchemaProvider(SQLiteDataProvider provider)
         {
             this.provider = provider;
         }

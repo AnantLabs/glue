@@ -12,6 +12,8 @@ namespace Glue.Data.Test
         public static Context Current = null;
         
         public IDataProvider Provider;
+        public abstract void CreateDatabase();
+
     }
 
     /// <summary>
@@ -21,27 +23,31 @@ namespace Glue.Data.Test
     {
         public SqlContext(XmlNode node)
         {
-            Provider = new Glue.Data.Providers.Sql.SqlDataProvider2(node);
+            Provider = new Glue.Data.Providers.Sql.SqlDataProvider(node);
+        }
+
+        public override void CreateDatabase()
+        {
             Provider.ExecuteNonQuery(Script);
         }
 
         public string Script = @"
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[ContactCategory]') AND type in (N'U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='ContactCategory' AND type='U')
 DROP TABLE [ContactCategory]
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[Contact]') AND type in ('U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='Contact' AND type='U')
 DROP TABLE [Contact]
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[Category]') AND type in ('U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='Category' AND type='U')
 DROP TABLE [Category]
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[Customer]') AND type in ('U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='Customer' AND type='U')
 DROP TABLE [Customer]
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[Country]') AND type in ('U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='Country' AND type='U')
 DROP TABLE [Country]
 
-IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('[Language]') AND type in ('U'))
+IF EXISTS (SELECT * FROM sysobjects WHERE name='Language' AND type='U')
 DROP TABLE [Language]
 
 CREATE TABLE [Language] (
@@ -99,7 +105,11 @@ CREATE TABLE [ContactCategory] (
     {
         public MySqlContext(XmlNode node)
         {
-            Provider = new Glue.Data.Providers.MySql.MySqlDataProvider2(node);
+            Provider = new Glue.Data.Providers.MySql.MySqlDataProvider(node);
+        }
+
+        public override void CreateDatabase()
+        {
             Provider.ExecuteNonQuery(Script);
         }
 
@@ -163,7 +173,11 @@ CREATE TABLE `ContactCategory` (
     {
         public SQLiteContext(XmlNode node)
         {
-            Provider = new Glue.Data.Providers.SQLite.SQLiteDataProvider2(node);
+            Provider = new Glue.Data.Providers.SQLite.SQLiteDataProvider(node);
+        }
+
+        public override void CreateDatabase()
+        {
             Provider.ExecuteNonQuery(Script);
         }
 

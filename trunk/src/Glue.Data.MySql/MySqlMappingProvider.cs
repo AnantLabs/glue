@@ -15,7 +15,7 @@ namespace Glue.Data.Providers.MySql
     /// <summary>
     /// Provider
     /// </summary>
-    public class MySqlMappingProvider : MySqlDataProvider, IMappingProvider
+    public class MySqlMappingProviderOBSOLETE : MySqlDataProvider, IMappingProvider
     {
         MappingOptions options;
 

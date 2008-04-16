@@ -4,30 +4,31 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Data;
-using System.Data.OleDb;
+using System.Data.SqlClient;
 using Glue.Lib;
 using Glue.Data;
+using Glue.Data.Mapping;
 
-namespace Glue.Data.Providers.OleDb
+namespace Glue.Data.Providers.Sql
 {
-    public class OleDbDataProviderOBSOLETE : IDataProvider
+    public class SqlDataProviderOBSOLETE : IDataProvider
     {
         string _connectionString;
-        OleDbConnection _connection;
-        OleDbTransaction _transaction;
+        SqlConnection _connection;
+        SqlTransaction _transaction;
 
         /// <summary>
-        /// OleDbHelper
+        /// SqlHelper
         /// </summary>
-        public OleDbDataProvider(string connectionString)
+        public SqlDataProvider(string connectionString)
         {
             _connectionString = connectionString;
         }
 
         /// <summary>
-        /// OleDbHelper
+        /// SqlDataProvider
         /// </summary>
-        public OleDbDataProvider(string server, string database, string username, string password)
+        public SqlDataProvider(string server, string database, string username, string password)
         {
             _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
@@ -35,7 +36,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// Initialisation from config.
         /// </summary>
-        protected OleDbDataProvider(XmlNode node)
+        protected SqlDataProvider(XmlNode node)
         {
             _connectionString = Configuration.GetAttr(node, "connectionString", null);
             if (_connectionString == null)
@@ -44,14 +45,25 @@ namespace Glue.Data.Providers.OleDb
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
-                _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+                if (username != null)
+                    _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
+                else
+                    _connectionString = "server=" + server + ";database=" + database + ";integrated security=true";
             }
+        }
+
+        /// <summary>
+        /// Creates a QueryBuilder
+        /// </summary>
+        protected QueryBuilder CreateQueryBuilder()
+        {
+            return new QueryBuilder('@', '[', ']');
         }
 
         /// <summary>
         /// Copy constructor for opening sessions and transactions
         /// </summary>
-        protected OleDbDataProvider(OleDbDataProvider provider)
+        protected SqlDataProvider(SqlDataProvider provider)
         {
             _connectionString = provider._connectionString;
         }
@@ -61,22 +73,22 @@ namespace Glue.Data.Providers.OleDb
         /// override this to create a copy of their own.
         /// </summary>
         /// <returns></returns>
-        protected virtual OleDbDataProvider Copy()
+        protected virtual SqlDataProvider Copy()
         {
-            return new OleDbDataProvider(this);
+            return new SqlDataProvider(this);
         }
 
         /// <summary>
         /// Open session
         /// </summary>
-        public OleDbDataProvider Open()
+        public SqlDataProvider Open()
         {
             return Open(IsolationLevel.Unspecified);
         }
 
-        public OleDbDataProvider Open(IsolationLevel level)
+        public SqlDataProvider Open(IsolationLevel level)
         {
-            OleDbDataProvider copy = Copy();
+            SqlDataProvider copy = Copy();
             copy.OpenInternal(level);
             return copy;
         }
@@ -151,7 +163,7 @@ namespace Glue.Data.Providers.OleDb
         /// </summary>
         protected QueryBuilder CreateQueryBuilder()
         {
-            return new QueryBuilder('?', '[', ']');
+            return new QueryBuilder('@', '[', ']');
         }
 
         /// <summary>
@@ -165,12 +177,12 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// CreateConnection
         /// </summary>
-        public OleDbConnection CreateConnection()
+        public SqlConnection CreateConnection()
         {
-            return new OleDbConnection(this._connectionString);
+            return new SqlConnection(this._connectionString);
         }
 
-        public OleDbConnection GetConnection()
+        public SqlConnection GetConnection()
         {
             return _connection ?? CreateConnection();
         }
@@ -183,23 +195,25 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// AddParameter
         /// </summary>
-        public OleDbParameter AddParameter(OleDbCommand command, string name, object value)
+        public SqlParameter AddParameter(SqlCommand command, string name, object value)
         {
-            OleDbParameter parameter = new OleDbParameter(name, value ?? DBNull.Value);
+            SqlParameter parameter = new SqlParameter(name, value ?? DBNull.Value);
             command.Parameters.Add(parameter);
+            if (value is byte[])
+                parameter.Size = ((byte[])value).Length;
             return parameter;
         }
 
         /// <summary>
         /// SetParameter
         /// </summary>
-        public OleDbParameter SetParameter(OleDbCommand command, string name, object value)
+        public SqlParameter SetParameter(SqlCommand command, string name, object value)
         {
             int index = command.Parameters.IndexOf(name);
-            OleDbParameter parameter;
+            SqlParameter parameter;
             if (index < 0)
             {
-                parameter = new OleDbParameter(name, value ?? DBNull.Value);
+                parameter = new SqlParameter(name, value ?? DBNull.Value);
                 command.Parameters.Add(parameter);
             }
             else
@@ -219,7 +233,7 @@ namespace Glue.Data.Providers.OleDb
         {
             if (paramNameValueList == null)
                 yield break;
-            int state = 0; 
+            int state = 0;
             string name = null;
             foreach (object p in paramNameValueList)
             {
@@ -231,25 +245,25 @@ namespace Glue.Data.Providers.OleDb
                         if (p is string)
                         {
                             name = (string)p;
-                                state = 1;
+                            state = 1;
                         }
                         else if (p is IDataRecord)
                         {
                             IDataRecord record = (IDataRecord)p;
                             for (int i = 0; i < record.FieldCount; i++)
-                                yield return new OleDbParameter(record.GetName(i), record.GetValue(i) ?? DBNull.Value);
+                                yield return new SqlParameter(record.GetName(i), record.GetValue(i) ?? DBNull.Value);
                         }
                         else if (p is object[])
                         {
                             yield return CollectParameters((object[])p);
                         }
-                        else 
+                        else
                         {
                             throw new ApplicationException("Expected parameter name or IDataRecord");
                         }
                         break;
                     case 1:
-                        yield return new OleDbParameter(name, p ?? DBNull.Value);
+                        yield return new SqlParameter(name, p ?? DBNull.Value);
                         name = null;
                         state = 0;
                         break;
@@ -264,18 +278,18 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// AddParameters
         /// </summary>
-        public void AddParameters(OleDbCommand command, params object[] paramNameValueList)
+        public void AddParameters(SqlCommand command, params object[] paramNameValueList)
         {
-            foreach (OleDbParameter parameter in CollectParameters(paramNameValueList))
+            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
                 command.Parameters.Add(parameter);
         }
 
         /// <summary>
         /// SetParameters
         /// </summary>
-        public void SetParameters(OleDbCommand command, params object[] paramNameValueList)
+        public void SetParameters(SqlCommand command, params object[] paramNameValueList)
         {
-            foreach (OleDbParameter parameter in CollectParameters(paramNameValueList))
+            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
             {
                 int index = command.Parameters.IndexOf(parameter.ParameterName);
                 if (index >= 0)
@@ -287,19 +301,19 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// CreateCommand
         /// </summary>
-        public OleDbCommand CreateCommand(string commandText, params object[] paramNameValueList)
+        public SqlCommand CreateCommand(string commandText, params object[] paramNameValueList)
         {
-            OleDbCommand command = new OleDbCommand(commandText, GetConnection());
+            SqlCommand command = new SqlCommand(commandText, GetConnection());
             AddParameters(command, paramNameValueList);
             return command;
         }
-        
+
         /// <summary>
         /// CreateStoredProcedureCommand
         /// </summary>
-        public OleDbCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
+        public SqlCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
         {
-            OleDbCommand command = new OleDbCommand(storedProcedureName, GetConnection());
+            SqlCommand command = new SqlCommand(storedProcedureName, GetConnection());
             command.CommandType = CommandType.StoredProcedure;
             AddParameters(command, paramNameValueList);
             return command;
@@ -307,20 +321,18 @@ namespace Glue.Data.Providers.OleDb
 
         /// <summary>
         /// CreateSelectCommand
+        /// ASSUMPTION: The order clause contains the primary key (or keys in case of a combined primary key)
         /// </summary>
-        public OleDbCommand CreateSelectCommand(
-            string table, 
-            string columns, 
-            Filter constraint,
-            Order order,
-            Limit limit,
-            params object[] paramNameValueList)
+        public SqlCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             QueryBuilder s = CreateQueryBuilder();
-            
+
             constraint = Filter.Coalesce(constraint);
             order = Order.Coalesce(order);
             limit = Limit.Coalesce(limit);
+
+            // HACK: check if there's a WITH option clause in the data source.
+            bool nolock = table.IndexOf(" WITH ") < 0;
 
             if (limit.Index > 0)
             {
@@ -361,42 +373,47 @@ namespace Glue.Data.Providers.OleDb
                 // This ONLY WORKS if the order by clause contains all key columns
                 
                 // Get ordering columns
-                string[] ordernames = new string[order.Count];
+                string[] ordervars = new string[order.Count];
+                string[] ordercols = new string[order.Count];
                 for (int i = 0; i < order.Count; i++)
-                    ordernames[i] = order[i].Substring(1).Replace('.', '_');
+                {
+                    ordervars[i] = "@start_" + order[i].Substring(1).Replace('.', '_');
+                    ordercols[i] = order[i].Substring(1);
+                }
 
                 // Declare variables for all ordering members
-                for (int i = 0; i < ordernames.Length; i++)
-                    s.Append("DECLARE @start_").Append(ordernames[i]).AppendLine(" sql_variant");
+                for (int i = 0; i < ordervars.Length; i++)
+                    s.Append("DECLARE ").Append(ordervars[i]).AppendLine(" sql_variant");
                 
                 // Create the first select, for skipping unwanted rows
                 s.AppendLine("SET ROWCOUNT " + limit.Index);
                 s.Append("SELECT ");
-                for (int i = 0; i < ordernames.Length; i++)
+                for (int i = 0; i < ordervars.Length; i++)
                 {
                     if (i > 0)
                         s.Append(",");
-                    s.Append("@start_").Append(ordernames[i]).Append("=").Append(ordernames[i]);
+                    s.Append(ordervars[i]).Append("=").Append(ordercols[i]);
                 }
                 s.Append(" FROM ");
                 s.Identifier(table);
+                if (nolock)
+                    s.Append(" WITH (NOLOCK) ");
+                s.AppendLine();
                 s.Filter(constraint);
                 s.Order(order);
                 s.AppendLine();
 
                 // Now adapt the constraint for use in the subsequent select.
                 Filter outside = null;
-                for (int i = ordernames.Length - 1; i >= 0; i--)
+                for (int i = ordervars.Length - 1; i >= 0; i--)
                 {
-                    string col = ordernames[i];
-                    string start = "@start_" + ordernames[i];
                     if (outside != null)
-                        outside = Filter.And("(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + "=" + start + ")", outside);
-                    
+                        outside = Filter.And("(" + ordercols[i] + " IS NULL) AND (" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + "=" + ordervars[i] + ")", outside);
+
                     if (order.GetDirection(i) > 0)
-                        outside = Filter.Or("NOT(" + col + " IS NULL) AND (" + start + " IS NULL) OR (" + col + ">" + start + ")", outside);
+                        outside = Filter.Or("NOT(" + ordercols[i] + " IS NULL) AND (" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + ">" + ordervars[i] + ")", outside);
                     else
-                        outside = Filter.Or("(" + col + " IS NULL) AND NOT(" + start + " IS NULL) OR (" + col + "<" + start + ")", outside);
+                        outside = Filter.Or("(" + ordercols[i] + " IS NULL) AND NOT(" + ordervars[i] + " IS NULL) OR (" + ordercols[i] + "<" + ordervars[i] + ")", outside);
                 }
                 constraint = Filter.And(constraint, outside);
             }
@@ -408,6 +425,8 @@ namespace Glue.Data.Providers.OleDb
             s.Append(columns);
             s.Append(" FROM ");
             s.Identifier(table);
+            if (nolock)
+                s.Append(" WITH (NOLOCK) ");
             s.Filter(constraint);
             s.Order(order);
             s.AppendLine();
@@ -421,9 +440,9 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// CreateInsertCommand
         /// </summary>
-        public OleDbCommand CreateInsertCommand(string table, params object[] columnNameValueList)
+        public SqlCommand CreateInsertCommand(string table, params object[] columnNameValueList)
         {
-            OleDbCommand command = new OleDbCommand();
+            SqlCommand command = new SqlCommand();
             AddParameters(command, columnNameValueList);
             QueryBuilder s = CreateQueryBuilder();
             s.Append("INSERT INTO ").Identifier(table);
@@ -436,9 +455,9 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// CreateUpdateCommand
         /// </summary>
-        public OleDbCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
+        public SqlCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
         {
-            OleDbCommand command = new OleDbCommand();
+            SqlCommand command = new SqlCommand();
             AddParameters(command, columnNameValueList);
             QueryBuilder s = CreateQueryBuilder();
             s.Append("UPDATE ").Identifier(table).Append(" SET ");
@@ -452,18 +471,18 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// CreateReplaceCommand
         /// </summary>
-        public OleDbCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
+        public SqlCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
             throw new NotImplementedException();
 
-            //OleDbCommand command = new OleDbCommand();
-            //SetParameters(command, columnNameValueList);
+            //SqlCommand command = new SqlCommand();
+            //AddParameters(command, columnNameValueList);
             //QueryBuilder s = CreateQueryBuilder();
             //s.Append("UPDATE ").Identifier(table).Append(" SET ");
             //s.ColumnAndParameterList(command.Parameters, "=", ",");
             //s.Filter(constraint);
             //s.AppendLine();
-            //s.Append(" IF @@ROWCOUNT=0 ");
+            //s.Append("IF @@ROWCOUNT=0 ");
             //s.Append("INSERT INTO ").Identifier(table);
             //s.Append("(").ColumnList(command.Parameters).Append(") VALUES ");
             //s.Append("(").ParameterList(command.Parameters).Append(")");
@@ -475,7 +494,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteNonQuery
         /// </summary>
-        public int ExecuteNonQuery(OleDbCommand command)
+        public int ExecuteNonQuery(SqlCommand command)
         {
             bool leaveOpen = false;
             if (command.Connection == null)
@@ -507,7 +526,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteReader
         /// </summary>
-        public OleDbDataReader ExecuteReader(OleDbCommand command)
+        public SqlDataReader ExecuteReader(SqlCommand command)
         {
             bool leaveOpen = false;
             if (command.Connection == null)
@@ -531,7 +550,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteReader
         /// </summary>
-        public OleDbDataReader ExecuteReader(string commandText, params object[] paramNameValueList)
+        public SqlDataReader ExecuteReader(string commandText, params object[] paramNameValueList)
         {
             return ExecuteReader(CreateCommand(commandText, paramNameValueList));            
         }
@@ -539,7 +558,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteScalar
         /// </summary>
-        public object ExecuteScalar(OleDbCommand command)
+        public object ExecuteScalar(SqlCommand command)
         {
             bool leaveOpen = false;
             if (command.Connection == null)
@@ -570,7 +589,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteScalarInt32
         /// </summary>
-        public int ExecuteScalarInt32(OleDbCommand command)
+        public int ExecuteScalarInt32(SqlCommand command)
         {
             return Convert.ToInt32(ExecuteScalar(command));
         }
@@ -586,7 +605,7 @@ namespace Glue.Data.Providers.OleDb
         /// <summary>
         /// ExecuteScalar returns string or null if DBNull
         /// </summary>
-        public string ExecuteScalarString(OleDbCommand command)
+        public string ExecuteScalarString(SqlCommand command)
         {
             return NullConvert.ToString(ExecuteScalar(command));
         }
@@ -603,7 +622,7 @@ namespace Glue.Data.Providers.OleDb
 
         IDataProvider IDataProvider.Open()
         {
-            return ((OleDbDataProvider)this).Open(IsolationLevel.Unspecified);
+            return Open();
         }
 
         IDataProvider IDataProvider.Open(IsolationLevel level)
@@ -613,22 +632,22 @@ namespace Glue.Data.Providers.OleDb
 
         IDbDataParameter Glue.Data.IDataProvider.AddParameter(IDbCommand command, string name, object value)
         {
-            return this.AddParameter((OleDbCommand)command, name, value);
+            return this.AddParameter((SqlCommand)command, name, value);
         }
 
         void Glue.Data.IDataProvider.AddParameters(IDbCommand command, params object[] paramNameValueList)
         {
-            this.AddParameters((OleDbCommand)command, paramNameValueList);
+            this.AddParameters((SqlCommand)command, paramNameValueList);
         }
 
         IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, object value)
         {
-            return this.SetParameter((OleDbCommand)command, name, value);
+            return this.SetParameter((SqlCommand)command, name, value);
         }
 
         void Glue.Data.IDataProvider.SetParameters(IDbCommand command, params object[] paramNameValueList)
         {
-            this.SetParameters((OleDbCommand)command, paramNameValueList);
+            this.SetParameters((SqlCommand)command, paramNameValueList);
         }
 
         IDbCommand Glue.Data.IDataProvider.CreateCommand(string commandText, params object[] paramNameValueList)
@@ -655,7 +674,7 @@ namespace Glue.Data.Providers.OleDb
         {
             return this.CreateUpdateCommand(table, constraint, columnNameValueList);
         }
-        
+
         IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, params object[] columnNameValueList)
         {
             return this.CreateReplaceCommand(table, columnNameValueList);
@@ -663,12 +682,12 @@ namespace Glue.Data.Providers.OleDb
 
         int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
         {
-            return this.ExecuteNonQuery((OleDbCommand)command);
+            return this.ExecuteNonQuery((SqlCommand)command);
         }
 
         IDataReader Glue.Data.IDataProvider.ExecuteReader(IDbCommand command)
         {
-            return this.ExecuteReader((OleDbCommand)command);
+            return this.ExecuteReader((SqlCommand)command);
         }
 
         IDataReader Glue.Data.IDataProvider.ExecuteReader(string commandText, params object[] paramNameValueList)
@@ -678,17 +697,17 @@ namespace Glue.Data.Providers.OleDb
 
         object Glue.Data.IDataProvider.ExecuteScalar(IDbCommand command)
         {
-            return this.ExecuteScalar((OleDbCommand)command);
+            return this.ExecuteScalar((SqlCommand)command);
         }
 
         int Glue.Data.IDataProvider.ExecuteScalarInt32(IDbCommand command)
         {
-            return this.ExecuteScalarInt32((OleDbCommand)command);
+            return this.ExecuteScalarInt32((SqlCommand)command);
         }
 
         string Glue.Data.IDataProvider.ExecuteScalarString(IDbCommand command)
         {
-            return this.ExecuteScalarString((OleDbCommand)command);
+            return this.ExecuteScalarString((SqlCommand)command);
         }
 
         #endregion

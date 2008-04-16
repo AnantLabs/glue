@@ -39,4 +39,7 @@ a:visited {
 }
 #content {
   padding: 0 30px 50px 30px;
+  background-image: url(glue-tube.png);
+  background-position: right bottom;
+  background-repeat: no-repeat;
 }
