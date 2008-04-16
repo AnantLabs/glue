@@ -9,9 +9,24 @@ using Glue.Data.Mapping;
 
 namespace Glue.Data.Test
 {
-    public class DataMappingTest
+    public abstract class DataMappingTest
     {
         public IDataProvider Provider;
+
+        public virtual void Setup()
+        {
+            Provider.ExecuteNonQuery("insert into Category(CategoryName) values ('Food')");
+            Provider.ExecuteNonQuery("insert into Category(CategoryName) values ('Drinks')");
+            Provider.ExecuteNonQuery("insert into Category(CategoryName) values ('Sports')");
+            Provider.ExecuteNonQuery("insert into Language(Code,Name) values ('en','English')");
+            Provider.ExecuteNonQuery("insert into Language(Code,Name) values ('nl','Nederlands')");
+            Provider.ExecuteNonQuery("insert into Language(Code,Name) values ('de','Deutsch')");
+            Provider.ExecuteNonQuery("insert into Country(Code,Name) values ('US','United States')");
+            Provider.ExecuteNonQuery("insert into Country(Code,Name) values ('UK','United Kingdom')");
+            Provider.ExecuteNonQuery("insert into Country(Code,Name) values ('NL','Netherlands')");
+            Provider.ExecuteNonQuery("insert into Country(Code,Name) values ('DE','Germany')");
+            Provider.ExecuteNonQuery("insert into Country(Code,Name) values ('CH','Switzerland')");
+        }
 
         [Test]
         public void TestPrimitives()
@@ -45,73 +60,36 @@ namespace Glue.Data.Test
         }
 
         [Test]
-        public void TestInsertEntities()
+        public void TestEntities()
         {
-            Category cat = new Category();
-            cat.CategoryName = "Food";
-            Provider.Insert(cat);
-            cat.CategoryName = "Drinks";
-            Provider.Insert(cat);
-            cat.CategoryName = "Sports";
-            Provider.Insert(cat);
-
-            Language lan = new Language();
-            lan.Code = "EN";
-            lan.Name = "English";
-            Provider.Insert(lan);
-            lan.Code = "NL";
-            lan.Name = "Nederlands";
-            Provider.Insert(lan);
-            lan.Code = "DE";
-            lan.Name = "Deutsch";
-            Provider.Insert(lan);
-
-            Country cnt = new Country();
-            cnt.Code = "uk";
-            cnt.Name = "United Kingdom";
-            Provider.Insert(cnt);
-            cnt.Code = "us";
-            cnt.Name = "United States";
-            Provider.Insert(cnt);
-            cnt.Code = "nl";
-            cnt.Name = "Netherlands";
-            Provider.Insert(cnt);
-            cnt.Code = "de";
-            cnt.Name = "Germany";
-            Provider.Insert(cnt);
-
             Contact c = new Contact();
             c.FirstName = "Bob";
             c.LastName = "Builder";
             c.Email = "bob@builder";
-            c.Language = Language.Find("EN");
+            c.Language = Language.Find("en");
             c.Address.City = "London";
             c.Address.Street = "1 Hyde Park";
             c.Address.ZipCode = "11111";
-            c.Address.Country = Country.Find("uk");
+            c.Address.Country = Country.Find("UK");
             Provider.Insert(c);
 
             c.FirstName = "Rita";
             c.LastName = "Metermaid";
             c.Email = "rita@metermaid";
-            c.Language = Language.Find("EN");
+            c.Language = Language.Find("en");
             c.Address.City = "Miami";
             c.Address.Street = "Daytona Beach";
             c.Address.ZipCode = "29384";
-            c.Address.Country = Country.Find("us");
+            c.Address.Country = Country.Find("US");
             Provider.Insert(c);
-        }
 
-        [Test]
-        public void TestEntities()
-        {
-            Contact c = Contact.Find(1);
+            c = Contact.Find(1);
             Log.Info("Contact: " + c.Id + "=" + c.DisplayName);
             c = (Contact)Provider.FindByFilter(typeof(Contact), (Filter)"ContactId=1");
             
             Log.Info("Contact Language: " + c.Language.Code + "[" + c.Language.Name + "]");
             Log.Info("Contact Country: " + c.Address.Country.Code + "[" + c.Address.Country.Name + "]");
-            c.Language = "NL";
+            c.Language = "nl";
             c.Address.Country = "UK";
             Log.Info("Contact Country: " + c.Address.Country.Code + "[" + c.Address.Country.Name + "]");
             
@@ -167,10 +145,12 @@ namespace Glue.Data.Test
     public class SqlDataMappingTest : DataMappingTest
     {
         [SetUp]
-        public void Setup()
+        public override void Setup()
         {
             Context.Current = (Context)Configuration.Get("context-sql");
+            Context.Current.CreateDatabase();
             Provider = Context.Current.Provider;
+            base.Setup();
         }
     }
 
@@ -178,10 +158,12 @@ namespace Glue.Data.Test
     public class MySqlDataMappingTest : DataMappingTest
     {
         [SetUp]
-        public void Setup()
+        public override void Setup()
         {
             Context.Current = (Context)Configuration.Get("context-mysql");
+            Context.Current.CreateDatabase();
             Provider = Context.Current.Provider;
+            base.Setup();
         }
     }
 
@@ -189,10 +171,12 @@ namespace Glue.Data.Test
     public class SQLiteDataMappingTest : DataMappingTest
     {
         [SetUp]
-        public void Setup()
+        public override void Setup()
         {
             Context.Current = (Context)Configuration.Get("context-sqlite");
+            Context.Current.CreateDatabase();
             Provider = Context.Current.Provider;
+            base.Setup();
         }
     }
 }

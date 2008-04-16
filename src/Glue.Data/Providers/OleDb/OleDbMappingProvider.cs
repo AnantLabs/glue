@@ -15,7 +15,7 @@ namespace Glue.Data.Providers.OleDb
     /// <summary>
     /// Provider
     /// </summary>
-    public class OleDbMappingProvider : OleDbDataProvider, IMappingProvider
+    public class OleDbMappingProviderOBSOLETE : OleDbDataProvider, IMappingProvider
     {
         MappingOptions _options;
 

@@ -15,7 +15,7 @@ namespace Glue.Data.Providers.SQLite
     /// <summary>
     /// Provider
     /// </summary>
-    public class SQLiteMappingProvider : SQLiteDataProvider, IMappingProvider
+    public class SQLiteMappingProviderOBSOLETE : SQLiteDataProvider, IMappingProvider
     {
         MappingOptions options;
 

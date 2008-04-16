@@ -47,15 +47,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Mapping\Accessor.cs" />
-    <Compile Include="Mapping\AccessorInfo.cs" />
     <Compile Include="Mapping\Attributes.cs" />
-    <Compile Include="Mapping\AccessorHelper.cs" />
+    <Compile Include="Mapping\AccessorCompiler.cs" />
     <Compile Include="Mapping\Entity.cs" />
     <Compile Include="Mapping\EntityColumn.cs" />
     <Compile Include="Mapping\EntityMember.cs" />
     <Compile Include="Mapping\Assocations.cs" />
     <Compile Include="Order.cs" />
-    <Compile Include="Providers\Sql\SqlDataProvider2.cs" />
+    <Compile Include="Providers\Sql\SqlDataProvider.cs" />
     <Compile Include="Providers\Sql\SqlSchemaProvider.cs" />
     <Compile Include="Schema\BinHexEncoding.cs" />
     <Compile Include="Schema\Column.cs" />

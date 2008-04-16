@@ -6,18 +6,26 @@ using Glue.Data.Mapping;
 
 namespace Glue.Data
 {
+    /// <summary>
+    /// Helper class for creating SQL queries. Used by DataProvider classes.
+    /// </summary>
     public class QueryBuilder
     {
         public char IdentifierStart;
         public char IdentifierEnd;
         public char ParameterMarker;
+        public string CommandSeparator;
+        public string Identity;
+        
         StringBuilder inner;
 
-        public QueryBuilder(char parameterMarker, char identifierStart, char identifierEnd)
+        public QueryBuilder(char parameterMarker, char identifierStart, char identifierEnd, string commandSeparator, string identity)
         {
             IdentifierEnd = identifierEnd;
             IdentifierStart = identifierStart;
             ParameterMarker = parameterMarker;
+            CommandSeparator = commandSeparator;
+            Identity = identity;
             inner = new StringBuilder();
         }
 
@@ -86,17 +94,29 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ColumnList(IDataParameterCollection list)
+        public QueryBuilder SelectIdentity()
         {
-            return ColumnList(null, list, ",");
+            inner.Append("SELECT ").Append(Identity);
+            return this;
         }
 
-        public QueryBuilder ColumnList(IDataParameterCollection list, string separator)
+        public QueryBuilder Next()
         {
-            return ColumnList(null, list, separator);
+            inner.Append(CommandSeparator);
+            return this;
         }
 
-        public QueryBuilder ColumnList(string table, IDataParameterCollection list, string separator)
+        public QueryBuilder Columns(IDataParameterCollection list)
+        {
+            return Columns(null, list, ",");
+        }
+
+        public QueryBuilder Columns(IDataParameterCollection list, string separator)
+        {
+            return Columns(null, list, separator);
+        }
+
+        public QueryBuilder Columns(string table, IDataParameterCollection list, string separator)
         {
             bool first = true;
             foreach (IDbDataParameter p in list)
@@ -111,17 +131,17 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ColumnList(EntityMemberList list)
+        public QueryBuilder Columns(EntityMemberList list)
         {
-            return ColumnList(null, list, ",");
+            return Columns(null, list, ",");
         }
 
-        public QueryBuilder ColumnList(EntityMemberList list, string separator)
+        public QueryBuilder Columns(EntityMemberList list, string separator)
         {
-            return ColumnList(null, list, separator);
+            return Columns(null, list, separator);
         }
 
-        public QueryBuilder ColumnList(string table, EntityMemberList list, string separator)
+        public QueryBuilder Columns(string table, EntityMemberList list, string separator)
         {
             bool first = true;
             foreach (EntityMember m in list)
@@ -137,12 +157,12 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ParameterList(EntityMemberList list)
+        public QueryBuilder Parameters(EntityMemberList list)
         {
-            return ParameterList(list, ",");
+            return Parameters(list, ",");
         }
 
-        public QueryBuilder ParameterList(EntityMemberList list, string separator)
+        public QueryBuilder Parameters(EntityMemberList list, string separator)
         {
             bool first = true;
             foreach (EntityMember m in list)
@@ -155,12 +175,12 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ParameterList(IDataParameterCollection list)
+        public QueryBuilder Parameters(IDataParameterCollection list)
         {
-            return ParameterList(list, ",");
+            return Parameters(list, ",");
         }
 
-        public QueryBuilder ParameterList(IDataParameterCollection list, string separator)
+        public QueryBuilder Parameters(IDataParameterCollection list, string separator)
         {
             bool first = true;
             foreach (IDbDataParameter p in list)
@@ -172,12 +192,12 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ColumnAndParameterList(EntityMemberList list, string op, string separator)
+        public QueryBuilder ColumnsParameters(EntityMemberList list, string op, string separator)
         {
-            return ColumnAndParameterList(null, list, op, separator);
+            return ColumnsParameters(null, list, op, separator);
         }
 
-        public QueryBuilder ColumnAndParameterList(string table, EntityMemberList list, string op, string separator)
+        public QueryBuilder ColumnsParameters(string table, EntityMemberList list, string op, string separator)
         {
             bool first = true;
             foreach (EntityMember m in list)
@@ -195,12 +215,12 @@ namespace Glue.Data
             return this;
         }
 
-        public QueryBuilder ColumnAndParameterList(IDataParameterCollection list, string op, string separator)
+        public QueryBuilder ColumnsParameters(IDataParameterCollection list, string op, string separator)
         {
-            return ColumnAndParameterList(null, list, op, separator);
+            return ColumnsParameters(null, list, op, separator);
         }
 
-        public QueryBuilder ColumnAndParameterList(string table, IDataParameterCollection list, string op, string separator)
+        public QueryBuilder ColumnsParameters(string table, IDataParameterCollection list, string op, string separator)
         {
             bool first = true;
             foreach (IDbDataParameter p in list)

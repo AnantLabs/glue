@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Glue.Data
 {
 	/// <summary>
-	/// Summary description for IDataProvider.
+	/// IDataProvider.
 	/// </summary>
 	public interface IDataProvider : IDisposable 
 	{
@@ -43,14 +43,14 @@ namespace Glue.Data
         IDataProvider Open(IsolationLevel level);
 
         /// <summary>
-        /// Close and commit any pending transactions
-        /// </summary>
-        void Close();
-
-        /// <summary>
         /// Rollback transaction.
         /// </summary>
         void Cancel();
+
+        /// <summary>
+        /// Close and commit any pending transactions
+        /// </summary>
+        void Close();
 
         /// <summary>
         /// Add a single parameters on a IDbCommand using a name/value pair. 
@@ -134,7 +134,7 @@ namespace Glue.Data
         IDbCommand CreateInsertCommand(string table, params object[] columnNameValueList);
 
         /// <summary>
-        /// Create INSERT command and set up parameters
+        /// Create UPDATE command and set up parameters
         /// </summary>
         /// <param name="table">Table name</param>
         /// <param name="columnNameValueList">Name/ value pairs</param>
@@ -144,16 +144,16 @@ namespace Glue.Data
         /// </example>
         IDbCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList);
 
-        /// <summary>
-        /// Create a REPLACE command and set up parameters.
-        /// </summary>
-        /// <param name="table">Table name</param>
-        /// <param name="columnNameValueList">Name/ value pairs</param>
-        /// <returns></returns>
-        /// <example>
-        /// DataProvider.Current.CreateReplaceCommand("User", "Id=@Id", "Id", 10, "Name", "John Doe", "DateOfBirth", dateOfBirth);
-        /// </example>
-        IDbCommand CreateReplaceCommand(string table, params object[] columnNameValueList);
+        ///// <summary>
+        ///// Create a REPLACE command and set up parameters.
+        ///// </summary>
+        ///// <param name="table">Table name</param>
+        ///// <param name="columnNameValueList">Name/ value pairs</param>
+        ///// <returns></returns>
+        ///// <example>
+        ///// DataProvider.Current.CreateReplaceCommand("User", "Id=@Id", "Id", 10, "Name", "John Doe", "DateOfBirth", dateOfBirth);
+        ///// </example>
+        //IDbCommand CreateReplaceCommand(string table, params object[] columnNameValueList);
 
         /// <summary>
         /// Create stored procedure command and initialize parameters.
@@ -333,14 +333,9 @@ namespace Glue.Data
         Array List(string table, Type type, Filter filter, Order order, Limit limit);
 
         /// <summary>
-        /// Return objects of given type. Parameters filter, order and limit can be null.
+        /// Return objects of given type selected by command.
         /// </summary>
         Array List(Type type, IDbCommand command);
-
-        /// <summary>
-        /// Store (insert or update) given object.
-        /// </summary>
-        void Save(object obj);
 
         /// <summary>
         /// Insert given object.
@@ -353,6 +348,11 @@ namespace Glue.Data
         void Update(object obj);
 
         /// <summary>
+        /// Save (insert or update) given object.
+        /// </summary>
+        void Save(object obj);
+
+        /// <summary>
         /// Delete given object.
         /// </summary>
         void Delete(object obj);
@@ -360,6 +360,8 @@ namespace Glue.Data
         /// <summary>
         /// Delete object by primary key(s).
         /// </summary>
+        /// <param name="type">Type of object</param>
+        /// <param name="keys">Keys</param>
         void Delete(Type type, params object[] keys);
 
         /// <summary>

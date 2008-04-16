@@ -1,46 +1,46 @@
 using System;
 using System.Xml;
 using System.Reflection;
-using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using Glue.Lib;
 using Glue.Data;
+using Glue.Data.Mapping;
 
 namespace Glue.Data.Providers.Sql
 {
-    public class SqlDataProvider : IDataProvider
+    /// <summary>
+    /// SqlDataProvider.
+    /// </summary>
+     public class SqlDataProvider : BaseDataProvider
     {
-        string _connectionString;
-        SqlConnection _connection;
-        SqlTransaction _transaction;
-
         /// <summary>
-        /// SqlHelper
+        /// Initialize the DataProvider with given connection string.
         /// </summary>
         public SqlDataProvider(string connectionString)
+            : base(connectionString)
         {
-            _connectionString = connectionString;
         }
 
         /// <summary>
-        /// SqlDataProvider
+        /// Initialize the DataProvider with given connection string.
         /// </summary>
         public SqlDataProvider(string server, string database, string username, string password)
+            : base("server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password)
         {
-            _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
 
         /// <summary>
-        /// Initialisation from config.
+        /// Initialize the DataProvider from configuration
         /// </summary>
-        protected SqlDataProvider(XmlNode node)
+        public SqlDataProvider(XmlNode node)
         {
             _connectionString = Configuration.GetAttr(node, "connectionString", null);
             if (_connectionString == null)
             {
-                string server   = Configuration.GetAttr(node, "server");
+                string server = Configuration.GetAttr(node, "server");
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
@@ -52,275 +52,73 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
-        /// Copy constructor for opening sessions and transactions
+        /// Protected copy constructor. Needed for Open() methods.
         /// </summary>
         protected SqlDataProvider(SqlDataProvider provider)
+            : base(provider)
         {
-            _connectionString = provider._connectionString;
         }
 
         /// <summary>
-        /// Create a copy of current instance. Derived classes should
-        /// override this to create a copy of their own.
+        /// Create a copy of this connection. Override this in your derived provider.
+        /// Only copy the connection string, do not copy connection and transaction fields.
+        /// Needed for Open() methods.
         /// </summary>
-        /// <returns></returns>
-        protected virtual SqlDataProvider Copy()
+        protected override object Copy()
         {
             return new SqlDataProvider(this);
         }
 
         /// <summary>
-        /// Open session
+        /// Create a QueryBuilder helper specific to the SQL dialect of
+        /// this provider.
         /// </summary>
-        public SqlDataProvider Open()
+        protected override QueryBuilder CreateQueryBuilder()
         {
-            return Open(IsolationLevel.Unspecified);
-        }
-
-        public SqlDataProvider Open(IsolationLevel level)
-        {
-            SqlDataProvider copy = Copy();
-            copy.OpenInternal(level);
-            return copy;
-        }
-
-        protected virtual void OpenInternal(IsolationLevel level)
-        {
-            _connection = CreateConnection();
-            _connection.Open();
-            if (level != IsolationLevel.Unspecified)
-                _transaction = _connection.BeginTransaction(level);
-        }
-
-        public void Cancel()
-        {
-            if (_connection != null)
-                if (_transaction != null) {
-                    _transaction.Rollback();
-                    _transaction.Dispose();
-                    _transaction = null;
-                }
-        }
-
-        public void Close()
-        {
-            if (_connection != null)
-            {
-                if (_transaction != null)
-                {
-                    _transaction.Commit();
-                    _transaction.Dispose();
-                }
-                _connection.Close();
-                _transaction = null;
-                _connection = null;
-            }
-        }
-
-        public void Dispose()
-        {
-            Close();
+            return new QueryBuilder('@', '[', ']', "\r\n", "@@IDENTITY");
         }
 
         /// <summary>
-        /// Converts a native value to the SQL representation for this provider.
+        /// Create an Accessor class for high performance reading and writing objects 
+        /// from and to the database.Override this in derived class.
         /// </summary>
-        string ToSql(object v)
+        protected override internal Accessor CreateAccessor(Type type)
         {
-            if (v == null)
-                throw new ArgumentException("Cannot convert null to a SQL constant.");
-            Type t = v.GetType();
-            if (t == typeof(String))
-                return "'" + ((String)v).Replace("'", "''") + "'";
-            if (t == typeof(Boolean))
-                return (Boolean)v ? "1" : "0";
-            if (t == typeof(Char))
-                return (Char)v == '\'' ? "''''" : "'" + (Char)v + "'";
-            if (t == typeof(Int32))
-                return ((Int32)v).ToString();
-            if (t == typeof(Byte))
-                return ((Byte)v).ToString();
-            if (t.IsPrimitive)
-                return Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
-            if (t == typeof(Guid))
-                return "'{" + ((Guid)v).ToString("D") + "}'";
-            if (t == typeof(DateTime))
-                return "'" + ((DateTime)v).ToString("yyyy'-'MM'-'dd HH':'mm':'ss':'fff") + "'";
-            throw new ArgumentException("Cannot convert type " + t + " to a SQL constant.");
+            Type accessorType = AccessorCompiler.GenerateAccessor(type, "System.Data.SqlClient", "Sql", "@");
+            return (Accessor)Activator.CreateInstance(accessorType, new object[] { this, type });
         }
 
         /// <summary>
-        /// Create a QueryBuilder
+        /// Create a provider specific connection. 
         /// </summary>
-        protected QueryBuilder CreateQueryBuilder()
+        public override IDbConnection CreateConnection()
         {
-            return new QueryBuilder('@', '[', ']');
+            return new SqlConnection(ConnectionString);
         }
-
+        
         /// <summary>
-        /// ConnectionString
+        /// Create command from command text and parameters
         /// </summary>
-        public string ConnectionString
+        /// <param name="commandText">Command text</param>
+        /// <param name="paramNameValueList">Parameters</param>
+        /// <returns></returns>
+        /// <example>
+        /// DataProvider.Current.CreateCommand("SELECT * FROM User Where Name=@Name", "Name", name);
+        /// </example>
+        public override IDbCommand CreateCommand(string commandText, params object[] paramNameValueList)
         {
-            get { return _connectionString; }
-        }
-
-        /// <summary>
-        /// CreateConnection
-        /// </summary>
-        public SqlConnection CreateConnection()
-        {
-            return new SqlConnection(this._connectionString);
-        }
-
-        public SqlConnection GetConnection()
-        {
-            return _connection ?? CreateConnection();
-        }
-
-        public ISchemaProvider GetSchemaProvider()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// AddParameter
-        /// </summary>
-        public SqlParameter AddParameter(SqlCommand command, string name, object value)
-        {
-            SqlParameter parameter = new SqlParameter(name, value ?? DBNull.Value);
-            command.Parameters.Add(parameter);
-            if (value is byte[])
-                parameter.Size = ((byte[])value).Length;
-            return parameter;
-        }
-
-        /// <summary>
-        /// SetParameter
-        /// </summary>
-        public SqlParameter SetParameter(SqlCommand command, string name, object value)
-        {
-            int index = command.Parameters.IndexOf(name);
-            SqlParameter parameter;
-            if (index < 0)
-            {
-                parameter = new SqlParameter(name, value ?? DBNull.Value);
-                command.Parameters.Add(parameter);
-            }
-            else
-            {
-                parameter = command.Parameters[index];
-                parameter.Value = value ?? DBNull.Value;
-            }
-            if (value is byte[])
-                parameter.Size = ((byte[])value).Length;
-            return parameter;
-        }
-
-        /// <summary>
-        /// CollectParameters
-        /// </summary>
-        internal IEnumerable CollectParameters(params object[] paramNameValueList)
-        {
-            if (paramNameValueList == null)
-                yield break;
-            int state = 0;
-            string name = null;
-            foreach (object p in paramNameValueList)
-            {
-                switch (state)
-                {
-                    case 0:
-                        if (p == null)
-                            throw new ApplicationException("Null value encountered, expected parameter name string.");
-                        if (p is string)
-                        {
-                            name = (string)p;
-                            state = 1;
-                        }
-                        else if (p is IDataRecord)
-                        {
-                            IDataRecord record = (IDataRecord)p;
-                            for (int i = 0; i < record.FieldCount; i++)
-                                yield return new SqlParameter(record.GetName(i), record.GetValue(i) ?? DBNull.Value);
-                        }
-                        else if (p is object[])
-                        {
-                            yield return CollectParameters((object[])p);
-                        }
-                        else
-                        {
-                            throw new ApplicationException("Expected parameter name or IDataRecord");
-                        }
-                        break;
-                    case 1:
-                        yield return new SqlParameter(name, p ?? DBNull.Value);
-                        name = null;
-                        state = 0;
-                        break;
-                }
-            }
-            if (state == 1)
-            {
-                throw new ApplicationException("Unexpected end of parameterlist.");
-            }
-        }
-
-        /// <summary>
-        /// AddParameters
-        /// </summary>
-        public void AddParameters(SqlCommand command, params object[] paramNameValueList)
-        {
-            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
-                command.Parameters.Add(parameter);
-        }
-
-        /// <summary>
-        /// SetParameters
-        /// </summary>
-        public void SetParameters(SqlCommand command, params object[] paramNameValueList)
-        {
-            foreach (SqlParameter parameter in CollectParameters(paramNameValueList))
-            {
-                int index = command.Parameters.IndexOf(parameter.ParameterName);
-                if (index >= 0)
-                    command.Parameters.RemoveAt(index);
-                command.Parameters.Add(parameter);
-            }
-        }
-
-        /// <summary>
-        /// CreateCommand
-        /// </summary>
-        public SqlCommand CreateCommand(string commandText, params object[] paramNameValueList)
-        {
-            SqlCommand command = new SqlCommand(commandText, GetConnection());
+            SqlCommand command = new SqlCommand(commandText);
             AddParameters(command, paramNameValueList);
             return command;
         }
 
         /// <summary>
-        /// CreateStoredProcedureCommand
+        /// Create SELECT command
+        // This ONLY WORKS if the order by clause contains all key columns
         /// </summary>
-        public SqlCommand CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
-        {
-            SqlCommand command = new SqlCommand(storedProcedureName, GetConnection());
-            command.CommandType = CommandType.StoredProcedure;
-            AddParameters(command, paramNameValueList);
-            return command;
-        }
-
-        /// <summary>
-        /// CreateSelectCommand
-        /// ASSUMPTION: The order clause contains the primary key (or keys in case of a combined primary key)
-        /// </summary>
-        public SqlCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
+        public override IDbCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             QueryBuilder s = CreateQueryBuilder();
-
-            constraint = Filter.Coalesce(constraint);
-            order = Order.Coalesce(order);
-            limit = Limit.Coalesce(limit);
 
             // HACK: check if there's a WITH option clause in the data source.
             bool nolock = table.IndexOf(" WITH ") < 0;
@@ -360,9 +158,9 @@ namespace Glue.Data.Providers.Sql
                 //    ORDER BY 
                 //        AanvraagDatum DESC, AanvraagCode
                 //    SET ROWCOUNT 0
-                
+
                 // This ONLY WORKS if the order by clause contains all key columns
-                
+
                 // Get ordering columns
                 string[] ordervars = new string[order.Count];
                 string[] ordercols = new string[order.Count];
@@ -375,7 +173,7 @@ namespace Glue.Data.Providers.Sql
                 // Declare variables for all ordering members
                 for (int i = 0; i < ordervars.Length; i++)
                     s.Append("DECLARE ").Append(ordervars[i]).AppendLine(" sql_variant");
-                
+
                 // Create the first select, for skipping unwanted rows
                 s.AppendLine("SET ROWCOUNT " + limit.Index);
                 s.Append("SELECT ");
@@ -429,278 +227,112 @@ namespace Glue.Data.Providers.Sql
         }
 
         /// <summary>
-        /// CreateInsertCommand
+        /// List all associated (right-side) objects for given instance (left-side) 
+        /// in a many-to-many relationship. Explicitly specify the joining table.
+        /// Filter, order and limit can be null.
         /// </summary>
-        public SqlCommand CreateInsertCommand(string table, params object[] columnNameValueList)
+        public override Array ListManyToMany(object left, Type right, string jointable, Filter filter, Order order, Limit limit)
         {
-            SqlCommand command = new SqlCommand();
-            AddParameters(command, columnNameValueList);
+            if (order == null) order = Order.Empty;
+            if (limit == null) limit = Limit.Unlimited;
+
+            // Get names and info of all stuff involved
+            ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right, jointable);
+
+            // For Contact <-- ContactCategory --> Category 
+            // code below would expand to:
+            //
+            //   Category INNER JOIN ContactCategory ON Category.Id=ContactCategory.CategoryId
+            QueryBuilder join = CreateQueryBuilder();
+            join.Identifier(info.RightTable).Append(" WITH (NOLOCK)");
+            join.Append(" INNER JOIN ");
+            join.Identifier(info.JoinTable).Append(" WITH (NOLOCK)");
+            join.Append(" ON ").Identifier(info.RightTable, info.RightKey).Append("=").Identifier(info.JoinTable, info.JoinRightKey);
+
+            // Expand filter to be
+            //   ContactCategory.CategoryId=@CategoryId AND (..additonal if specified..)
+            filter = Filter.And(info.JoinTable + "." + info.JoinLeftKey + "=@" + info.JoinLeftKey, filter);
+
+            // Be sure the order contains the primary key of the item sought, in this example
+            //   Contact.ContactId
+            if (!order.Contains(info.RightKey))
+                order = order.Append(info.RightTable + "." + info.RightKey);
+
+            // Create column list
+            QueryBuilder columns = CreateQueryBuilder();
+            columns.Columns(info.RightTable, EntityMemberList.Flatten(info.RightInfo.AllMembers), ",");
+
+            // Create command
+            IDbCommand command = CreateSelectCommand(
+                join.ToString(), columns.ToString(), filter, order, limit,
+                info.JoinLeftKey, info.LeftKeyInfo.GetValue(left)
+                );
+
+            // Get right-hand side objects
+            Accessor accessor = Accessor.Obtain(this, info.RightType);
+            using (IDataReader reader = ExecuteReader(command))
+            {
+                return accessor.ListFromReaderFixed(reader).ToArray(info.RightType);
+            }
+        }
+
+        /// <summary>
+        /// Create an association between left and right object in a 
+        /// many-to-many relationship. Explicitly specify the joining table.
+        /// </summary>
+        public override void AddManyToMany(object left, object right, string jointable)
+        {
+            ManyToManyInfo info = new ManyToManyInfo(left.GetType(), right.GetType(), jointable);
+
             QueryBuilder s = CreateQueryBuilder();
-            s.Append("INSERT INTO ").Identifier(table);
-            s.Append("(").ColumnList(command.Parameters).Append(") VALUES ");
-            s.Append("(").ParameterList(command.Parameters).Append(")");
-            command.CommandText = s.ToString();
-            return command;
-        }
+            s.Append(" IF NOT EXISTS (");
+            s.Append("   SELECT * FROM ").Identifier(info.JoinTable);
+            s.Append("   WHERE ").Identifier(info.JoinLeftKey).Append("=").Parameter(info.JoinLeftKey);
+            s.Append("   AND ").Identifier(info.JoinRightKey).Append("=").Parameter(info.JoinRightKey);
+            s.Append(" ) ");
+            s.Append(" INSERT INTO ").Identifier(info.JoinTable);
+            s.Append(" (").Identifier(info.JoinLeftKey).Append(",").Identifier(info.JoinRightKey).Append(")");
+            s.Append(" VALUES (").Parameter(info.JoinLeftKey).Append(",").Parameter(info.JoinRightKey).Append(")");
 
-        /// <summary>
-        /// CreateUpdateCommand
-        /// </summary>
-        public SqlCommand CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            SqlCommand command = new SqlCommand();
-            AddParameters(command, columnNameValueList);
-            QueryBuilder s = CreateQueryBuilder();
-            s.Append("UPDATE ").Identifier(table).Append(" SET ");
-            s.ColumnAndParameterList(command.Parameters, "=", ",");
-            s.Filter(constraint);
-            command.CommandText = s.ToString();
-            command.Connection = GetConnection();
-            return command;
+            IDbCommand command = CreateCommand(s.ToString());
+            AddParameter(command, info.JoinLeftKey, info.LeftKeyInfo.GetValue(left));
+            AddParameter(command, info.JoinRightKey, info.RightKeyInfo.GetValue(right));
+            ExecuteNonQuery(command);
         }
+    }
 
-        /// <summary>
-        /// CreateReplaceCommand
-        /// </summary>
-        public SqlCommand CreateReplaceCommand(string table, params object[] columnNameValueList)
-        {
-            throw new NotImplementedException();
+    class SqlSchemaCache
+    {
+        public readonly List<string> Tables = new List<string>();
+        public readonly List<string> Views = new List<string>();
+        public readonly Dictionary<string, List<string>> PrimaryKeys = new Dictionary<string, List<string>>();
+        public readonly List<string> AutoInts = new List<string>();
 
-            //SqlCommand command = new SqlCommand();
-            //AddParameters(command, columnNameValueList);
-            //QueryBuilder s = CreateQueryBuilder();
-            //s.Append("UPDATE ").Identifier(table).Append(" SET ");
-            //s.ColumnAndParameterList(command.Parameters, "=", ",");
-            //s.Filter(constraint);
-            //s.AppendLine();
-            //s.Append("IF @@ROWCOUNT=0 ");
-            //s.Append("INSERT INTO ").Identifier(table);
-            //s.Append("(").ColumnList(command.Parameters).Append(") VALUES ");
-            //s.Append("(").ParameterList(command.Parameters).Append(")");
-            //s.AppendLine();
-            //command.CommandText = s.ToString();
-            //return command;
-        }
-
-        /// <summary>
-        /// ExecuteNonQuery
-        /// </summary>
-        public int ExecuteNonQuery(SqlCommand command)
+        public SqlSchemaCache(SqlDataProvider provider)
         {
-            bool leaveOpen = false;
-            if (command.Connection == null)
-                command.Connection = GetConnection();
-            command.Transaction = _transaction;
-            if (command.Connection.State == ConnectionState.Closed)
-                command.Connection.Open();
-            else
-                leaveOpen = true;
-            try 
-            {
-                return command.ExecuteNonQuery();
-            }
-            finally
-            {
-                if (!leaveOpen)
-                    command.Connection.Close();
-            }
+            using (IDataReader reader = provider.ExecuteReader("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES ORDER BY TABLE_NAME"))
+                while (reader.Read())
+                    Tables.Add(reader.GetString(0));
+            using (IDataReader reader = provider.ExecuteReader("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS ORDER BY TABLE_NAME"))
+                while (reader.Read())
+                    Views.Add(reader.GetString(0));
+            using (IDataReader reader = provider.ExecuteReader(@"
+                select c.TABLE_NAME,c.COLUMN_NAME,COLUMNPROPERTY(object_id(c.TABLE_NAME), c.COLUMN_NAME, 'IsIdentity') AS IS_IDENTITY
+                from INFORMATION_SCHEMA.TABLE_CONSTRAINTS pk, INFORMATION_SCHEMA.KEY_COLUMN_USAGE c
+                where CONSTRAINT_TYPE = 'PRIMARY KEY'
+                and	c.TABLE_NAME = pk.TABLE_NAME
+                and	c.CONSTRAINT_NAME = pk.CONSTRAINT_NAME
+                order by c.TABLE_NAME,c.ORDINAL_POSITION"
+                ))
+                while (reader.Read())
+                {
+                    List<string> keys = PrimaryKeys[reader.GetString(0)];
+                    if (keys == null)
+                        PrimaryKeys[reader.GetString(0)] = keys = new List<string>();
+                    keys.Add(reader.GetString(1));
+                    if (reader.GetInt32(2) == 1)
+                        AutoInts.Add(reader.GetString(0));
+                }
         }
-        
-        /// <summary>
-        /// ExecuteNonQuery
-        /// </summary>
-        public int ExecuteNonQuery(string commandText, params object[] paramNameValueList)
-        {
-            return ExecuteNonQuery(CreateCommand(commandText, paramNameValueList));            
-        }
-
-        /// <summary>
-        /// ExecuteReader
-        /// </summary>
-        public SqlDataReader ExecuteReader(SqlCommand command)
-        {
-            bool leaveOpen = false;
-            if (command.Connection == null)
-                command.Connection = GetConnection();
-            if (command.Connection.State == ConnectionState.Closed)
-                command.Connection.Open();
-            else
-                leaveOpen = true;
-            try 
-            {
-                return command.ExecuteReader(leaveOpen ? CommandBehavior.Default : CommandBehavior.CloseConnection);
-            }
-            catch
-            {
-                if (!leaveOpen)
-                    command.Connection.Close();
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// ExecuteReader
-        /// </summary>
-        public SqlDataReader ExecuteReader(string commandText, params object[] paramNameValueList)
-        {
-            return ExecuteReader(CreateCommand(commandText, paramNameValueList));            
-        }
-
-        /// <summary>
-        /// ExecuteScalar
-        /// </summary>
-        public object ExecuteScalar(SqlCommand command)
-        {
-            bool leaveOpen = false;
-            if (command.Connection == null)
-                command.Connection = GetConnection();
-            if (command.Connection.State == ConnectionState.Closed)
-                command.Connection.Open();
-            else
-                leaveOpen = true;
-            try 
-            {
-                return command.ExecuteScalar();
-            }
-            finally
-            {
-                if (!leaveOpen)
-                    command.Connection.Close();
-            }
-        }
-        
-        /// <summary>
-        /// ExecuteScalar
-        /// </summary>
-        public object ExecuteScalar(string commandText, params object[] paramNameValueList)
-        {
-            return ExecuteScalar(CreateCommand(commandText, paramNameValueList));
-        }
-
-        /// <summary>
-        /// ExecuteScalarInt32
-        /// </summary>
-        public int ExecuteScalarInt32(SqlCommand command)
-        {
-            return Convert.ToInt32(ExecuteScalar(command));
-        }
-
-        /// <summary>
-        /// ExecuteScalarInt32
-        /// </summary>
-        public int ExecuteScalarInt32(string commandText, params object[] paramNameValueList)
-        {
-            return Convert.ToInt32(ExecuteScalar(commandText, paramNameValueList));
-        }
-
-        /// <summary>
-        /// ExecuteScalar returns string or null if DBNull
-        /// </summary>
-        public string ExecuteScalarString(SqlCommand command)
-        {
-            return NullConvert.ToString(ExecuteScalar(command));
-        }
-        
-        /// <summary>
-        /// ExecuteScalar returns string or null if DBNull
-        /// </summary>
-        public string ExecuteScalarString(string commandText, params object[] paramNameValueList)
-        {
-            return NullConvert.ToString(ExecuteScalar(commandText, paramNameValueList));
-        }
- 
-        #region IDataProvider Members
-
-        IDataProvider IDataProvider.Open()
-        {
-            return Open();
-        }
-
-        IDataProvider IDataProvider.Open(IsolationLevel level)
-        {
-            return Open(level);
-        }
-
-        IDbDataParameter Glue.Data.IDataProvider.AddParameter(IDbCommand command, string name, object value)
-        {
-            return this.AddParameter((SqlCommand)command, name, value);
-        }
-
-        void Glue.Data.IDataProvider.AddParameters(IDbCommand command, params object[] paramNameValueList)
-        {
-            this.AddParameters((SqlCommand)command, paramNameValueList);
-        }
-
-        IDbDataParameter Glue.Data.IDataProvider.SetParameter(IDbCommand command, string name, object value)
-        {
-            return this.SetParameter((SqlCommand)command, name, value);
-        }
-
-        void Glue.Data.IDataProvider.SetParameters(IDbCommand command, params object[] paramNameValueList)
-        {
-            this.SetParameters((SqlCommand)command, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateCommand(string commandText, params object[] paramNameValueList)
-        {
-            return this.CreateCommand(commandText, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateStoredProcedureCommand(string storedProcedureName, params object[] paramNameValueList)
-        {
-            return this.CreateStoredProcedureCommand(storedProcedureName, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
-        {
-            return this.CreateSelectCommand(table, columns, constraint, order, limit, paramNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateInsertCommand(string table, params object[] columnNameValueList)
-        {
-            return this.CreateInsertCommand(table, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateUpdateCommand(string table, Filter constraint, params object[] columnNameValueList)
-        {
-            return this.CreateUpdateCommand(table, constraint, columnNameValueList);
-        }
-
-        IDbCommand Glue.Data.IDataProvider.CreateReplaceCommand(string table, params object[] columnNameValueList)
-        {
-            return this.CreateReplaceCommand(table, columnNameValueList);
-        }
-
-        int Glue.Data.IDataProvider.ExecuteNonQuery(IDbCommand command)
-        {
-            return this.ExecuteNonQuery((SqlCommand)command);
-        }
-
-        IDataReader Glue.Data.IDataProvider.ExecuteReader(IDbCommand command)
-        {
-            return this.ExecuteReader((SqlCommand)command);
-        }
-
-        IDataReader Glue.Data.IDataProvider.ExecuteReader(string commandText, params object[] paramNameValueList)
-        {
-            return this.ExecuteReader(commandText, paramNameValueList);
-        }
-
-        object Glue.Data.IDataProvider.ExecuteScalar(IDbCommand command)
-        {
-            return this.ExecuteScalar((SqlCommand)command);
-        }
-
-        int Glue.Data.IDataProvider.ExecuteScalarInt32(IDbCommand command)
-        {
-            return this.ExecuteScalarInt32((SqlCommand)command);
-        }
-
-        string Glue.Data.IDataProvider.ExecuteScalarString(IDbCommand command)
-        {
-            return this.ExecuteScalarString((SqlCommand)command);
-        }
-
-        #endregion
     }
 }

@@ -7,7 +7,7 @@ using Glue.Lib;
 
 namespace Glue.Data.Mapping
 {
-	public abstract class AccessorHelper
+	public abstract class AccessorCompiler
 	{
         public static Type GenerateAccessor(Type type, string references, string dbprefix, string parmchar)
         {
