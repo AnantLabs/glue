@@ -409,6 +409,13 @@ namespace Glue.Data
         /// </summary>
         IDictionary Map(string table, string key, string value, Filter filter, Order order);
 
+        /// <summary>
+        /// Returns a schema provider of the correct type for this data provider (e.g. a MySqlDataProvider returns a
+        /// MySqlSchemaProvider).
+        /// </summary>
+        /// <returns></returns>
+        ISchemaProvider GetSchemaProvider();
+
         T Find<T>(params object[] keys);
         T FindByFilter<T>(Filter filter);
         T FindByFilter<T>(Filter filter, Order order);

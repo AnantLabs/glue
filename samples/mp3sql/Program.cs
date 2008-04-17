@@ -44,7 +44,7 @@ namespace mp3sql
             if (!File.Exists(dbfile))
                 connectionstring += ";New=True";
 
-            context = new DataContext(new SQLiteMappingProvider(connectionstring));
+            context = new DataContext(new SQLiteDataProvider(connectionstring));
             context.CreateTables();
 
             switch (args[0])
@@ -78,7 +78,7 @@ namespace mp3sql
             ID3v1 tags = null;
             string path = null;
 
-            using (context.Provider.CreateConnection())
+            using (context.Provider.Open())
             {
                 // Loop over files to add
                 for (int i = 1; i < args.Length; i++)

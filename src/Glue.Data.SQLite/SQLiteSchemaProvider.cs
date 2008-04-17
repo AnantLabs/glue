@@ -147,8 +147,7 @@ namespace Glue.Data.Providers.SQLite
 
         public Column[] GetColumns(Container container)
         {
-            using (IDataReader reader = provider.ExecuteReader(
-                "pragma table_info(" + container.Name + ")", null))
+            using (IDataReader reader = provider.ExecuteReader("pragma table_info(" + container.Name + ")"))
             {
                 ArrayList list = new ArrayList();
 
@@ -244,7 +243,6 @@ namespace Glue.Data.Providers.SQLite
 
             // TODO: Add other keys
             // use pragma index_list and pragma index_info
-
 
             return (Key[])list.ToArray(typeof(Key));
         }

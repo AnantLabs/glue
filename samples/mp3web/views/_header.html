@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Sample</title>
+  <style>
+    .grid { background-color: #ddd; }
+    .green { background-color: #4d4; }
+  </style>
+  <script type="text/javascript" src="/public/js/jquery-1.2.3.js">
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+        $("table.grid tr").hover(function() {
+            $(this).addClass("green");
+        }, function(){
+            $(this).removeClass("green");
+        });
+    });    
+  </script>
+</head>
+<body>
+  <div id="content">
