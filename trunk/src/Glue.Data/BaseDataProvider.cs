@@ -56,6 +56,8 @@ namespace Glue.Data
         /// </summary>
         protected abstract object Copy();
 
+        public abstract ISchemaProvider GetSchemaProvider();
+
         #region Sessions, Transactions
 
         /// <summary>

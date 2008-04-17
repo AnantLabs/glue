@@ -65,5 +65,10 @@ namespace Glue.Data.Providers.SQLite
             AddParameters(command, paramNameValueList);
             return command;
         }
+
+        public override ISchemaProvider GetSchemaProvider()
+        {
+            return new SQLiteSchemaProvider(this);
+        }
     }
 }

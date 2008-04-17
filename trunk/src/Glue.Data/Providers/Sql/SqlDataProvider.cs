@@ -299,6 +299,11 @@ namespace Glue.Data.Providers.Sql
             AddParameter(command, info.JoinRightKey, info.RightKeyInfo.GetValue(right));
             ExecuteNonQuery(command);
         }
+
+         public override ISchemaProvider GetSchemaProvider()
+         {
+             throw new NotImplementedException();
+         }
     }
 
     class SqlSchemaCache

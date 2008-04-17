@@ -133,7 +133,8 @@ namespace Glue.Web
 
             // Get method corresponding to action
             MethodInfo method = GetType().GetMethod(action, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-            if (method == null)
+            if (method == null || 
+                method.GetCustomAttributes(typeof(ForbiddenAttribute), true).Length > 0)
                 method = GetType().GetMethod("unknown", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
             // Assign request values to parameters for this method.
@@ -150,7 +151,7 @@ namespace Glue.Web
         }
 
 #line hidden
-        public void Assert(bool test)
+        protected void Assert(bool test)
         {
             if (test == false)
                 throw new GlueException("Failed");
@@ -158,7 +159,7 @@ namespace Glue.Web
 #line default
 
 #line hidden
-        public void Assert(object o)
+        protected void Assert(object o)
         {
             Assert(o != null);
             if (o is Boolean)
@@ -196,16 +197,19 @@ namespace Glue.Web
             Response.TransmitFile(App.Current.MapPath(virtualPath));
         }
 
+        [Forbidden]
         public View GetView(string virtualPath)
         {
             return ViewCompiler.GetCompiledInstance(this, virtualPath);
         }
 
+        [Forbidden]
         public void Render()
         {
             Render(null);
         }
 
+        [Forbidden]
         public void Render(string virtualPath)
         {
             if (virtualPath == null || virtualPath.Length == 0 || virtualPath[0] != '/')
@@ -221,7 +225,8 @@ namespace Glue.Web
             }
             Render(virtualPath, Response.Output);
         }
-    
+
+        [Forbidden]
         public void Render(string virtualPath, TextWriter writer)
         {
             View view = ViewCompiler.GetCompiledInstance(this, virtualPath);
@@ -236,6 +241,7 @@ namespace Glue.Web
             writer.WriteLine();
         }
 
+        [Forbidden]
         public string RenderToString(string virtualPath)
         {
             View view = ViewCompiler.GetCompiledInstance(this, virtualPath);
@@ -251,6 +257,7 @@ namespace Glue.Web
             return writer.ToString();
         }
 
+        [Forbidden]
         public StringTemplate Template(string virtualPath)
         {
             string path = App.Current.MapPath(virtualPath);

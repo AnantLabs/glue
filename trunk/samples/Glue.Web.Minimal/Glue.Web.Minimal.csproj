@@ -15,7 +15,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>public\bin\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,6 +29,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="glue.lib, Version=2.0.1570.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -40,13 +41,27 @@
     <Reference Include="System.Web.Mobile" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="public\Web.config" />
+    <Content Include="public\js\jquery-1.2.3.js" />
+    <Content Include="public\js\ui.base.js" />
+    <Content Include="public\js\ui.draggable.js" />
+    <Content Include="views\404.html" />
+    <Content Include="views\500.html" />
+    <Content Include="views\offline.html" />
+    <Content Include="Web.config" />
+    <Content Include="views\index.html" />
+    <Content Include="views\_footer.html" />
+    <Content Include="views\_header.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="controllers\BaseController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
+      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
+      <Name>Glue.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Glue.Web\Glue.Web.csproj">
       <Project>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</Project>
       <Name>Glue.Web</Name>
@@ -65,12 +80,13 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>1986</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>
-          </IISUrl>
+          <IISUrl>http://localhost/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
         </WebProjectProperties>
       </FlavorProperties>

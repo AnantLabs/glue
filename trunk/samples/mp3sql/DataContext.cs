@@ -7,9 +7,9 @@ namespace mp3sql
 {
     public class DataContext
     {
-        public readonly IMappingProvider Provider;
+        public readonly IDataProvider Provider;
 
-        public DataContext(IMappingProvider provider)
+        public DataContext(IDataProvider provider)
         {
             this.Provider = provider;
         }

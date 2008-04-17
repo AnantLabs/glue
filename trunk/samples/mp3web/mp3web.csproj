@@ -23,7 +23,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>public\bin\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,13 +33,26 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="public\Web.config" />
+    <Content Include="views\album\list.html" />
+    <Content Include="views\empty.html" />
+    <Content Include="views\index.html" />
+    <Content Include="views\track\list.html" />
+    <Content Include="views\_footer.html" />
+    <Content Include="views\_header.html" />
+    <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="controllers\AlbumController.cs" />
+    <Compile Include="controllers\BaseController.cs" />
+    <Compile Include="controllers\TrackController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
+      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
+      <Name>Glue.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Glue.Lib\Glue.Lib.csproj">
       <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
       <Name>Glue.Lib</Name>
@@ -50,7 +63,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="controllers\" />
+    <Folder Include="public\js\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v8.0\WebApplications\Microsoft.WebApplication.targets" />

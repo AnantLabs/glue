@@ -13,6 +13,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Web", "..\..\src\Glue.
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data", "..\..\src\Glue.Data\Glue.Data.csproj", "{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Lib", "..\..\src\Glue.Lib\Glue.Lib.csproj", "{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +39,14 @@ Global
 		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{306F21B0-6B55-4A25-8D8D-C949FC374D49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

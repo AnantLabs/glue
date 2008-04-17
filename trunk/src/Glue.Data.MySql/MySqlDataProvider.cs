@@ -70,5 +70,10 @@ namespace Glue.Data.Providers.MySql
             AddParameters(command, paramNameValueList);
             return command;
         }
+
+        public override ISchemaProvider GetSchemaProvider()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
