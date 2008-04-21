@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using Glue.Data;
 
@@ -23,7 +24,6 @@ namespace mp3sql
         {
             if (track.Id == 0)
                 Provider.Insert(track);
-                //track.Insert(provider);
             else
                 Provider.Update(track);
         }
@@ -46,6 +46,27 @@ namespace mp3sql
             Provider.AddManyToMany(track, album, "track_album");
         }
 
+        /// <summary>
+        /// Returns tracks in an album. Returned as a dictionary (track: int)
+        /// where the integer is the position of the track on the album.
+        /// </summary>
+        /// <param name="album"></param>
+        /// <returns></returns>
+        public IDictionary<Track, int?> AlbumGetTracks(Album album)
+        {
+            IDictionary<Track, int?> list = new Dictionary<Track, int?>();
+            IDataReader reader = Provider.ExecuteReader(@"SELECT track_number, id 
+                    FROM track_album INNER JOIN track ON id=trackid 
+                    WHERE albumid=@0", "@0", album.Id);
+            while (reader.Read())
+            {
+                int? track_number = reader["track_number"] == DBNull.Value? 0: Convert.ToInt32(reader["track_number"]);
+                int id = Convert.ToInt32(reader["id"]);
+                list[Provider.Find<Track>(id)] = track_number;
+            }
+            return list;
+        }
+
         public void CreateTables()
         {
             Provider.ExecuteNonQuery(@"
@@ -62,12 +83,12 @@ namespace mp3sql
                     id INTEGER PRIMARY KEY,
                     name VARCHAR(30) UNIQUE NOT NULL
                 );
-
+                --DROP TABLE track_album;
                 CREATE TABLE IF NOT EXISTS track_album (
-                    track_id INTEGER NOT NULL,
-                    album_id INTEGER NOT NULL,
+                    trackid INTEGER NOT NULL,
+                    albumid INTEGER NOT NULL,
                     track_number INTEGER,
-                    UNIQUE (track_id, album_id)
+                    UNIQUE (trackid, albumid)
                 );
             ");
         }

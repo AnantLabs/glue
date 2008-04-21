@@ -2,22 +2,34 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title>Sample</title>
-  <style>
-    .grid { background-color: #ddd; }
-    .green { background-color: #4d4; }
-  </style>
-  <script type="text/javascript" src="/public/js/jquery-1.2.3.js">
-  </script>
+  <%=Helper.StyleSheetLink("/public/css/default.css")%>
+  
+  <%=Helper.JavaScriptLink("/public/js/jquery-1.2.3.js")%>
+  <%=Helper.JavaScriptLink("/public/js/jquery_query-1.2.2.js")%>
   <script type="text/javascript">
     $(document).ready(function(){
-
         $("table.grid tr").hover(function() {
-            $(this).addClass("green");
+            $(this).addClass("hilite");
         }, function(){
-            $(this).removeClass("green");
+            $(this).removeClass("hilite");
         });
+        $("table.grid tr").click(function() {
+            if (this.hasAttribute("href"))
+                window.location = this.getAttribute("href");
+        });
+        
+        $('table.grid th').click(function() {
+            if ($.query.get('order') == this.id)
+                window.location.search = $.query.set('order', '-' + this.id);
+            else
+                window.location.search = $.query.set('order', this.id);
+        });
+        
+        
     });    
   </script>
 </head>
 <body>
-  <div id="content">
+  <div id="layout">
+    <div id="header"><h1>mp3web</h1></div>
+    <div id="content">

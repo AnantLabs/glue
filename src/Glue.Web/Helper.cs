@@ -537,9 +537,9 @@ dt           { font-weight: bold; width: 200px; float: left; }
         public static string JavaScriptLink(string url)
         {
             if (App.Current.Debug)
-                return "<script type=\"text/javascript\" src=\"" + url + "\"></script>";
-            else
                 return "<script type=\"text/javascript\" src=\"" + url + "?" + DateTime.Now.ToString("yyyyMMddHH") + "\"></script>";
+            else
+                return "<script type=\"text/javascript\" src=\"" + url + "\"></script>";
         }
 
         public static string StyleSheetLink(string url)

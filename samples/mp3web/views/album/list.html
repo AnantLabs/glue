@@ -1,5 +1,27 @@
 <%@include file="/views/_header.html" %>
 
-This page is empty.
+<% foreach (System.Exception e in Errors) { %>
+    <div class="error"><%= e.Message %></div>
+<% } %>
+
+<h1>Albums</h1>
+
+<%= Glue.Web.GridHelper.GridPager(Grid) %>
+
+<table id="album-grid" class="grid">
+
+    <tr>
+        <th id="name">Album</th>
+    </tr>
+    
+    <% foreach(Album a in Grid.List) { %>
+        <tr href="/album/edit/<%=a.Id%>">
+            <td><%=H(a.Name) %></td>
+            <td><a href="/album/delete/<%=a.Id%>">[Delete]</a></td>
+        </tr>
+    <% } %>
+</table>
+
+<div><a href="/album/new">New Album</a></div>
 
 <%@include file="/views/_footer.html" %>

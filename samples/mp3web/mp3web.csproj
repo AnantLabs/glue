@@ -33,9 +33,15 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="public\css\default.css" />
+    <Content Include="public\js\jquery-1.2.3.js" />
+    <Content Include="public\js\jquery_query-1.2.2.js" />
+    <Content Include="views\album\edit.html" />
     <Content Include="views\album\list.html" />
+    <Content Include="views\base\info.html" />
     <Content Include="views\empty.html" />
-    <Content Include="views\index.html" />
+    <Content Include="views\base\index.html" />
+    <Content Include="views\track\edit.html" />
     <Content Include="views\track\list.html" />
     <Content Include="views\_footer.html" />
     <Content Include="views\_header.html" />
@@ -49,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Glue.Data.SQLite\Glue.Data.SQLite.csproj">
+      <Project>{46246856-7109-4962-A291-E8DD114CAE56}</Project>
+      <Name>Glue.Data.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
       <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
       <Name>Glue.Data</Name>
@@ -61,9 +71,10 @@
       <Project>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</Project>
       <Name>Glue.Web</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="public\js\" />
+    <ProjectReference Include="..\mp3sql\mp3sql.csproj">
+      <Project>{CFCCFEB6-3D64-4446-932B-EEBF4A226F21}</Project>
+      <Name>mp3sql</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v8.0\WebApplications\Microsoft.WebApplication.targets" />
@@ -78,12 +89,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>1868</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>
-          </IISUrl>
+          <IISUrl>http://localhost/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
         </WebProjectProperties>
       </FlavorProperties>

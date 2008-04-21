@@ -1,0 +1,24 @@
+<%@include file="/views/_header.html" %>
+
+<% foreach (System.Exception e in Errors) { %>
+    <div class="error"><%= e.Message %></div>
+<% } %>
+
+<h1><%= Track.Id == 0? "New" : "Edit" %> Track</h1>
+
+<form action="" method="post">
+
+<div><label>Title: </label><%= Helper.TextBox(B("id", "title", "value", H(Track.Title))) %></div>
+<div><label>Artist: </label><%= Helper.TextBox(B("id", "artist", "value", H(Track.Artist))) %></div>
+<div><label>Path: </label><%= Helper.TextBox(B("id", "path", "value", H(Track.Path))) %></div>
+<div><label>Comment: </label><%= Helper.TextArea(B("id", "comment", "value", H(Track.Comment))) %></div>
+<div><input type="submit" value="Save" /></div>
+</form>
+
+<% if (Track.Id > 0) { %>
+<h3>This track is released on the following albums:</h3>
+<!-- TODO -->
+<a href="/track/addalbum/<%=Track.Id %>">Add album</a>
+<% } %>
+
+<%@include file="/views/_footer.html" %>

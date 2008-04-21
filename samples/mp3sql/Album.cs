@@ -8,7 +8,7 @@ using Glue.Data.Mapping;
 namespace mp3sql
 {
     [Table]
-    public class Album : ActiveRecord
+    public class Album
     {
         [AutoKey]
         public int Id;
