@@ -109,7 +109,7 @@ namespace Glue.Data.Schema
                 }
                 else
                 {
-                    throw new ApplicationException("Unsupported: " + type);
+                    throw new DataException("Unsupported: " + type);
                 }
             }
             writer.WriteEndElement();

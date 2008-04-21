@@ -5,7 +5,9 @@ using System.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 using Glue.Lib;
+using Glue.Lib.Text;
 using Glue.Data;
+using Glue.Data.Mapping;
 
 namespace Glue.Web
 {
@@ -46,6 +48,123 @@ namespace Glue.Web
                     else
                         s.Append("<span>" + (i+1) + "</span>");
             s.Append("\r\n</div>\r\n");
+            return s.ToString();
+        }
+
+        public static string WriteGrid(Glue.Data.IDataProvider provider, Type type)
+        {
+            Entity entity = Entity.Obtain(type);
+            HtmlBuilder s = new HtmlBuilder();
+            
+            s.Append("<table").Attr("class", "grid").Append(">").AppendLine();
+            s.Append("  <thead>").AppendLine();
+            s.Append("  <tr>").AppendLine();
+            foreach (EntityMember column in EntityMemberList.Flatten(entity.AllMembers))
+            {
+                s.Append("    <th>").Append(column.Name).Append("</th>").AppendLine();
+            }
+            s.Append("  </tr>").AppendLine();
+            s.Append("  </thead>").AppendLine();
+            
+            s.Append("  <tbody>").AppendLine();
+            bool even = true;
+            foreach (object instance in provider.List(type, null, null, null))
+            {
+                s.Append("    <tr").
+                    Attr("class", even ? "even" : "odd").
+                    Attr("href", "/entity/" + type.Name.ToLower() + "/edit/" + entity.KeyMembers[0].GetValue(instance)).
+                    Append(">").
+                    AppendLine();
+                foreach (EntityMember column in EntityMemberList.Flatten(entity.AllMembers))
+                {
+                    s.Append("    <td>");
+                    try 
+                    { 
+                        s.Append(column.GetValue(instance)); 
+                    }
+                    catch 
+                    { 
+                        s.Append("#ERR"); 
+                    }
+                    s.Append("</td>").AppendLine();
+                }
+                s.Append("  </tr>").AppendLine();
+                even = !even;
+            }
+            s.Append("  </tbody>").AppendLine();
+            s.Append("</table>").AppendLine();
+            return s.ToString();
+        }
+
+        public static string WriteForm(Glue.Data.IDataProvider provider, Type type, object instance)
+        {
+            Entity entity = Entity.Obtain(type);
+            HtmlBuilder s = new HtmlBuilder();
+            s.Append("<table").Attr("class", "form").Append(">").AppendLine();
+            foreach (EntityMember column in EntityMemberList.Flatten(entity.AllMembers))
+            {
+                s.Append("  <tr>").AppendLine();
+                s.Append("    <th>").Append(column.Name).Append("</th>").AppendLine();
+                s.Append("    <td>");
+                string klass = "form-control-" + column.Type.Name.ToLower();
+                string name = type.Name.ToLower() + "." + column.Name.ToLower();
+                string id = type.Name.ToLower() + "_" + column.Name.ToLower();
+                if (column.Foreign)
+                {
+                    s.Append("<select").
+                        Attr("id", id).
+                        Attr("name", name).
+                        Attr("class", klass).
+                        Append(">");
+                    foreach (object other in provider.List(column.Type, null, null, null))
+                        s.Append("<option>").Append(other).Append("</option>");
+                    s.Append("</select>");
+                }
+                else
+                {
+                    object value;
+                    try { value = column.GetValue(instance); }
+                    catch { value = "#ERR"; }
+                    
+                    string disabled = column.AutoKey != null || column.Calculated != null ? " disabled" : null;
+                    if (column.Type == typeof(Boolean))
+                    {
+                        s.Append("<input").
+                            Attr("id", id).
+                            Attr("name", name).
+                            Attr("class", klass).
+                            Attr("disabled", disabled).
+                            Attr("type", "checkbox").
+                            Append("/>");
+                    }
+                    else if (column.Type == typeof(DateTime))
+                    {
+                        s.Append("<input").
+                            Attr("id", id).
+                            Attr("name", name).
+                            Attr("class", klass).
+                            Attr("disabled", disabled).
+                            Attr("type", "text").
+                            Attr("value", "yyyy-mm-dd").
+                            Append("/>");
+                    }
+                    else
+                    {
+                        s.Append("<input").
+                            Attr("id", id).
+                            Attr("name", name).
+                            Attr("class", klass).
+                            Attr("disabled", disabled).
+                            Attr("type", "text").
+                            Attr("value", value).
+                            Append("/>");
+                    }
+                }
+                s.Append("</td>");
+                s.Append("</tr>").AppendLine();
+            }
+            s.Append("  <tr><th>&nbsp;</th><td><input type=\"submit\" value=\"Update\" /></td></tr>").AppendLine();
+            s.Append("</table>").AppendLine();
             return s.ToString();
         }
     }

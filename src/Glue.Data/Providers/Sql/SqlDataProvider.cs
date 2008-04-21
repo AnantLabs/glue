@@ -118,6 +118,9 @@ namespace Glue.Data.Providers.Sql
         /// </summary>
         public override IDbCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
+            if (order == null) order = Order.Empty;
+            if (limit == null) limit = Limit.Unlimited;
+
             QueryBuilder s = CreateQueryBuilder();
 
             // HACK: check if there's a WITH option clause in the data source.

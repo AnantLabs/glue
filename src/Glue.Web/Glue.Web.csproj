@@ -72,10 +72,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="glue.lib, Version=2.0.1570.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Glue.Lib\bin\glue.lib.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -214,6 +210,7 @@
     <Compile Include="UnknownController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EntityController.cs" />
     <Compile Include="View.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -222,6 +219,10 @@
     <ProjectReference Include="..\Glue.Data\Glue.Data.csproj">
       <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
       <Name>Glue.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Glue.Lib\Glue.Lib.csproj">
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Name>Glue.Lib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
