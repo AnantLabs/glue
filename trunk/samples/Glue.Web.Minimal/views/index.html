@@ -1,13 +1,12 @@
 <%@include file="/views/_header.html" %>
 
-<table class="grid">
-  <tr>
-    <td>Hello</td>
-    <td>World</td>
-  </tr>
-  <tr>
-    <td>Hello</td>
-    <td>World</td>
-  </tr>
-</table>
+<%= Glue.Web.GridHelper.WriteGrid(
+      (Glue.Data.IDataProvider)Glue.Lib.Configuration.Get("dataprovider"), 
+      typeof(Glue.Web.Minimal.Model.Contact)) %>
+
+<%= Glue.Web.GridHelper.WriteForm(
+      (Glue.Data.IDataProvider)Glue.Lib.Configuration.Get("dataprovider"), 
+      typeof(Glue.Web.Minimal.Model.Contact),
+      null) %>
+
 <%@include file="/views/_footer.html" %>
