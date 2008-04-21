@@ -1249,7 +1249,7 @@ WHERE
                 case "timestamp": // 8
                     // return (long) SqlDbType.Timestamp;
                 default:
-                    throw new ApplicationException("Unsupported type " + dbType);
+                    throw new DataException("Unsupported type " + dbType);
             }
         }
         */

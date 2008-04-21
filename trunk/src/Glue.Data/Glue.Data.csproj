@@ -34,18 +34,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveRecord.cs" />
     <Compile Include="BaseDataProvider.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Filter.cs" />
-    <Compile Include="IActiveRecord.cs" />
     <Compile Include="IDataExporter.cs" />
     <Compile Include="IDataImporter.cs" />
     <Compile Include="IDataProvider.cs" />
     <Compile Include="ISchemaProvider.cs" />
     <Compile Include="Limit.cs" />
-    <Compile Include="MappingProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Mapping\Accessor.cs" />
     <Compile Include="Mapping\Attributes.cs" />
     <Compile Include="Mapping\AccessorCompiler.cs" />

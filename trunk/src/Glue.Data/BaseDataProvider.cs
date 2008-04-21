@@ -175,7 +175,7 @@ namespace Glue.Data
                 if (name == null)
                 {
                     if (item == null)
-                        throw new ApplicationException("Null value encountered, expected parameter name string.");
+                        throw new DataException("Null value encountered, expected parameter name string.");
 
                     if (item is string)
                     {
@@ -198,7 +198,7 @@ namespace Glue.Data
                     }
                     else
                     {
-                        throw new ApplicationException("Expected parameter name or IDataRecord");
+                        throw new DataException("Expected parameter name or IDataRecord");
                     }
                 }
                 else
@@ -211,7 +211,7 @@ namespace Glue.Data
             }
 
             if (name != null)
-                throw new ApplicationException("Unexpected end of parameterlist.");
+                throw new DataException("Unexpected end of parameterlist.");
         }
 
         /// <summary>

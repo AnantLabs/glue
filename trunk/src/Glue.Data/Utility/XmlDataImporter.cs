@@ -112,7 +112,7 @@ namespace Glue.Data.Schema
                                     parm.Value = XmlConvert.ToDecimal(reader.ReadString());
                                     break;
                                 default:
-                                    throw new ApplicationException("Unsupported: " + parm.DbType);
+                                    throw new DataException("Unsupported: " + parm.DbType);
                             }
                         }
                         break; 

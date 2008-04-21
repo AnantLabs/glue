@@ -47,6 +47,13 @@ namespace Glue.Lib.Text
             return this;
         }
 
+        public HtmlBuilder AppendLine()
+        {
+            if (!skip)
+                data.AppendLine();
+            return this;
+        }
+
         public HtmlBuilder Attr(string name, object value)
         {
             if (value == null || value == DBNull.Value)
