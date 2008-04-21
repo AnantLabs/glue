@@ -1,0 +1,26 @@
+<%@include file="/views/_header.html" %>
+
+<% foreach (System.Exception e in Errors) { %>
+    <div class="error"><%= e.Message %></div>
+<% } %>
+
+<h1><%= Album.Id == 0? "New" : "Edit" %> Album</h1>
+
+<form action="" method="post">
+
+<div><label>Name: </label><%= Helper.TextBox(B("id", "name", "value", H(Album.Name))) %></div>
+
+<div><input type="submit" value="Save" /></div>
+</form>
+
+<% if (Tracks.Count > 0) { %>
+<h3>Tracks in this album: </h3>
+
+    <% foreach(Track t in Tracks.Keys) { %>
+        
+        <%= t.Title %>, <%= t.Artist %>, <a href="/album/removetrack/<%=Album.Id %>?track=<%=t.Id %>">[Remove]</a><br />
+    <% } %>
+
+<% } %>
+
+<%@include file="/views/_footer.html" %>

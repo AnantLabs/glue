@@ -23,7 +23,7 @@ namespace mp3sql
     //}
 
     [Table]
-    public class Track : ActiveRecord
+    public class Track 
     {
         [AutoKey] 
         public int Id;

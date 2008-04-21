@@ -19,6 +19,9 @@ select {
   color: #fff;
   padding: 5px 20px 5px 20px;
 }
+#content {
+  padding: 20px;
+}
 #footer {
   font-size: 0.8em;
   padding: 0px 20px 0px 20px;
@@ -26,15 +29,13 @@ select {
 #footer a {
   color: #444;
 }
-#content {
-  padding: 20px;
-}
 
 .grid {
   cursor: default;
   border-collapse: collapse;
   border: solid 1px #57f;
 }
+
 .grid tr {
   border-bottom: solid 1px #57f;
   padding-bottom: 4px;
@@ -75,4 +76,19 @@ select {
 #contact_lastname.form-control-string,
 .form-control-string#contact_street {
   width: 300px;
+}
+
+label {
+    width: 130px;
+    display: inline;
+    min-width: 130px;
+    float: left;
+    /*margin-top: 2px;*/
+    padding-top: 3px;
+    vertical-align: top;
+}
+
+#error 
+{
+	background-color: Fuchsia;
 }

@@ -1,6 +1,7 @@
 using System;
 
 using Glue.Web;
+using mp3sql;
 
 namespace mp3web.Controllers
 {
@@ -16,7 +17,12 @@ namespace mp3web.Controllers
 
         public void Index()
         {
-            Response.Write("Nothing to see here.");
+            Render("index.html");
+        }
+
+        public void Info()
+        {
+            Render("info.html");
         }
     }
 }
