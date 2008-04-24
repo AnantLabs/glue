@@ -41,6 +41,7 @@
     <Content Include="views\base\info.html" />
     <Content Include="views\empty.html" />
     <Content Include="views\base\index.html" />
+    <Content Include="views\track\addalbum.html" />
     <Content Include="views\track\edit.html" />
     <Content Include="views\track\list.html" />
     <Content Include="views\_footer.html" />

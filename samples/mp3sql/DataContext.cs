@@ -46,23 +46,34 @@ namespace mp3sql
             Provider.AddManyToMany(track, album, "track_album");
         }
 
+        public void AddTrackToAlbum(Track track, Album album, int track_number)
+        {
+            AddTrackToAlbum(track, album);
+            Provider.ExecuteNonQuery("UPDATE track_album SET track_number=@n WHERE trackid=@tid AND albumid=@aid", 
+                "@n", track_number, "@tid", track.Id, "@aid", album.Id);
+        }
+
         /// <summary>
-        /// Returns tracks in an album. Returned as a dictionary (track: int)
-        /// where the integer is the position of the track on the album.
+        /// Returns tracks in an album. Returned as a list of pairs (track nr, album)
+        /// where track nr is the position of the track on the album.
         /// </summary>
         /// <param name="album"></param>
         /// <returns></returns>
-        public IDictionary<Track, int?> AlbumGetTracks(Album album)
+        public List<Tup<long?, Track>> AlbumGetTracks(Album album)
         {
-            IDictionary<Track, int?> list = new Dictionary<Track, int?>();
+            List<Tup<long?, Track>> list = new List<Tup<long?, Track>>();
             IDataReader reader = Provider.ExecuteReader(@"SELECT track_number, id 
                     FROM track_album INNER JOIN track ON id=trackid 
-                    WHERE albumid=@0", "@0", album.Id);
+                    WHERE albumid=@0 ORDER BY track_number", "@0", album.Id);
             while (reader.Read())
             {
-                int? track_number = reader["track_number"] == DBNull.Value? 0: Convert.ToInt32(reader["track_number"]);
-                int id = Convert.ToInt32(reader["id"]);
-                list[Provider.Find<Track>(id)] = track_number;
+                long? track_number = null;
+                if (!reader.IsDBNull(0))
+                    track_number = reader.GetInt64(0);
+                //long? track_number = reader.GetInt64(0);
+                long id = reader.GetInt64(1);
+                Track t = Provider.Find<Track>(id);
+                list.Add(new Tup<long?, Track>(track_number, t));
             }
             return list;
         }
@@ -91,6 +102,21 @@ namespace mp3sql
                     UNIQUE (trackid, albumid)
                 );
             ");
+        }
+    }
+
+    /// <summary>
+    /// Tuple helper class
+    /// </summary>
+    public class Tup<T1, T2>
+    {
+        public T1 t1;
+        public T2 t2;
+
+        public Tup(T1 x, T2 y)
+        {
+            t1 = x;
+            t2 = y;
         }
     }
 }

@@ -1,5 +1,7 @@
 <%@include file="/views/_header.html" %>
 
+<a href="/">Home</a> :: <a href="/album/list">Albums</a>
+
 <% foreach (System.Exception e in Errors) { %>
     <div class="error"><%= e.Message %></div>
 <% } %>
@@ -13,14 +15,28 @@
 <div><input type="submit" value="Save" /></div>
 </form>
 
-<% if (Tracks.Count > 0) { %>
-<h3>Tracks in this album: </h3>
-
-    <% foreach(Track t in Tracks.Keys) { %>
+<% if (Tracks != null && Tracks.Count > 0) { %>
+    <h3>Tracks in this album: </h3>
+    <table class="grid">
+        <thead>
+            <tr>
+                <th>track</th>
+                <th>title</th>
+                <th>artist</th>
+                <th></th>
+            </tr>
+        </thead>
         
-        <%= t.Title %>, <%= t.Artist %>, <a href="/album/removetrack/<%=Album.Id %>?track=<%=t.Id %>">[Remove]</a><br />
-    <% } %>
-
+        <% foreach(Tup<long?, Track> tup in Tracks) { 
+            Track t = tup.t2; %>
+            <tr>
+                <td><%= tup.t1 %></td>
+                <td><%= H(t.Title) %></td>
+                <td><%= H(t.Artist) %></td>
+                <td><a href="/album/removetrack/<%=Album.Id %>?track=<%=t.Id %>">[Remove]</a></td>
+            </tr>
+        <% } %>
+    </table>
 <% } %>
 
 <%@include file="/views/_footer.html" %>

@@ -1,0 +1,49 @@
+<%@include file="/views/_header.html" %>
+
+
+<script language="javascript"> <!--
+    function onAdd(id) {
+        $(".form_" + id).toggle();
+    }
+--></script> 
+
+
+<% foreach (System.Exception e in Errors) { %>
+    <div class="error"><%= e.Message %></div>
+<% } %>
+<h1>Add track to album</h1>
+
+<%= Track.Title %> - <%= Track.Artist %>
+
+<h3>Select album</h3>
+
+<%= Glue.Web.GridHelper.GridPager(Grid) %>
+
+<table class="grid">
+
+    <tr>
+        <th></th>
+        <th id="name">Title</th>
+    </tr>
+    
+    <% foreach(Album a in Grid.List) { %>
+        <tr>
+            <td>
+                <div>
+                    <a href="javascript:(function(){$('#form_<%= a.Id%>').toggle();})();">Add</a>
+                </div>
+                <div style="display: none;" id="form_<%= a.Id%>">
+                    <form method="post">
+                        
+                        <input type="hidden" name="album_id" value="<%= a.Id%>" />
+                        Track no: <input type=text" name="track_nr" />
+                        <input type="submit" value="Add" />
+                    </form>
+                </div>
+            </td>
+            <td><%= H(a.Name) %></td>
+        </tr>
+    <% } %>
+</table>
+
+<%@include file="/views/_footer.html" %>
