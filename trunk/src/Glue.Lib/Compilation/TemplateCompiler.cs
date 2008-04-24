@@ -107,7 +107,8 @@ namespace Glue.Lib.Compilation
         {
             // Generate class declaration
             _type = new CodeTypeDeclaration(TypeName);
-            _type.BaseTypes.Add(BaseTypeName);
+            if (BaseTypeName != null && BaseTypeName != "")
+                _type.BaseTypes.Add(BaseTypeName);
             _type.TypeAttributes = TypeAttributes.Public;
             _namespace.Types.Add(_type);
 

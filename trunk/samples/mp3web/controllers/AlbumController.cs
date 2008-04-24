@@ -12,7 +12,7 @@ namespace mp3web.Controllers
     {
         public GridHelper.Grid Grid;
         public Album Album;
-        public IDictionary<Track, int?> Tracks;
+        public List<Tup<long?, Track>> Tracks;
 
         public AlbumController(IRequest request, IResponse response)
             : base(request, response)

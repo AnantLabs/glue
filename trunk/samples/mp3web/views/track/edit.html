@@ -1,5 +1,7 @@
 <%@include file="/views/_header.html" %>
 
+<a href="/">Home</a> :: <a href="/track/list">Tracks</a>
+
 <% foreach (System.Exception e in Errors) { %>
     <div class="error"><%= e.Message %></div>
 <% } %>
@@ -10,14 +12,30 @@
 
 <div><label>Title: </label><%= Helper.TextBox(B("id", "title", "value", H(Track.Title))) %></div>
 <div><label>Artist: </label><%= Helper.TextBox(B("id", "artist", "value", H(Track.Artist))) %></div>
+<div><label>Year: </label><%= Helper.TextBox(B("id", "year", "value", Track.Year)) %></div>
 <div><label>Path: </label><%= Helper.TextBox(B("id", "path", "value", H(Track.Path))) %></div>
 <div><label>Comment: </label><%= Helper.TextArea(B("id", "comment", "value", H(Track.Comment))) %></div>
 <div><input type="submit" value="Save" /></div>
 </form>
 
 <% if (Track.Id > 0) { %>
-<h3>This track is released on the following albums:</h3>
-<!-- TODO -->
+<h3>This track is available on the following albums:</h3>
+
+<%= Glue.Web.GridHelper.GridPager(Grid) %>
+
+<table id="album-grid" class="grid">
+    <tr>
+        <th id="name">Album</th>
+    </tr>
+    
+    <% foreach(Album a in Grid.List) { %>
+        <tr href="/album/edit/<%=a.Id%>">
+            <td><%=H(a.Name) %></td>
+            <!--<td><a href="/album/delete/<%=a.Id%>">[Delete]</a></td>-->
+        </tr>
+    <% } %>
+</table>
+
 <a href="/track/addalbum/<%=Track.Id %>">Add album</a>
 <% } %>
 

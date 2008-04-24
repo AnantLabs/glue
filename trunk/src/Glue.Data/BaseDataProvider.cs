@@ -633,7 +633,7 @@ namespace Glue.Data
         }
 
         /// <summary>
-        /// Find object by its primary key(s)
+        /// Find object by its primary key(s). Returns null if not found.
         /// </summary>
         public virtual object Find(Type type, params object[] keys)
         {
@@ -1095,6 +1095,9 @@ namespace Glue.Data
 
         #region Generic methods
 
+        /// <summary>
+        /// Find object by its primary key(s). Returns null if not found.
+        /// </summary>
         public T Find<T>(params object[] keys)
         {
             return (T)Find(typeof(T), keys);
