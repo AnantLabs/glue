@@ -6,6 +6,7 @@ using System.Text;
 using System.Web;
 using Glue.Lib;
 using Glue.Lib.Text;
+using Glue.Lib.Compilation;
 
 namespace Glue.Web
 {
@@ -373,7 +374,36 @@ h2           { font-family:arial; font-weight: bold; font-size: 124%; }
                 }
                 sourceFile = null;
                 showStackTrace = false;
-            } 
+            }
+
+            else if (exception is Glue.Lib.Compilation.RuntimeException)
+            {
+                Glue.Lib.Compilation.RuntimeException e = exception as Glue.Lib.Compilation.RuntimeException;
+                s.WriteLine("<h2>Compiler Results</h2>");
+                s.WriteLine("<div><b>{0}</b><br/><br/></div>", e.SourceFile);
+                s.WriteLine("<div><b>Errors</b>:</div>");
+                s.WriteLine("<code><pre>{0}</pre></code>", e.Message);
+
+                s.WriteLine("<div><b>Source</b>:</div>");
+                s.WriteLine("<code><pre>{0}</pre></code>", ReadSampleLinesFromSource(e.SourceFile, e.LineNumber));
+
+                //if (e.Results != null)
+                //{
+                //    if (e.Results.Errors.Count > 0)
+                //    {
+                //        s.WriteLine("<div><b>Source</b>:</div>");
+                //        foreach (System.CodeDom.Compiler.CompilerError detail in e.Results.Errors)
+                //            s.WriteLine("<code><pre>{0}</pre></code>", ReadSampleLinesFromSource(detail.FileName, detail.Line));
+                //    }
+                //    s.WriteLine("<div><b>Output</b>:</div>");
+                //    s.WriteLine("<code><pre>");
+                //    foreach (string line in e.Results.Output)
+                //        s.WriteLine(line);
+                //    s.WriteLine("</pre></code>");
+                //}
+                sourceFile = null;
+                showStackTrace = false;
+            }
 
             if (sourceFile != null)
             {

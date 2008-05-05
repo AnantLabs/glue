@@ -61,4 +61,17 @@ namespace Glue.Lib.Compilation
             get { return results; }
         }
     }
+
+    public class RuntimeException : Exception
+    {
+        public string SourceFile;
+        public int LineNumber;
+
+        public RuntimeException(string message, string sourceFile, int lineNumber)
+            : base(message)
+        {
+            SourceFile = sourceFile;
+            LineNumber = lineNumber;
+        }
+    }
 }
