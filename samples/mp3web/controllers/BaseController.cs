@@ -24,5 +24,13 @@ namespace mp3web.Controllers
         {
             Render("info.html");
         }
+
+        public void Python()
+        {
+            PyTemplate template = new Glue.Web.PyTemplate(App.Current.MapPath("views/base/python.html"));
+            template.Compile();
+            template.Variables["title"] = "TheTitle";
+            template.Render(Response.Output);
+        }
     }
 }
