@@ -29,6 +29,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Boo.Lang, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\boo\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\boo\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
   </ItemGroup>
@@ -67,6 +75,10 @@
     <ProjectReference Include="..\..\src\Glue.Lib\Glue.Lib.csproj">
       <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
       <Name>Glue.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Web.Python\Glue.Web.IronPython.csproj">
+      <Project>{07607474-CFEB-4F20-ACC1-7467A4600B18}</Project>
+      <Name>Glue.Web.IronPython</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Glue.Web\Glue.Web.csproj">
       <Project>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</Project>

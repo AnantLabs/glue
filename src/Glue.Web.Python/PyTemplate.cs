@@ -112,6 +112,9 @@ namespace Glue.Web
     //    }
     //}
 
+    /// <summary>
+    /// Class to process and render a template with asp-like tags and python source.
+    /// </summary>
     public class PyTemplate : Glue.Lib.Compilation.AspTemplateCompiler
     {
         private string content; // unparsed template string
@@ -159,12 +162,14 @@ namespace Glue.Web
             {
                 engine.Execute(source);
             }
+            // In case of an error, find the find the line causing the error in the original template to
+            // include it in the error message.
             catch (IronPython.Runtime.Exceptions.PythonSyntaxErrorException pe)
             {
                 string sourceFile = FileName;
                 int lineNumber = pe.Line;
 
-                // find line number in source. Look for pattern:
+                // To find the line number, look for pattern:
                 // # ExternalSource ("c:/path...", 32)
                 string[] lines = source.Split('\n');
                 Regex reg = new Regex(@"#ExternalSource\(""(?<path>.*)"",(?<line>\d+)", RegexOptions.Compiled);
@@ -181,7 +186,10 @@ namespace Glue.Web
                 }
                 throw new RuntimeException(pe.Message, sourceFile, lineNumber);
             }
-            engine.Execute("PyTemplateClass().Render(writer)");
+            engine.Execute("PyTemplateNamespace.PyTemplateClass().Render(writer)");
+
+            //CompiledCode code = engine.Compile(source);
+            //code.Execute(
         }
 
         public override void Compile()
@@ -190,7 +198,7 @@ namespace Glue.Web
             _unit = new CodeCompileUnit();
             _unit.UserData["RequireVariableDeclaration"] = Settings.Explicit;
             _unit.UserData["AllowLateBound"] = !Settings.Strict;
-            _namespace = new CodeNamespace(NamespaceName);
+            _namespace = new CodeNamespace("PyTemplateNamespace"); //NamespaceName);
             _unit.Namespaces.Add(_namespace);
 
             // Import namespaces
@@ -237,6 +245,47 @@ namespace Glue.Web
         {
             this.content = Content;
             Compile();
+        }
+
+        public static void Render(string path, Dictionary<string, object> variables, TextWriter writer)
+        {
+            PyTemplate template = new PyTemplate(path);
+            template.Compile();
+            template.Variables = variables;
+            template.Render(writer);
+        }
+
+        public static void CompileTest()
+        {
+            // try to generate an assembly
+            List<string> sourceFiles = new List<string>();
+            sourceFiles.Add(Path.Combine(App.Current.BinDirectory, "source.py"));
+
+            MySink sink = new MySink();
+
+            IronPython.Hosting.PythonCompiler pc = new PythonCompiler(sourceFiles, "c:/Temp/python_out.dll", sink);
+
+            pc.Compile();
+
+            foreach (string Error in sink.Errors)
+            {
+                Console.Out.WriteLine(Error);
+            }
+
+            
+
+            //System.Reflection.Emit.AssemblyBuilder ab = new System.Reflection.Emit.AssemblyBuilder();
+            //IronPython.Compiler.gen
+        }
+    }
+
+    public class MySink : IronPython.Hosting.CompilerSink
+    {
+        public List<string> Errors = new List<string>();
+
+        public override void AddError(string path, string message, string lineText, CodeSpan location, int errorCode, Severity severity)
+        {
+            Errors.Add(message);
         }
     }
 }

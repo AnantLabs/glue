@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
 using Glue.Web;
 using Glue.Lib;
 using mp3sql;
@@ -10,9 +9,10 @@ namespace mp3web.Controllers
 {
     public class AlbumController : BaseController
     {
+
         public GridHelper.Grid Grid;
         public Album Album;
-        public List<Tup<long?, Track>> Tracks;
+        public TrackList Tracks;
 
         public AlbumController(IRequest request, IResponse response)
             : base(request, response)

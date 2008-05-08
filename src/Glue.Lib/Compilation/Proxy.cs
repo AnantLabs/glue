@@ -10,15 +10,24 @@ using Glue.Lib;
 namespace Glue.Lib.Compilation
 {
 	/// <summary>
-	/// Summary description for Proxy.
+    /// Helper functions to mix in members from a given class type into another class. 
+    /// Use these when you're dynamically generating a class and want that class to have
+    /// direct access to another object's methods and properties.
 	/// </summary>
 	public class Proxy
 	{
+        /// <summary>
+        /// Generate proxy properties for all fields of given type and add them to the
+        /// members collection.
+        /// To exclude properties or even base types, use the excludes string collection.
+        /// </summary>
+        /// 
+        /// <param name="target">How to reference the type fields from the new class, e.g. "this.FieldName", as a CodeExpression</param>
         public static void GenerateFields(CodeTypeMemberCollection members, Type type, CodeExpression target, StringCollection excludes)
         {
             foreach (FieldInfo f in type.GetFields())
             {
-                if (f.IsPublic && !excludes.Contains(f.DeclaringType.FullName) &&  !excludes.Contains(f.Name))
+                if (f.IsPublic && !excludes.Contains(f.DeclaringType.FullName) && !excludes.Contains(f.Name))
                 {
                     CodeMemberProperty cp = new CodeMemberProperty();
                     cp.Name = f.Name;
@@ -31,6 +40,7 @@ namespace Glue.Lib.Compilation
                             new CodeFieldReferenceExpression(target, f.Name), 
                             new CodeArgumentReferenceExpression("value")));
                     members.Add(cp);
+                    // Name added to excludes, this prevents members with the same name being added more than once.
                     excludes.Add(f.Name);
                 }
             }
