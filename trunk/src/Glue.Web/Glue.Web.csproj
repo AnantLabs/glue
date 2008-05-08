@@ -72,14 +72,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronMath, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Documents and Settings\wouter\Desktop\IronPython-1.1.1\IronMath.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Documents and Settings\wouter\Desktop\IronPython-1.1.1\IronPython.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -115,7 +107,6 @@
     <Compile Include="Attributes.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compilers\PyTemplate.cs" />
     <Compile Include="Compilers\ViewCompiler.cs">
       <SubType>Code</SubType>
     </Compile>

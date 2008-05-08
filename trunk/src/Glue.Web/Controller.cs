@@ -13,7 +13,7 @@ using Glue.Lib.Compilation;
 namespace Glue.Web
 {
 	/// <summary>
-	/// Summary description for Controller.
+	/// TODO: 
 	/// </summary>
 	public class Controller
 	{
@@ -203,12 +203,20 @@ namespace Glue.Web
             return ViewCompiler.GetCompiledInstance(this, virtualPath);
         }
 
+        /// <summary>
+        /// Renders a view based on the current action and controller. For 
+        /// information on views and templates see ViewCompiler.
+        /// </summary>
         [Forbidden]
         public void Render()
         {
             Render(null);
         }
 
+        /// <summary>
+        /// Renders a view template. For information on views and templates
+        /// see ViewCompiler.
+        /// </summary>
         [Forbidden]
         public void Render(string virtualPath)
         {
@@ -226,6 +234,10 @@ namespace Glue.Web
             Render(virtualPath, Response.Output);
         }
 
+        /// <summary>
+        /// Renders a view template and wirtes output to a TextWriter. 
+        /// For information on views and templates see ViewCompiler.
+        /// </summary>
         [Forbidden]
         public void Render(string virtualPath, TextWriter writer)
         {
@@ -241,6 +253,10 @@ namespace Glue.Web
             writer.WriteLine();
         }
 
+        /// <summary>
+        /// Renders a view template and wirtes output to a string. 
+        /// For information on views and templates see ViewCompiler.
+        /// </summary>
         [Forbidden]
         public string RenderToString(string virtualPath)
         {

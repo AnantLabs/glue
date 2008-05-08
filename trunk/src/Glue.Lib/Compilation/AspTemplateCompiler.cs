@@ -87,7 +87,8 @@ namespace Glue.Lib.Compilation
                 else 
                 {
                     // Statement <% statements; %>
-                    CodeSnippetStatement stmt = new CodeSnippetStatement(content.Substring(curr + 2, next - curr - 2));
+                    string s = content.Substring(curr + 2, next - curr - 2).Trim(' ').TrimStart('\r', '\n');
+                    CodeSnippetStatement stmt = new CodeSnippetStatement(s);
                     stmt.LinePragma = new CodeLinePragma(path, GetLineCount(content, 0, curr) + 1);
                     _statements.Add(stmt);
                 }

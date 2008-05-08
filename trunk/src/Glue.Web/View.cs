@@ -12,7 +12,8 @@ using System.Web;
 namespace Glue.Web
 {
 	/// <summary>
-	/// Summary description for View.
+	/// Base class for Views, see ViewCompiler for more information
+    /// on views and templates.
 	/// </summary>
     public class View
     {

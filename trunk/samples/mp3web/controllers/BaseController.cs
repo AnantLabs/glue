@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 using Glue.Web;
 using mp3sql;
 
@@ -18,6 +18,8 @@ namespace mp3web.Controllers
         public void Index()
         {
             Render("index.html");
+
+            PyTemplate.CompileTest();
         }
 
         public void Info()
@@ -27,10 +29,10 @@ namespace mp3web.Controllers
 
         public void Python()
         {
-            PyTemplate template = new Glue.Web.PyTemplate(App.Current.MapPath("views/base/python.html"));
-            template.Compile();
-            template.Variables["title"] = "TheTitle";
-            template.Render(Response.Output);
+            Dictionary<string, object> variables = new Dictionary<string,object>();
+            variables["title"] = "MyTitle";
+
+            PyTemplate.Render(App.Current.MapPath("views/base/python.html"), variables, Response.Output);
         }
     }
 }

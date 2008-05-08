@@ -59,9 +59,9 @@ namespace mp3sql
         /// </summary>
         /// <param name="album"></param>
         /// <returns></returns>
-        public List<Tup<long?, Track>> AlbumGetTracks(Album album)
+        public TrackList AlbumGetTracks(Album album)
         {
-            List<Tup<long?, Track>> list = new List<Tup<long?, Track>>();
+            TrackList list = new TrackList();
             IDataReader reader = Provider.ExecuteReader(@"SELECT track_number, id 
                     FROM track_album INNER JOIN track ON id=trackid 
                     WHERE albumid=@0 ORDER BY track_number", "@0", album.Id);
@@ -103,6 +103,13 @@ namespace mp3sql
                 );
             ");
         }
+    }
+
+    /// <summary>
+    /// List of Track Tuples
+    /// </summary>
+    public class TrackList : List<Tup<long?, Track>>
+    {
     }
 
     /// <summary>
