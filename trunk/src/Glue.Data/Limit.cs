@@ -63,21 +63,6 @@ namespace Glue.Data
         }
         
         /// <summary>
-        /// Create new Limit
-        /// </summary>
-        /// <param name="index">Index row</param>
-        /// <param name="count">Number of rows to return</param>
-        /// <returns>New Limit instance</returns>
-        public static Limit Create(int? index, int? count)
-        {
-            if (index == null)
-                index = 0;
-            if (count == null)
-                count = -1;
-            return new Limit(index.Value, count.Value);
-        }
-
-        /// <summary>
         /// Returns the first non-empty Limit in the argument list.
         /// </summary>
         /// <param name="limits">Limits</param>
