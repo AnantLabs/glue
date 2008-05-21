@@ -130,6 +130,7 @@ namespace Glue.Data.Mapping
 
             if (em.Type == typeof(string) ||
                 em.Type == typeof(bool) ||
+                em.Type == typeof(short) ||
                 em.Type == typeof(int) ||
                 em.Type == typeof(long) ||
                 em.Type == typeof(double) ||
@@ -140,6 +141,7 @@ namespace Glue.Data.Mapping
                 em.Type == typeof(char) ||
 //[NET20
                 em.Type == typeof(bool?) ||
+                em.Type == typeof(short?) ||
                 em.Type == typeof(int?) ||
                 em.Type == typeof(long?) ||
                 em.Type == typeof(double?) ||
@@ -166,6 +168,11 @@ namespace Glue.Data.Mapping
                 if (em.Type == typeof(bool?))
                 {
                     ec.Type = typeof(bool);
+                    ec.GenericNullable = ec.Nullable = true;
+                }
+                else if (em.Type == typeof(short?))
+                {
+                    ec.Type = typeof(short);
                     ec.GenericNullable = ec.Nullable = true;
                 }
                 else if (em.Type == typeof(int?))
@@ -257,7 +264,7 @@ namespace Glue.Data.Mapping
             }
             else
             {
-                throw new InvalidOperationException("Member " + em.Name + " on " + root.Type + " has a type which can't be mapped.");        
+                throw new InvalidOperationException("Member " + em.Name + " on " + root.Type + " has a type '" + em.Type.ToString() + "' which can't be mapped.");        
             }
             return em;
         }

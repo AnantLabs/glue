@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 
 namespace Glue.Lib
 {
@@ -272,7 +273,83 @@ namespace Glue.Lib
         {
             if (value == null || value == DBNull.Value)
                 return default(T);
-            return (T)value;
+
+            Type type = typeof(T);
+            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = type.GetGenericArguments()[0];
+
+            // Can we cast directly, for instance Int to Int, or Int to Int? (Nullable<Int>)?
+            if (type == value.GetType()) 
+                return (T)value;
+            else
+            {
+                try
+                {
+                    // Casting an Int32 to an Int16? (Nullable<Int16>) doesn't work, 
+                    // although casting an Int32 to an Int16 (normal short) works fine.
+                    // Same goes for conversion from string to char etc. 
+                    
+                    // So we need some special conversions...
+                    if (type == typeof(bool)) 
+                    {
+                        bool v = Convert.ToBoolean(value);
+                        return (T)(object) v;
+                    }
+                    else if (type == typeof(short))
+                    {
+                        short v = Convert.ToInt16(value);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(int))
+                    {
+                        int v = Convert.ToInt32(value);
+                        return (T)(object) v;
+                    }
+                    else if (type == typeof(long))
+                    {
+                        long v = Convert.ToInt64(value);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(double))
+                    {
+                        double v = Convert.ToDouble(value, System.Globalization.CultureInfo.InvariantCulture);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(float))
+                    {
+                        float v = (float)Convert.ToDouble(value, System.Globalization.CultureInfo.InvariantCulture);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(Guid))
+                    {
+                        Guid v = (Guid) (value);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(DateTime))
+                    {
+                        DateTime v = Convert.ToDateTime(value, System.Globalization.CultureInfo.InvariantCulture);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(decimal))
+                    {
+                        decimal v = Convert.ToDecimal(value, System.Globalization.CultureInfo.InvariantCulture);
+                        return (T)(object)v;
+                    }
+                    else if (type == typeof(char))
+                    {
+                        char v = Convert.ToChar(value);
+                        return (T)(object)v;
+                    }
+                    else
+                        return (T)value; 
+                }
+                catch (InvalidCastException e)
+                {
+                    throw new InvalidCastException("Error converting type '" + value.GetType().ToString()
+                        + "' to '" + typeof(T).ToString() + "'.", e);
+
+                }
+            }
         }
 
         /// <summary>
