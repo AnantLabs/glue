@@ -4,27 +4,31 @@
 <!--
 Targets:
 
-clean   - Cleans build dir.
-build   - Builds project in ../bin
-doc     - Builds api documentation, using ndoc
-doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
+clean			- Cleans build dir.
+build			- Builds project in ../bin
+doc				- Builds api documentation, using ndoc
+doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 -->
 
-<!-- Select framework: net-2.0 or mono-2.0 -->
-<foreach item="String" in="net-2.0,mono-2.0" delim="," property="framework">
-	<if test="${framework::exists(framework)}">
-		<echo message="Selecting framework: ${framework}" />
-		<property name="nant.settings.currentframework" value="${framework}" />
-	</if>
-</foreach>
+	<!-- Select framework: net-2.0 or mono-2.0 -->
+	<foreach item="String" in="net-2.0,mono-2.0" delim="," property="framework">
+		<if test="${framework::exists(framework)}">
+			<echo message="Selecting framework: ${framework}" />
+			<property name="nant.settings.currentframework" value="${framework}" />
+		</if>
+	</foreach>
 
-<property name="product.version" value="2.0" />
-<property name="product.revision" value="0" />
-<property name="product.name" value="${project::get-name()}" />
+	<property name="product.version" value="2.0" />
+	<property name="product.revision" value="0" />
+	<property name="product.name" value="${project::get-name()}" />
 
-<property name="builddir" value="../bin" /> <!-- Where to put all .dll files -->
-<property name="apidir" value="../doc/api" /> <!-- generated api documentation -->
-<property name="debug" value="None" /> <!-- "None", "Enable"-->
+	<!-- Where to put all .dll files -->
+	<property name="builddir" value="../bin" /> 
+	<property name="apidir" value="../doc/api" /> <!-- generated api documentation -->
+	<property name="apidir.deploy" value="\\Calypso\Sites\Glue\api\" /> <!-- generated api documentation -->
+	<property name="debug" value="None" /> <!-- "None", "Enable"-->
+	
+
 
 
 	<!-- CLEAN - Clean build directories  -->
@@ -60,6 +64,19 @@ doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.dll" doc="${builddir}/Glue.Data.xml">
 			<sources>
 				<include name="Glue.Data/**.cs" />
+
+				<!-- exclude old files -->
+				<exclude name="Glue.Data/Providers/OleDb/*.cs" />
+				
+				<exclude name="Glue.Data/Providers/Sql/SqlDataProvider-OBSOLETE.cs" />
+				<exclude name="Glue.Data/Providers/Sql/SqlMappingProvider.cs" />
+				<exclude name="Glue.Data/ActiveRecord.cs" />
+				<exclude name="Glue.Data/BaseMappingProvider.cs" />
+				<exclude name="Glue.Data/ChildCollection.cs" />
+				<exclude name="Glue.Data/IActiveRecord.cs" />
+				<exclude name="Glue.Data/IMappingProvider.cs" />
+				<exclude name="Glue.Data/MappingProvider.cs" />
+				<exclude name="Glue.Data/PrettyPrint.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
@@ -75,6 +92,9 @@ doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.MySql.dll" doc="${builddir}/Glue.Data.MySql.xml">
 			<sources>
 				<include name="Glue.Data.MySql/**.cs" />
+
+				<exclude name="Glue.Data.MySql/MySqlDataProvider-OBSOLETE.cs" />
+				<exclude name="Glue.Data.MySql/MySqlMappingProvider.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
@@ -93,12 +113,15 @@ doc-sandcastle - Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.SQLite.dll" doc="${builddir}/Glue.Data.SQLite.xml">
 			<sources>
 				<include name="Glue.Data.SQLite/**.cs" />
+
+				<exclude name="Glue.Data.Sqlite/SqliteDataProvider-OBSOLETE.cs" />
+				<exclude name="Glue.Data.Sqlite/SqliteMappingProvider.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
 				<include name="${builddir}/Glue.Lib.dll" />
 				<include name="${builddir}/Glue.Data.dll" />
-                                <include name="${builddir}/System.Data.SQLite.dll" />
+                <include name="${builddir}/System.Data.SQLite.dll" />
 			</references>
 			<nowarn>
 				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
