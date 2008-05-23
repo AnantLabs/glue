@@ -31,6 +31,35 @@
         <namespaceSummaryItem name="Edf.Lib.Threading" isDocumented="True" />
         <namespaceSummaryItem name="Edf.Lib.Xml" isDocumented="True" />
         <namespaceSummaryItem name="Edf.Lib.Xml.Sgml" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data.Mapping" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data.Providers.MySql" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data.Providers.Sql" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data.Providers.SQLite" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data.Schema" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Compilation" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Graphics" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.IO" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Mail" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Mime" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Net.Pop3" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Options" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Servers" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.DSON" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.JSON" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.Template" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.Template.AST" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Threading" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Xml" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Xml.Sgml" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Filters" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Memory" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Server" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Web" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Modules" isDocumented="True" />
         <namespaceSummaryItem name="Zwijsen.EditionHandler" isDocumented="True">Generic code for editions. Holds the Zwijsen.EditionHandler base project.</namespaceSummaryItem>
         <namespaceSummaryItem name="Zwijsen.EditionHandler.Commands" isDocumented="True">Commands in the Zwijsen.EditionHandler.</namespaceSummaryItem>
         <namespaceSummaryItem name="Zwijsen.EditionHandler.Config" isDocumented="True">Configuration classes of the Zwijsen.EditionHandler.</namespaceSummaryItem>
@@ -38,7 +67,7 @@
         <namespaceSummaryItem name="Zwijsen.Wsvk.Handler.Commands" isDocumented="True">Commands for the Zwijsen.Woordenschat-project.</namespaceSummaryItem>
     </namespaceSummaries>
     <dependencies>
-        <dependencyItem depPath="..\bin\SQLite.NET.dll" />
+        <dependencyItem depPath="..\bin\System.Data.SQLite.dll" />
         <dependencyItem depPath="..\bin\MySql.Data.dll" />
     </dependencies>
     <ProjectSummary />
@@ -63,11 +92,11 @@
     <HelpTitle>Glue API documentation</HelpTitle>
     <HtmlHelpName>Glue</HtmlHelpName>
     <Language>en-US</Language>
-    <CopyrightHref>http://code.google.com/p/glue</CopyrightHref>
+    <CopyrightHref>http://www.glueproject.com</CopyrightHref>
     <CopyrightText />
     <FeedbackEMailAddress />
     <HeaderText />
-    <FooterText>For more information, see &lt;a href="http://code.google.com/p/glue" target="_blank"&gt;http://code.google.com/p/glue&lt;/a&gt;</FooterText>
+    <FooterText>For more information, see &lt;a href="http://www.glueproject.com" target="_blank"&gt;http://www.glueproject.com&lt;/a&gt;. The &lt;a href="http://www.glueproject.com" target="_blank"&gt;Glue project&lt;/a&gt; is sponsored by &lt;a href="http://www.grondwerk.it"&gt;Grondwerk.it&lt;/a&gt;.</FooterText>
     <ProjectLinkType>Local</ProjectLinkType>
     <SdkLinkType>Msdn</SdkLinkType>
     <SdkLinkTarget>Self</SdkLinkTarget>
