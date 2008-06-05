@@ -168,9 +168,6 @@ namespace Glue.Data.Mapping
 
         static string GetIntoDataExpression(EntityMember member, string sourceExpression)
         {
-            if (member.Column.MaxLength > 0)
-                sourceExpression = "NullConvert.Truncate(" + sourceExpression + ", " + member.Column.MaxLength + ")";
-
             if (member.Column.GenericNullable)
                 return "((" + sourceExpression + ") == null ? DBNull.Value : (object)(" + sourceExpression + "))";
             else if (member.Column.Nullable)

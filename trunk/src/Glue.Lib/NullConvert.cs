@@ -68,7 +68,7 @@ namespace Glue.Lib
                     return args[i];
             return null;
         }
-
+        /*
         /// <summary>
         /// Truncates a string to max length
         /// </summary>
@@ -79,7 +79,7 @@ namespace Glue.Lib
             else
                 return s.Substring(0, maxlength);
         }
-
+        */
         /// <summary>
         /// Returns null if v is null or DBNull.
         /// </summary>
