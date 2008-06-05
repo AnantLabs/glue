@@ -5,32 +5,10 @@
         <assembly assemblyPath="..\bin\Glue.Data.SQLite.dll" xmlCommentsPath="..\bin\Glue.Data.SQLite.xml" commentsOnly="False" />
         <assembly assemblyPath="..\bin\Glue.Lib.dll" xmlCommentsPath="..\bin\Glue.Lib.xml" commentsOnly="False" />
         <assembly assemblyPath="..\bin\Glue.Web.dll" xmlCommentsPath="..\bin\Glue.Web.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Web.Python.dll" xmlCommentsPath="..\bin\Glue.Web.Python.xml" commentsOnly="False" />
     </assemblies>
     <namespaceSummaries>
         <namespaceSummaryItem name="" isDocumented="False" />
-        <namespaceSummaryItem name="Edf.Lib" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Compilation" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Data" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Data.Mapping" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Data.Providers.OleDb" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Data.Providers.Sql" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Data.Schema" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Graphics" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.IO" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Mail" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Mime" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Net.Ftp" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Net.Pop3" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Options" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Servers" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Text" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Text.DSON" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Text.JSON" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Text.Template" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Text.Template.AST" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Threading" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Xml" isDocumented="True" />
-        <namespaceSummaryItem name="Edf.Lib.Xml.Sgml" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Data" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Data.Mapping" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Data.Providers.MySql" isDocumented="True" />
@@ -60,15 +38,12 @@
         <namespaceSummaryItem name="Glue.Web.Hosting.Server" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Web.Hosting.Web" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Web.Modules" isDocumented="True" />
-        <namespaceSummaryItem name="Zwijsen.EditionHandler" isDocumented="True">Generic code for editions. Holds the Zwijsen.EditionHandler base project.</namespaceSummaryItem>
-        <namespaceSummaryItem name="Zwijsen.EditionHandler.Commands" isDocumented="True">Commands in the Zwijsen.EditionHandler.</namespaceSummaryItem>
-        <namespaceSummaryItem name="Zwijsen.EditionHandler.Config" isDocumented="True">Configuration classes of the Zwijsen.EditionHandler.</namespaceSummaryItem>
-        <namespaceSummaryItem name="Zwijsen.Wsvk.Handler" isDocumented="True">EditionHandler for the Zwijsen.Woordenschat-project.</namespaceSummaryItem>
-        <namespaceSummaryItem name="Zwijsen.Wsvk.Handler.Commands" isDocumented="True">Commands for the Zwijsen.Woordenschat-project.</namespaceSummaryItem>
     </namespaceSummaries>
     <dependencies>
         <dependencyItem depPath="..\bin\System.Data.SQLite.dll" />
         <dependencyItem depPath="..\bin\MySql.Data.dll" />
+	<dependencyItem depPath="..\bin\IronPython.dll" />
+	<dependencyItem depPath="..\bin\IronMath.dll" />
     </dependencies>
     <ProjectSummary />
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace</MissingTags>

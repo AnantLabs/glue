@@ -15,12 +15,13 @@ namespace Glue.Lib.Compilation
         public override void Compile()
         {
             // Get compiler and parameters
-            ICodeCompiler compiler = Settings.Compilers[Language].Provider.CreateCompiler();
+            //ICodeCompiler compiler = Settings.Compilers[Language].Provider.CreateCompiler();
+            CodeDomProvider provider = Settings.Compilers[Language].Provider;
 
             foreach (string assembly in Settings.Assemblies)
                 Parameters.ReferencedAssemblies.Add(ResolveAssemblyPath(assembly));
             
-            CompilerResults results = compiler.CompileAssemblyFromSource(Parameters, Source);
+            CompilerResults results = provider.CompileAssemblyFromSource(Parameters, Source);
             if (results.NativeCompilerReturnValue != 0 || results.Errors.HasErrors)
             {
                 throw new CompilationException(results);

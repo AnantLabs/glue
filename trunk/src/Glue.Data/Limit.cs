@@ -3,7 +3,10 @@ using System;
 namespace Glue.Data
 {
     /// <summary>
-    /// Specifies a range of rows to limit the result set of a query.
+    /// Specifies a range of rows to limit the result set of a query. A Limit contains an Index (the first row 
+    /// to be returned) and a Count (the maximum number of rows). A Count of -1 means "unlimited".
+    /// For methods that take a Limit as an argument (like those in IDataProvider), passing 'null' is equivalent
+    /// to passing Limit.Unlimited.
     /// </summary>
     public class Limit 
     {

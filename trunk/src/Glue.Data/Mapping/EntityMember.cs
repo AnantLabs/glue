@@ -24,7 +24,6 @@ namespace Glue.Data.Mapping
         public KeyAttribute Key;
         public AutoKeyAttribute AutoKey;
         public CalculatedAttribute Calculated;
-        public AutoFindAttribute AutoFind;
         public int MaxLength   { get { return Column.MaxLength; } }
         public bool Required   { get { return !Column.Nullable; } }
         public string Pattern  { get { return ""; } }

@@ -87,10 +87,11 @@ namespace Glue.Lib.Compilation
             Generate();
 
             // Obtain compiler and parameters
-            ICodeCompiler compiler = Settings.Compilers[Language].Provider.CreateCompiler();
-                        
+            CodeDomProvider provider = Settings.Compilers[Language].Provider;
+
             // And shoot
-            CompilerResults results = compiler.CompileAssemblyFromDom(Parameters, _unit);
+            CompilerResults results = provider.CompileAssemblyFromDom(Parameters, _unit);
+
             if (results.NativeCompilerReturnValue != 0)
                 throw new CompilationException(FileName, results);
             

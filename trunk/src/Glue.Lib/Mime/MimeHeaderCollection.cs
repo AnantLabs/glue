@@ -11,10 +11,11 @@ namespace Glue.Lib.Mime
 	/// </summary>
     public class MimeHeaderCollection : IEnumerable
     {
-        Hashtable lookup = new Hashtable(
-            System.Collections.CaseInsensitiveHashCodeProvider.DefaultInvariant,
-            System.Collections.CaseInsensitiveComparer.DefaultInvariant
-            );
+        //Hashtable lookup = new Hashtable(
+        //    System.Collections.CaseInsensitiveHashCodeProvider.DefaultInvariant,
+        //    System.Collections.CaseInsensitiveComparer.DefaultInvariant
+        //    );
+        Hashtable lookup = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
         ArrayList list = new ArrayList();
 
         public static MimeHeaderCollection Parse(TextReader reader)

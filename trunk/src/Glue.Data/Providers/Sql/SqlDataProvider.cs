@@ -114,7 +114,7 @@ namespace Glue.Data.Providers.Sql
 
         /// <summary>
         /// Create SELECT command
-        // This ONLY WORKS if the order by clause contains all key columns
+        /// This ONLY WORKS if the order by clause contains all key columns
         /// </summary>
         public override IDbCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
