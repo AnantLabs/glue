@@ -4,14 +4,10 @@ using System.ComponentModel;
 namespace Glue.Lib
 {
 	/// <summary>
-	/// Summary description for NullConvert.
+	/// 
 	/// </summary>
-	public class NullConvert
+	public static class NullConvert
 	{
-		protected NullConvert()
-		{
-		}
-
         /// <summary>
         /// Checks if value is null or empty.
         /// Returns true if v is null or DBNull, or empty string or empty GUID.
@@ -44,7 +40,7 @@ namespace Glue.Lib
         }
 
         /// <summary>
-        /// Returns null if v is null or DBNull or empty.
+        /// Returns the first non-null value in the argument list.
         /// </summary>
         public static object Coalesce(params object[] args)
         {
@@ -157,9 +153,9 @@ namespace Glue.Lib
             if (s == null)
                 return Convert.ToBoolean(v);
             s = s.ToLower();
-            if (s == "1" || s == "-1" || s == "true" || s == "yes" || s == "t" || s == "y")
+            if (s == "1" || s == "-1" || s == "true" || s == "yes" || s == "on" || s == "t" || s == "y")
                 return true;
-            if (s == "0" || s == "false" || s == "no" || s == "f" || s == "n")
+            if (s == "0" || s == "false" || s == "no" || s == "off" || s == "f" || s == "n")
                 return false;
             throw new InvalidCastException("Cannot convert " + v + "(" + v.GetType() + ") to Boolean.");
         }

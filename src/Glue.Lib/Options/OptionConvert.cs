@@ -68,11 +68,11 @@ namespace Glue.Lib.Options
             if (memberLookup == null)
             {
                 // Prepare collections of attributes
-                memberLookup = new Hashtable(
-                    System.Collections.CaseInsensitiveHashCodeProvider.Default,
-                    System.Collections.CaseInsensitiveComparer.Default
-                    );
-
+                //memberLookup = new Hashtable(
+                //    System.Collections.CaseInsensitiveHashCodeProvider.Default,
+                //    System.Collections.CaseInsensitiveComparer.Default
+                //    );
+                memberLookup = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
                 // Walk members on the type
                 foreach (MemberInfo mi in type.GetMembers())
                 {

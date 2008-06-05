@@ -121,7 +121,7 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 				<include name="System.Data.dll" />
 				<include name="${builddir}/Glue.Lib.dll" />
 				<include name="${builddir}/Glue.Data.dll" />
-                <include name="${builddir}/System.Data.SQLite.dll" />
+				<include name="${builddir}/System.Data.SQLite.dll" />
 			</references>
 			<nowarn>
 				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
@@ -138,6 +138,26 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 				<include name="System.Web.Services.dll" />
 				<include name="${builddir}/Glue.Lib.dll" />
 				<include name="${builddir}/Glue.Data.dll" />
+			</references>
+			<nowarn>
+				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
+			</nowarn>
+		</csc>
+
+		<!-- Build Glue.Web.Python.dll -->
+		<copy file="../lib/ironpython/IronPython.dll" todir="${builddir}" />
+		<copy file="../lib/ironpython/IronMath.dll" todir="${builddir}" />
+		<csc target="library" output="${builddir}/Glue.Web.Python.dll" doc="${builddir}/Glue.Web.Python.xml">
+			<sources>
+				<include name="Glue.Web.Python/**.cs" />
+			</sources>
+			<references>
+				<include name="System.Web.dll" />
+				<include name="System.Web.Services.dll" />
+				<include name="${builddir}/Glue.Lib.dll" />
+				<include name="${builddir}/Glue.Web.dll" />
+				<include name="${builddir}/IronPython.dll" />
+				<include name="${builddir}/IronMath.dll" />
 			</references>
 			<nowarn>
 				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->

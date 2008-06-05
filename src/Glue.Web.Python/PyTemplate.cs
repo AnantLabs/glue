@@ -255,28 +255,28 @@ namespace Glue.Web
             template.Render(writer);
         }
 
-        public static void CompileTest()
-        {
-            // try to generate an assembly
-            List<string> sourceFiles = new List<string>();
-            sourceFiles.Add(Path.Combine(App.Current.BinDirectory, "source.py"));
+        //public static void CompileTest()
+        //{
+        //    // try to generate an assembly
+        //    List<string> sourceFiles = new List<string>();
+        //    sourceFiles.Add(Path.Combine(App.Current.BinDirectory, "source.py"));
 
-            MySink sink = new MySink();
+        //    MySink sink = new MySink();
 
-            IronPython.Hosting.PythonCompiler pc = new PythonCompiler(sourceFiles, "c:/Temp/python_out.dll", sink);
+        //    IronPython.Hosting.PythonCompiler pc = new PythonCompiler(sourceFiles, "c:/Temp/python_out.dll", sink);
 
-            pc.Compile();
+        //    pc.Compile();
 
-            foreach (string Error in sink.Errors)
-            {
-                Console.Out.WriteLine(Error);
-            }
+        //    foreach (string Error in sink.Errors)
+        //    {
+        //        Console.Out.WriteLine(Error);
+        //    }
 
             
 
-            //System.Reflection.Emit.AssemblyBuilder ab = new System.Reflection.Emit.AssemblyBuilder();
-            //IronPython.Compiler.gen
-        }
+        //    //System.Reflection.Emit.AssemblyBuilder ab = new System.Reflection.Emit.AssemblyBuilder();
+        //    //IronPython.Compiler.gen
+        //}
     }
 
     public class MySink : IronPython.Hosting.CompilerSink

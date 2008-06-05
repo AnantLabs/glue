@@ -6,7 +6,11 @@ using System.Collections.Generic;
 namespace Glue.Data
 {
 	/// <summary>
-	/// IDataProvider.
+    /// IDataProvider is a database independent interface to a database. A class that implements this
+    /// interface can connect to a single database. IDataProvider has methods to run arbitrary queries 
+    /// on a database, as well as generic methods to find, list, delete and count objects that can be 
+    /// mapped to tables in the database.
+    /// Use the attributes in Glue.Data.Mapping to adjust the way that a class will be mapped.
 	/// </summary>
 	public interface IDataProvider : IDisposable 
 	{
@@ -136,9 +140,6 @@ namespace Glue.Data
         /// <summary>
         /// Create UPDATE command and set up parameters
         /// </summary>
-        /// <param name="table">Table name</param>
-        /// <param name="columnNameValueList">Name/ value pairs</param>
-        /// <returns></returns>
         /// <example>
         /// DataProvider.Current.CreateInsertCommand("User", "Name", name, "DateOfBirth", dateOfBirth);
         /// </example>
@@ -158,9 +159,6 @@ namespace Glue.Data
         /// <summary>
         /// Create stored procedure command and initialize parameters.
         /// </summary>
-        /// <param name="table">Table name</param>
-        /// <param name="columnNameValueList">Name/ value pairs</param>
-        /// <returns></returns>
         /// <example>
         /// DataProvider.Current.CreateStoredProcedureCommand("FindUserByEmail", "Name", "john@doe");
         /// </example>
@@ -168,9 +166,8 @@ namespace Glue.Data
         
         /// <summary>
         /// Execute non-query command. No need to set Connection and Transaction properties on the command.
+        /// Returns number of rows affected (if applicable).
         /// </summary>
-        /// <param name="command">Command object</param>
-        /// <returns>Returns number of rows affected (if applicable).</returns>
         /// <example>
         /// IDbCommand command = MyProvider.CreateCommand("UPDATE Contact SET Logins=Logins+1 WHERE Id=@Id", "Id", 20);
         /// MyProvider.ExecuteNonQuery(command);
@@ -179,10 +176,8 @@ namespace Glue.Data
 
         /// <summary>
         /// Execute non-query command. No need to set Connection and Transaction properties on the command.
+        /// Returns number of rows affected (if applicable).
         /// </summary>
-        /// <param name="command">Command object</param>
-        /// <param name="columnNameValueList">Name / value pairs</param>
-        /// <returns>Returns number of rows affected (if applicable).</returns>
         /// <example>
         /// DataProvider.Current.ExecuteNonQuery(
         ///     "UPDATE Contact SET DisplayName=@DisplayName WHERE Id=@Id", 
@@ -196,9 +191,8 @@ namespace Glue.Data
         /// Execute command returning data in a IDataReader. No need to set Connection and Transaction 
         /// properties on the command. You are responsible for closing the IDataReader. Easiest way
         /// is with a "using" statement.
+        /// Returns an open IDataReader
         /// </summary>
-        /// <param name="command">Command object</param>
-        /// <returns>Returns an open IDataReader</returns>
         /// <example>
         /// IDbCommand command = DataProvider.Current.CreateSelectCommand(
         ///     "Contacts",             // table 
@@ -217,10 +211,8 @@ namespace Glue.Data
         /// Execute command returning data in a IDataReader. No need to set Connection and Transaction 
         /// properties on the command. You are responsible for closing the IDataReader. Easiest way
         /// is with a "using" statement.
+        /// Returns an open IDataReader.
         /// </summary>
-        /// <param name="commandText">Command text</param>
-        /// <param name="columnNameValueList">Name / value pairs</param>
-        /// <returns>Returns an open IDataReader.</returns>
         /// <example>
         /// using (IDataReader reader = DataProvider.Current.ExecuteReader("SELECT * FROM Contacts"))
         ///     while (reader.Read())
@@ -242,10 +234,8 @@ namespace Glue.Data
         /// <summary>
         /// Execute command returning scalar value. No need to set Connection and Transaction 
         /// properties on the command. 
+        /// Returns a single value (scalar).
         /// </summary>
-        /// <param name="commandText">Command text</param>
-        /// <param name="columnNameValueList">Name / value pairs</param>
-        /// <returns>Returns single value (scalar).</returns>
         /// <example>
         /// DateTime? dt = (DataTime?)DataProvider.Current.ExecuteScalar("SELECT BirthDate FROM Contacts WHERE Id=@Id", "Id",10);
         /// </example>
@@ -254,9 +244,8 @@ namespace Glue.Data
         /// <summary>
         /// Execute command returning an int value. No need to set Connection and Transaction 
         /// properties on the command. 
+        /// Returns a single value (scalar).
         /// </summary>
-        /// <param name="command">Command object</param>
-        /// <returns>Returns single value (scalar).</returns>
         /// <example>
         /// int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
         /// </example>
@@ -265,10 +254,8 @@ namespace Glue.Data
         /// <summary>
         /// Execute command returning an int value. No need to set Connection and Transaction 
         /// properties on the command. 
+        /// Returns a single value (scalar).
         /// </summary>
-        /// <param name="commandText">Command text</param>
-        /// <param name="columnNameValueList">Name / value pairs</param>
-        /// <returns>Returns single value (scalar).</returns>
         /// <example>
         /// int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
         /// </example>
@@ -277,9 +264,8 @@ namespace Glue.Data
         /// <summary>
         /// Execute command returning a string. No need to set Connection and Transaction 
         /// properties on the command. 
+        /// Returns string or null.
         /// </summary>
-        /// <param name="command">Command object</param>
-        /// <returns>Returns string or null.</returns>
         /// <example>
         /// string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
         /// </example>
@@ -288,10 +274,8 @@ namespace Glue.Data
         /// <summary>
         /// Execute command returning a string. No need to set Connection and Transaction 
         /// properties on the command. 
+        /// Returns string or null.
         /// </summary>
-        /// <param name="commandText">Command text</param>
-        /// <param name="columnNameValueList">Name / value pairs</param>
-        /// <returns>Returns string or null.</returns>
         /// <example>
         /// string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
         /// </example>

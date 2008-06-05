@@ -20,9 +20,8 @@ namespace Glue.Lib.Compilation
         /// Generate proxy properties for all fields of given type and add them to the
         /// members collection.
         /// To exclude properties or even base types, use the excludes string collection.
+        /// Target specifies how to reference the type fields from the new class, e.g. "this.FieldName", as a CodeExpression
         /// </summary>
-        /// 
-        /// <param name="target">How to reference the type fields from the new class, e.g. "this.FieldName", as a CodeExpression</param>
         public static void GenerateFields(CodeTypeMemberCollection members, Type type, CodeExpression target, StringCollection excludes)
         {
             foreach (FieldInfo f in type.GetFields())

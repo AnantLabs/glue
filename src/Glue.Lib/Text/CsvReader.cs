@@ -72,10 +72,11 @@ namespace Glue.Lib.Text
 
         public void SetNames(string[] names)
         {
-            _lookup = new Hashtable(
-                new CaseInsensitiveHashCodeProvider(),
-                new CaseInsensitiveComparer()
-                );
+            //_lookup = new Hashtable(
+            //    new CaseInsensitiveHashCodeProvider(),
+            //    new CaseInsensitiveComparer()
+            //    );
+            _lookup = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
             
             _names = new string[names.Length];
             names.CopyTo(_names, 0);

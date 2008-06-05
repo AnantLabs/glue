@@ -85,7 +85,8 @@ namespace Glue.Data.Schema
                 }
                 else if (type == typeof(DateTime))
                 {
-                    writer.WriteElementString(names[i], XmlConvert.ToString((DateTime)values[i]));
+                    writer.WriteElementString(names[i], XmlConvert.ToString((DateTime)values[i], XmlDateTimeSerializationMode.Local));
+                    // writer.WriteElementString(names[i], XmlConvert.ToString((DateTime)values[i]));
                 }
                 else if (type == typeof(Guid))
                 {

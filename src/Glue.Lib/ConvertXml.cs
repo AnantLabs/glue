@@ -93,16 +93,7 @@ namespace Glue.Lib
             }
         }
 
-        /// <summary>
-        /// Converts an XmlNode value to an <code>Nullable<int></code>. If the conversion fails, an exception is thrown.
-        /// </summary>
-        /// <param name="node">XmlNode</param>
-        /// <returns>Nullable<int></returns>
-        /// <example>
-        /// <code>
-        /// int n = ConvertXml.ToNullableInt32(element.Attributes["intsetting"]);
-        /// </code>
-        /// </example>
+        /// Wok a dok.
         public static Nullable<int> ToNullableInt32(XmlNode node)
         {
             return Convert.ToInt32(node.Value);
@@ -151,28 +142,29 @@ namespace Glue.Lib
         /// </remarks>
         public static bool ToBoolean(XmlNode node)
         {
-            switch (node.Value.ToLower())
-            {
-                case "yes" :
-                case "y":
-                case "1":
-                case "-1" :
-                case "true" :
-                case "t":
-                case "on":
-                    return true;
+            return NullConvert.ToBoolean(node.Value, false);
+            //switch (node.Value.ToLower())
+            //{
+            //    case "yes" :
+            //    case "y":
+            //    case "1":
+            //    case "-1" :
+            //    case "true" :
+            //    case "t":
+            //    case "on":
+            //        return true;
 
-                case "no" :
-                case "n":
-                case "0":
-                case "false" :
-                case "f":
-                case "off":
-                    return false;
+            //    case "no" :
+            //    case "n":
+            //    case "0":
+            //    case "false" :
+            //    case "f":
+            //    case "off":
+            //        return false;
 
-                default :
-                    throw new InvalidCastException("Cannot convert '" + node.Value + "' to Boolean.");
-            }
+            //    default :
+            //        throw new InvalidCastException("Cannot convert '" + node.Value + "' to Boolean.");
+            //}
         }
 
         /// <summary>
@@ -193,14 +185,15 @@ namespace Glue.Lib
         /// </remarks>
         public static bool ToBoolean(XmlNode node, bool _default)
         {
-            try
-            {
-                return ToBoolean(node);
-            }
-            catch
-            {
-                return _default;
-            }
+            return NullConvert.ToBoolean(node.Value, _default);
+            //try
+            //{
+            //    return ToBoolean(node);
+            //}
+            //catch
+            //{
+            //    return _default;
+            //}
         }
 
         /// <summary>

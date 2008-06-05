@@ -9,8 +9,9 @@ namespace Glue.Lib.Compilation
 
         public CompilerInfoCollection()
         {
-            compilers = new Hashtable(CaseInsensitiveHashCodeProvider.Default,
-                CaseInsensitiveComparer.Default);
+            //compilers = new Hashtable(CaseInsensitiveHashCodeProvider.Default,
+            //    CaseInsensitiveComparer.Default);
+            compilers = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
         }
 
         public CompilerInfo FindExtension(string extension)

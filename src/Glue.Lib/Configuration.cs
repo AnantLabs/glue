@@ -110,7 +110,7 @@ namespace Glue.Lib
                 }
                 if (t == null)
                 {
-                    throw new ConfigurationException("Error getting '" + key + "'");
+                    throw new System.Configuration.ConfigurationErrorsException("Error getting '" + key + "'");
                 }
                 
                 try
@@ -246,7 +246,7 @@ namespace Glue.Lib
         {
             string v = GetAttr(node, name, null);
             if (v == null)
-                throw new ConfigurationException("Attribute required: " + name, node);
+                throw new ConfigurationErrorsException("Attribute required: " + name, node);
             return v;
         }
 
@@ -271,7 +271,7 @@ namespace Glue.Lib
                 return _default;
             if (attr.Value == null || attr.Value.Length == 0)
                 if (!allowEmpty)
-                    throw new ConfigurationException("Attribute may not be empty: " + name, node);
+                    throw new ConfigurationErrorsException("Attribute may not be empty: " + name, node);
                 else
                     return string.Empty;
             return attr.Value;
@@ -289,8 +289,8 @@ namespace Glue.Lib
                 return (int) UInt32.Parse(v); 
             } 
             catch   
-            { 
-                throw new ConfigurationException("Invalid number in: " + name, node); 
+            {
+                throw new ConfigurationErrorsException("Invalid number in: " + name, node); 
             }
         }
 
@@ -309,7 +309,7 @@ namespace Glue.Lib
             }
             catch   
             { 
-                throw new ConfigurationException("Invalid number in: " + name, node); 
+                throw new ConfigurationErrorsException("Invalid number in: " + name, node); 
             }
         }
 
@@ -332,7 +332,7 @@ namespace Glue.Lib
                 return false;
             if (string.Compare(v, "false", true) == 0)
                 return false;
-            throw new ConfigurationException("Invalid boolean value in: " + name, node); 
+            throw new ConfigurationErrorsException("Invalid boolean value in: " + name, node); 
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace Glue.Lib
                 return false;
             if (string.Compare(v, "false", true) == 0)
                 return false;
-            throw new ConfigurationException("Invalid boolean value in: " + name, node); 
+            throw new ConfigurationErrorsException("Invalid boolean value in: " + name, node); 
         }
 
         /// <summary>
@@ -454,7 +454,7 @@ namespace Glue.Lib
                 t = FindType(defaultNamespace + "." + v);
             if (t != null)
                 return t;
-            throw new ConfigurationException("Cannot resolve type: " + v + " in: " + name, node);
+            throw new ConfigurationErrorsException("Cannot resolve type: " + v + " in: " + name, node);
         }
 
         /// <summary>
@@ -482,7 +482,7 @@ namespace Glue.Lib
                 t = FindType(defaultNamespace + "." + v);
             if (t != null)
                 return t;
-            throw new ConfigurationException("Cannot resolve type: " + v + " in " + name, node);
+            throw new ConfigurationErrorsException("Cannot resolve type: " + v + " in " + name, node);
         }
 
         public static object GetAttrInstance(XmlNode node, string name, string defaultNamespace, Type _default)
@@ -556,7 +556,7 @@ namespace Glue.Lib
                         list.Clear();
                         break;
                     default:
-                        throw new ConfigurationException("Unexpected element in list. Should be 'add','remove' or 'clear'.");
+                        throw new ConfigurationErrorsException("Unexpected element in list. Should be 'add','remove' or 'clear'.");
                 }
                 element = NextElement(element);
             }

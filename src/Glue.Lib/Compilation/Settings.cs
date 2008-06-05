@@ -255,7 +255,8 @@ namespace Glue.Lib.Compilation
                     continue;
                 }
 
-                throw new ConfigurationException("Unexpected element " + child.Name, child);
+                throw new ConfigurationErrorsException("Unexpected element " + child.Name, child);
+                
             }
         }
 
@@ -287,7 +288,7 @@ namespace Glue.Lib.Compilation
                     continue;
                 }
 
-                throw new ConfigurationException("Unexpected element " + child.Name, child);
+                throw new ConfigurationErrorsException("Unexpected element " + child.Name, child);
             }
         }
 

@@ -205,7 +205,8 @@ namespace Glue.Lib.Compilation
                     return test;
             }
 
-            a = Assembly.LoadWithPartialName(assemblyName);
+            //a = Assembly.LoadWithPartialName(assemblyName);
+            a = Assembly.Load(assemblyName);
             if (a != null)
                 return a.Location; 
 
