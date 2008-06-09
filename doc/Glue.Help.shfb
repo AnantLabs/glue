@@ -9,12 +9,12 @@
     </assemblies>
     <namespaceSummaries>
         <namespaceSummaryItem name="" isDocumented="False" />
-        <namespaceSummaryItem name="Glue.Data" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Data.Mapping" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Data.Providers.MySql" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Data.Providers.Sql" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Data.Providers.SQLite" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Data.Schema" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Data" isDocumented="True">Glue's data access layer for interaction with relational databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Mapping" isDocumented="True">Object-relational mapping</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.MySql" isDocumented="True">Implementation of IDataProvider for MySql databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.Sql" isDocumented="True">Implementation of IDataProvider for Microsoft SQL databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.SQLite" isDocumented="True">Implementation of IDataProvider for SQLite databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Schema" isDocumented="True">Models a relational database schema</namespaceSummaryItem>
         <namespaceSummaryItem name="Glue.Lib" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Lib.Compilation" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Lib.Graphics" isDocumented="True" />
@@ -32,7 +32,7 @@
         <namespaceSummaryItem name="Glue.Lib.Threading" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Lib.Xml" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Lib.Xml.Sgml" isDocumented="True" />
-        <namespaceSummaryItem name="Glue.Web" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web" isDocumented="True">Glue's Web application framework.</namespaceSummaryItem>
         <namespaceSummaryItem name="Glue.Web.Filters" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Web.Hosting.Memory" isDocumented="True" />
         <namespaceSummaryItem name="Glue.Web.Hosting.Server" isDocumented="True" />
@@ -42,8 +42,8 @@
     <dependencies>
         <dependencyItem depPath="..\bin\System.Data.SQLite.dll" />
         <dependencyItem depPath="..\bin\MySql.Data.dll" />
-	<dependencyItem depPath="..\bin\IronPython.dll" />
-	<dependencyItem depPath="..\bin\IronMath.dll" />
+        <dependencyItem depPath="..\bin\IronPython.dll" />
+        <dependencyItem depPath="..\bin\IronMath.dll" />
     </dependencies>
     <ProjectSummary />
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace</MissingTags>

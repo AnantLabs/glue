@@ -12,7 +12,7 @@ using Glue.Data.Mapping;
 namespace Glue.Data.Providers.Sql
 {
     /// <summary>
-    /// SqlDataProvider.
+    /// DataProvider for Microsoft SQL Server databases.
     /// </summary>
      public class SqlDataProvider : BaseDataProvider
     {

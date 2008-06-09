@@ -19,7 +19,7 @@ namespace mp3web.Controllers
         {
             Render("index.html");
 
-            PyTemplate.CompileTest();
+            //PyTemplate.CompileTest();
         }
 
         public void Info()

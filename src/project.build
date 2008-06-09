@@ -64,19 +64,6 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.dll" doc="${builddir}/Glue.Data.xml">
 			<sources>
 				<include name="Glue.Data/**.cs" />
-
-				<!-- exclude old files -->
-				<exclude name="Glue.Data/Providers/OleDb/*.cs" />
-				
-				<exclude name="Glue.Data/Providers/Sql/SqlDataProvider-OBSOLETE.cs" />
-				<exclude name="Glue.Data/Providers/Sql/SqlMappingProvider.cs" />
-				<exclude name="Glue.Data/ActiveRecord.cs" />
-				<exclude name="Glue.Data/BaseMappingProvider.cs" />
-				<exclude name="Glue.Data/ChildCollection.cs" />
-				<exclude name="Glue.Data/IActiveRecord.cs" />
-				<exclude name="Glue.Data/IMappingProvider.cs" />
-				<exclude name="Glue.Data/MappingProvider.cs" />
-				<exclude name="Glue.Data/PrettyPrint.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
@@ -92,9 +79,6 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.MySql.dll" doc="${builddir}/Glue.Data.MySql.xml">
 			<sources>
 				<include name="Glue.Data.MySql/**.cs" />
-
-				<exclude name="Glue.Data.MySql/MySqlDataProvider-OBSOLETE.cs" />
-				<exclude name="Glue.Data.MySql/MySqlMappingProvider.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
@@ -113,9 +97,6 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 		<csc target="library" output="${builddir}/Glue.Data.SQLite.dll" doc="${builddir}/Glue.Data.SQLite.xml">
 			<sources>
 				<include name="Glue.Data.SQLite/**.cs" />
-
-				<exclude name="Glue.Data.Sqlite/SqliteDataProvider-OBSOLETE.cs" />
-				<exclude name="Glue.Data.Sqlite/SqliteMappingProvider.cs" />
 			</sources>
 			<references>
 				<include name="System.Data.dll" />

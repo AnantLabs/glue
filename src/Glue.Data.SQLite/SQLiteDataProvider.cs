@@ -11,6 +11,9 @@ using Glue.Data.Mapping;
 
 namespace Glue.Data.Providers.SQLite
 {
+    /// <summary>
+    /// DataProvider for SQLite databases.
+    /// </summary>
     public class SQLiteDataProvider : BaseDataProvider
     {
         public SQLiteDataProvider(string connectionString)
@@ -23,6 +26,11 @@ namespace Glue.Data.Providers.SQLite
         {
         }
 
+        /// <summary>
+        /// Construct SQLiteDataprovider with an XmlNode as a parameter. The node has to have either an attribute
+        /// "connectionString", containing the complete connection string, or an attribute "database", with a 
+        /// path to a database file. 
+        /// </summary>
         public SQLiteDataProvider(XmlNode node)
         {
             _connectionString = Configuration.GetAttr(node, "connectionString", null);

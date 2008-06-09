@@ -9,6 +9,10 @@ using Glue.Data.Mapping;
 
 namespace Glue.Data
 {
+    /// <summary>
+    /// Implements many common methods for DataProviders. Currently all Glue DataProviders
+    /// use this as a base class to implement the IDataProvider interface.
+    /// </summary>
     public abstract class BaseDataProvider : IDataProvider
     {
         protected string _connectionString;
@@ -1084,36 +1088,57 @@ namespace Glue.Data
             return (T)Find(typeof(T), keys);
         }
 
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         public T FindByFilter<T>(Filter filter)
         {
             return (T)FindByFilter(typeof(T), filter);
         }
 
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         public T FindByFilter<T>(string table, Filter filter)
         {
             return (T)FindByFilter(table, typeof(T), filter);
         }
 
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         public T FindByFilter<T>(IDbCommand command)
         {
             return (T)FindByFilter(typeof(T), command);
         }
 
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         public T FindByFilter<T>(Filter filter, Order order)
         {
             return (T)FindByFilter(typeof(T), filter, order);
         }
 
+        /// <summary>
+        /// Return objects of given type. Parameters filter, order and limit may be null.
+        /// </summary>
         public IList<T> List<T>(Filter filter, Order order, Limit limit)
         {
             return new List<T>((IEnumerable<T>)List(typeof(T), filter, order, limit));
         }
 
+        /// <summary>
+        /// Return objects of given type. Parameters filter, order and limit may be null.
+        /// </summary>
         public IList<T> List<T>(string table, Filter filter, Order order, Limit limit)
         {
             return new List<T>((IEnumerable<T>)List(table, typeof(T), filter, order, limit));
         }
 
+        /// <summary>
+        /// Return objects of given type.
+        /// </summary>
         public IList<T> List<T>(IDbCommand command)
         {
             return new List<T>((IEnumerable<T>)List(typeof(T), command));
