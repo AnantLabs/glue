@@ -13,7 +13,15 @@ using Glue.Lib.Compilation;
 namespace Glue.Web
 {
 	/// <summary>
-	/// TODO: 
+    /// You should override this class to create a controller for a Glue web application.
+    /// Glue web applications parse the request URL to find a controller. It then invokes its 'Initialize',
+    /// 'Execute', and 'Close' methods. You can optionally override Initialize() and Close().
+    /// The Execute method then looks up which "action" to perform.
+    /// Actions are public methods on your controller that do something - typically rendering a view by calling
+    /// the Render() method.
+    /// If you need to add a public method to your controller, but do not want it to be available as an action, use
+    /// the [Forbidden] attribute.
+    /// See also: App.Process(), Controller.Execute()
 	/// </summary>
 	public class Controller
 	{
@@ -190,6 +198,9 @@ namespace Glue.Web
             Response.RedirectLocation = Request.Root + url;
         }
 
+        /// <summary>
+        /// Transmit contents of a file with a virtualPath. Used for file downloads.
+        /// </summary>
         protected void Transmit(string virtualPath)
         {
             Glue.Lib.Log.Debug("Controller.Transmit: " + App.Current.MapPath(virtualPath) + " (" + App.GetContentType(virtualPath) + ")");
@@ -235,7 +246,7 @@ namespace Glue.Web
         }
 
         /// <summary>
-        /// Renders a view template and wirtes output to a TextWriter. 
+        /// Renders a view template and writes output to a TextWriter. 
         /// For information on views and templates see ViewCompiler.
         /// </summary>
         [Forbidden]
