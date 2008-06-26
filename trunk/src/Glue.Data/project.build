@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Glue.Data" default="build" basedir=".">
+
+<!--
+Targets:
+	clean  - Cleans build dir.
+	build  - Builds project in ./bin
+-->
+
+	<!-- Select framework: net-2.0 or mono-2.0 -->
+	<foreach item="String" in="net-2.0,mono-2.0" delim="," property="framework">
+		<if test="${framework::exists(framework)}">
+			<echo message="Selecting framework: ${framework}" />
+			<property name="nant.settings.currentframework" value="${framework}" />
+		</if>
+	</foreach>
+
+	<property name="product.version" value="2.0" />
+	<property name="product.revision" value="0" />
+	<property name="product.name" value="${project::get-name()}" />
+
+	<!-- Where to put all .dll files -->
+	<property name="builddir" value="bin" /> 
+	<property name="debug" value="None" /> <!-- "None", "Enable"-->
+	
+	<!-- CLEAN - Clean build directories  -->
+	<target name="clean" description="Clean build directories">
+		<delete>
+			<fileset>
+				<include name="${builddir}/*.*" />
+			</fileset>
+		</delete>
+	</target>
+
+	<!-- BUILD - Build target -->
+	<target name="build" description="Builds the project">
+		<copy file="../Glue.Lib/bin/Glue.Lib.dll" todir="${builddir}" />
+		<copy file="../Glue.Lib/bin/Glue.Lib.xml" todir="${builddir}" />
+		<!-- Build Glue.Data.dll -->
+		<csc target="library" output="${builddir}/Glue.Data.dll" doc="${builddir}/Glue.Data.xml">
+			<sources>
+				<include name="**.cs" />
+			</sources>
+			<references>
+				<include name="System.Data.dll" />
+				<include name="${builddir}/Glue.Lib.dll" />
+			</references>
+			<nowarn>
+				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
+			</nowarn>
+		</csc>
+	</target>
+</project>
