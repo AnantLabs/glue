@@ -41,6 +41,7 @@ Targets:
 			</sources>
 			<references>
 				<include name="System.Data.dll" />
+				<include name="System.Configuration.dll" />
 				<include name="System.Drawing.dll" />
 				<include name="System.Web.dll" />
 			</references>

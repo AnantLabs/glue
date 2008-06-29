@@ -169,7 +169,7 @@ namespace Glue.Data
             if (bag == null)
                 yield break;
 
-            DictionaryEntry entry;
+            DictionaryEntry entry = new DictionaryEntry();
             string name = null;
             foreach (object item in bag)
             {
