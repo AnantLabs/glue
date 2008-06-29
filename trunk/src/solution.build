@@ -51,6 +51,7 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 				<include name="Glue.Lib/**.cs" />
 			</sources>
 			<references>
+				<include name="System.Configuration.dll" />
 				<include name="System.Data.dll" />
 				<include name="System.Drawing.dll" />
 				<include name="System.Web.dll" />
