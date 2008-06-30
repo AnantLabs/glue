@@ -36,6 +36,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BaseDataProvider.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Filter.cs" />

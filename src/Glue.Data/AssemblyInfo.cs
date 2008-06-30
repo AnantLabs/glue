@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisibleAttribute(false)]
 [assembly: AssemblyProductAttribute("Glue")]
-[assembly: AssemblyTitleAttribute("Glue.Lib")]
+[assembly: AssemblyTitleAttribute("Glue.Data")]
 [assembly: AssemblyCompanyAttribute("Glue Project, http://www.glueproject.com")]
 [assembly: AssemblyCopyrightAttribute("Copyright Glue Project 2008")]
 

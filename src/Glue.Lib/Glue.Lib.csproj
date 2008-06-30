@@ -89,9 +89,7 @@
     <Compile Include="Applet.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="CollectionHelper.cs">
       <SubType>Code</SubType>
     </Compile>
