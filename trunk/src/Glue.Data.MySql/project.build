@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="Glue.Data" default="build" basedir=".">
+<project name="Glue.Data.MySql" default="build" basedir=".">
 
 <!--
 	Targets:
@@ -33,6 +33,7 @@
 
 
 	<target name="build" description="Build the dll">
+		<copy file="lib/MySql.Data.dll" todir="${glue.builddir}" />
 		<!-- (re)creates the AssemblyVersion.cs file -->
 		<if test="${file::exists(glue.common.nant)}">
 			<property name="asminfo.dir" value="${project::get-base-directory()}" />
@@ -46,6 +47,8 @@
 			<references>
 				<include name="System.Data.dll" />
 				<include name="${glue.builddir}/Glue.Lib.dll" />
+				<include name="${glue.builddir}/Glue.Data.dll" />
+				<include name="${glue.builddir}/MySql.Data.dll" />
 			</references>
 			<nowarn>
 				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->

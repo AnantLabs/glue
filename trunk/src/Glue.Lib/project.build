@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Glue.Lib" default="build" basedir=".">
 
+
 <!--
-Targets:
-	clean  - Cleans build dir.
-	build  - Builds project in ./bin
+	Targets:
+		clean  - Cleans build dir.
+		build  - Builds project in ./bin
 -->
-
-	<!-- Select framework: net-2.0 or mono-2.0 -->
-	<foreach item="String" in="net-2.0,mono-2.0" delim="," property="framework">
-		<if test="${framework::exists(framework)}">
-			<echo message="Selecting framework: ${framework}" />
-			<property name="nant.settings.currentframework" value="${framework}" />
-		</if>
-	</foreach>
-
-	<property name="product.version" value="2.0" />
-	<property name="product.revision" value="0" />
-	<property name="product.name" value="${project::get-name()}" />
-
-	<!-- Where to put all .dll files -->
-	<property name="builddir" value="bin" /> 
-	<property name="debug" value="None" /> <!-- "None", "Enable"-->
 	
-	<!-- CLEAN - Clean build directories  -->
+	<!-- Optional properties. These may be set in a parent script -->
+	<property name="glue.supported_frameworks" value="net-2.0,mono-2.0" overwrite="false" />
+	<property name="glue.builddir" value="bin" overwrite="false" />
+	<property name="glue.common.nant" value="../common.nant" overwrite="false" />
+
+	<!-- Choose framework (if not already set in parent script -->
+	<if test="${not property::exists('glue.currentframework')}">
+		<foreach item="String" in="${glue.supported_frameworks}" delim="," property="framework">
+			<if test="${framework::exists(framework)}">
+				<echo message="Selecting framework: ${framework}" />
+				<property name="nant.settings.currentframework" value="${framework}" />
+			</if>
+		</foreach>
+	</if>
+
+
 	<target name="clean" description="Clean build directories">
 		<delete>
 			<fileset>
-				<include name="${builddir}/*.*" />
+				<include name="${glue.builddir}/*.*" />
 			</fileset>
 		</delete>
 	</target>
 
-	<!-- BUILD - Build target -->
-	<target name="build" description="Builds the project">
-		<!-- Build Glue.Lib.dll -->
-		<csc target="library" output="${builddir}/Glue.Lib.dll" doc="${builddir}/Glue.Lib.xml">
+
+	<target name="build" description="Build Glue.Lib.dll">
+		<!-- (re)creates the AssemblyVersion.cs file -->
+		<if test="${file::exists(glue.common.nant)}">
+			<property name="asminfo.dir" value="${project::get-base-directory()}" />
+			<property name="asminfo.version" value="0.9" />
+			<nant buildfile="${glue.common.nant}" target="asminfo" />
+		</if>
+		<csc target="library" output="${glue.builddir}/${project::get-name()}.dll" doc="${glue.builddir}/${project::get-name()}.xml">
 			<sources>
 				<include name="**.cs" />
 			</sources>
 			<references>
-				<include name="System.Data.dll" />
 				<include name="System.Configuration.dll" />
+				<include name="System.Data.dll" />
 				<include name="System.Drawing.dll" />
 				<include name="System.Web.dll" />
 			</references>
@@ -50,4 +55,5 @@ Targets:
 			</nowarn>
 		</csc>
 	</target>
+
 </project>

@@ -10,147 +10,50 @@ doc				- Builds api documentation, using ndoc
 doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 -->
 
-	<!-- Select framework: net-2.0 or mono-2.0 -->
-	<foreach item="String" in="net-2.0,mono-2.0" delim="," property="framework">
+	<!-- Properties -->
+	<property name="glue.supported_frameworks" value="net-2.0,mono-2.0" />
+	<property name="glue.builddir" value="${project::get-base-directory()}/../bin" /> 
+	<property name="glue.apidir" value="${project::get-base-directory()}/../doc/api" /> <!-- generated api documentation -->
+	<property name="glue.common.nant" value="${project::get-base-directory()}/common.nant" />
+
+	<!-- Select a supported framework -->
+	<foreach item="String" in="${glue.supported_frameworks}" delim="," property="framework">
 		<if test="${framework::exists(framework)}">
 			<echo message="Selecting framework: ${framework}" />
 			<property name="nant.settings.currentframework" value="${framework}" />
+			<property name="glue.currentframework" value="${framework}" />
 		</if>
 	</foreach>
-
-	<property name="product.version" value="2.0" />
-	<property name="product.revision" value="0" />
-	<property name="product.name" value="${project::get-name()}" />
-
-	<!-- Where to put all .dll files -->
-	<property name="builddir" value="../bin" /> 
-	<property name="apidir" value="../doc/api" /> <!-- generated api documentation -->
-	<property name="apidir.deploy" value="\\Calypso\Sites\Glue\api\" /> <!-- generated api documentation -->
-	<property name="debug" value="None" /> <!-- "None", "Enable"-->
-	
-
+	<if test="${not property::exists('glue.currentframework')}">
+		<fail message="Could not find a supported framework. Supported frameforks are: ${glue.supported_frameworks}" />
+	</if>
 
 
 	<!-- CLEAN - Clean build directories  -->
 	<target name="clean" description="Clean build directories">
 		<delete>
 			<fileset>
-				<include name="${builddir}/*.dll" />
-				<include name="${builddir}/*.xml" />
-				<!--<include name="${apidir}/**" />-->
+				<include name="${glue.builddir}/*.dll" />
+				<include name="${glue.builddir}/*.xml" />
+				<!--<include name="${glue.apidir}/**" />-->
 			</fileset>
 		</delete>
 	</target>
 
 	<!-- BUILD - Build target -->
-	<target name="build" description="Builds the project">
-    
-		<!-- Build Glue.Lib.dll -->
-		<csc target="library" output="${builddir}/Glue.Lib.dll" doc="${builddir}/Glue.Lib.xml">
-			<sources>
-				<include name="Glue.Lib/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Configuration.dll" />
-				<include name="System.Data.dll" />
-				<include name="System.Drawing.dll" />
-				<include name="System.Web.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
-
-		<!-- Build Glue.Data.dll -->
-		<csc target="library" output="${builddir}/Glue.Data.dll" doc="${builddir}/Glue.Data.xml">
-			<sources>
-				<include name="Glue.Data/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Data.dll" />
-				<include name="${builddir}/Glue.Lib.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
-
-		<!-- Build Glue.Data.MySql.dll -->
-		<copy file="../lib/mysql/MySql.Data.dll" todir="${builddir}" />
-		<csc target="library" output="${builddir}/Glue.Data.MySql.dll" doc="${builddir}/Glue.Data.MySql.xml">
-			<sources>
-				<include name="Glue.Data.MySql/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Data.dll" />
-				<include name="${builddir}/Glue.Lib.dll" />
-				<include name="${builddir}/Glue.Data.dll" />
-				<include name="${builddir}/MySql.Data.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
-
-		<!-- Build Glue.Data.SQLite.dll -->
-		<copy file="../lib/sqlite/System.Data.SQLite.dll" todir="${builddir}" />
-		<copy file="../lib/sqlite/System.Data.SQLite.xml" todir="${builddir}" />
-		<csc target="library" output="${builddir}/Glue.Data.SQLite.dll" doc="${builddir}/Glue.Data.SQLite.xml">
-			<sources>
-				<include name="Glue.Data.SQLite/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Data.dll" />
-				<include name="${builddir}/Glue.Lib.dll" />
-				<include name="${builddir}/Glue.Data.dll" />
-				<include name="${builddir}/System.Data.SQLite.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
-
-		<!-- Build Glue.Web.dll -->
-		<csc target="library" output="${builddir}/Glue.Web.dll" doc="${builddir}/Glue.Web.xml">
-			<sources>
-				<include name="Glue.Web/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Web.dll" />
-				<include name="System.Web.Services.dll" />
-				<include name="${builddir}/Glue.Lib.dll" />
-				<include name="${builddir}/Glue.Data.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
-
-		<!-- Build Glue.Web.Python.dll -->
-		<copy file="../lib/ironpython/IronPython.dll" todir="${builddir}" />
-		<copy file="../lib/ironpython/IronMath.dll" todir="${builddir}" />
-		<csc target="library" output="${builddir}/Glue.Web.Python.dll" doc="${builddir}/Glue.Web.Python.xml">
-			<sources>
-				<include name="Glue.Web.Python/**.cs" />
-			</sources>
-			<references>
-				<include name="System.Web.dll" />
-				<include name="System.Web.Services.dll" />
-				<include name="${builddir}/Glue.Lib.dll" />
-				<include name="${builddir}/Glue.Web.dll" />
-				<include name="${builddir}/IronPython.dll" />
-				<include name="${builddir}/IronMath.dll" />
-			</references>
-			<nowarn>
-				<warning number="1591" /> <!-- do not report warnings for missing XML comments -->
-			</nowarn>
-		</csc>
+	<target name="build" description="Builds the projects">
+		<nant buildfile="Glue.Lib/project.build" target="build"/>
+		<nant buildfile="Glue.Data/project.build" target="build"/>
+		<nant buildfile="Glue.Data.MySql/project.build" target="build"/>
+		<nant buildfile="Glue.Data.SQLite/project.build" target="build"/>
+		<nant buildfile="Glue.Web/project.build" target="build"/>
+		<nant buildfile="Glue.Web.Python/project.build" target="build"/>
 	</target>
 
 	<target name="doc">
 	<!-- TODO: this target does not work. -->
 		<ndoc>
-			<assemblies basedir="${builddir}">
+			<assemblies basedir="${glue.builddir}">
 				<include name="*.dll" />
 			</assemblies>
 			<documenters>
