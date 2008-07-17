@@ -33,7 +33,8 @@ namespace Glue.Lib
         }
         
         /// <summary>
-        /// Utility function to convert a flat NameValueCollection to a hierarchical IDictionary
+        /// Utility function to convert a flat NameValueCollection to a hierarchical 
+        /// IDictionary (case-insensitive).
         /// </summary>
         public static IDictionary ToBag(NameValueCollection list)
         {
@@ -65,6 +66,21 @@ namespace Glue.Lib
                 else
                     current[key.Substring(i)] = values;
             }
+            return bag;
+        }
+
+        /// <summary>
+        /// Utility function to convert a param list (consisting of 
+        /// alternating key/value pairs) to a case-insensitive dictionary.
+        /// 
+        /// CollectionHelper.ToBag("name", "John", "age", 25) => { "name" => "John", "age", 25 }
+        /// </summary>
+        public static IDictionary ToBag(params object[] namevalues)
+        {
+            HybridDictionary bag = new HybridDictionary(namevalues.Length / 2, true);
+            int i = 0;
+            while (i < namevalues.Length - 1)
+                bag.Add(namevalues[i++], namevalues[i++]);
             return bag;
         }
 
