@@ -1,0 +1,85 @@
+﻿<project schemaVersion="1.6.0.2">
+    <assemblies>
+        <assembly assemblyPath="..\bin\Glue.Data.dll" xmlCommentsPath="..\bin\Glue.Data.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Data.MySql.dll" xmlCommentsPath="..\bin\Glue.Data.MySql.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Data.SQLite.dll" xmlCommentsPath="..\bin\Glue.Data.SQLite.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Lib.dll" xmlCommentsPath="..\bin\Glue.Lib.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Web.dll" xmlCommentsPath="..\bin\Glue.Web.xml" commentsOnly="False" />
+        <assembly assemblyPath="..\bin\Glue.Web.Python.dll" xmlCommentsPath="..\bin\Glue.Web.Python.xml" commentsOnly="False" />
+    </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="Glue.Data" isDocumented="True">Glue's data access layer for interaction with relational databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Mapping" isDocumented="True">Object-relational mapping</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.MySql" isDocumented="True">Implementation of IDataProvider for MySql databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.Sql" isDocumented="True">Implementation of IDataProvider for Microsoft SQL databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Providers.SQLite" isDocumented="True">Implementation of IDataProvider for SQLite databases.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Data.Schema" isDocumented="True">Models a relational database schema</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Lib" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Compilation" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Graphics" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.IO" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Mail" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Mime" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Net.Pop3" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Options" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Servers" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.DSON" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.JSON" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.Template" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Text.Template.AST" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Threading" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Xml" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Lib.Xml.Sgml" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web" isDocumented="True">Glue's Web application framework.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Glue.Web.Filters" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Memory" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Server" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Hosting.Web" isDocumented="True" />
+        <namespaceSummaryItem name="Glue.Web.Modules" isDocumented="True" />
+    </namespaceSummaries>
+    <dependencies>
+        <dependencyItem depPath="..\bin\System.Data.SQLite.dll" />
+        <dependencyItem depPath="..\bin\MySql.Data.dll" />
+        <dependencyItem depPath="..\bin\IronPython.dll" />
+        <dependencyItem depPath="..\bin\IronMath.dll" />
+    </dependencies>
+    <ProjectSummary />
+    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace</MissingTags>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
+    <HtmlHelp1xCompilerPath path="" />
+    <HtmlHelp2xCompilerPath path="" />
+    <OutputPath>api\</OutputPath>
+    <SandcastlePath path="" />
+    <WorkingPath path="" />
+    <CleanIntermediates>True</CleanIntermediates>
+    <KeepLogFile>False</KeepLogFile>
+    <HelpFileFormat>Website</HelpFileFormat>
+    <PurgeDuplicateTopics>True</PurgeDuplicateTopics>
+    <CppCommentsFixup>False</CppCommentsFixup>
+    <FrameworkVersion>2.0.50727</FrameworkVersion>
+    <BinaryTOC>True</BinaryTOC>
+    <IncludeFavorites>False</IncludeFavorites>
+    <Preliminary>True</Preliminary>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <RootNamespaceTitle />
+    <HelpTitle>Glue API documentation</HelpTitle>
+    <HtmlHelpName>Glue</HtmlHelpName>
+    <Language>en-US</Language>
+    <CopyrightHref>http://www.glueproject.com</CopyrightHref>
+    <CopyrightText />
+    <FeedbackEMailAddress />
+    <HeaderText />
+    <FooterText>For more information, see &lt;a href="http://www.glueproject.com" target="_blank"&gt;http://www.glueproject.com&lt;/a&gt;. The &lt;a href="http://www.glueproject.com" target="_blank"&gt;Glue project&lt;/a&gt; is sponsored by &lt;a href="http://www.grondwerk.it"&gt;Grondwerk.it&lt;/a&gt;.</FooterText>
+    <ProjectLinkType>Local</ProjectLinkType>
+    <SdkLinkType>Msdn</SdkLinkType>
+    <SdkLinkTarget>Self</SdkLinkTarget>
+    <PresentationStyle>vs2005</PresentationStyle>
+    <NamingMethod>MemberName</NamingMethod>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <ShowFeedbackControl>False</ShowFeedbackControl>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+    <ContentSiteMap path="" />
+    <TopicFileTransform path="" />
+</project>
