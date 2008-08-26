@@ -70,7 +70,7 @@ namespace Glue.Web
 
         private void AddToBag(IDictionary bag, string name, object item)
         {
-            string[] splits = name.Split('.');
+            string[] splits = name.Split(CollectionHelper.Separator);
             int i = 0;
             while (i < splits.Length - 1)
             {
