@@ -9,6 +9,12 @@ namespace Glue.Lib
 	/// </summary>
 	public class CollectionHelper
 	{
+
+        /// <summary>
+        /// Separator for child-collections. Needed for (among other things) jQuery-compatibility.
+        /// </summary>
+        public static char Separator = '.';
+
         private CollectionHelper() { }
 
         public static Array ToArray(IEnumerable enumerable, Type type)
@@ -47,7 +53,7 @@ namespace Glue.Lib
                 string[] values = list.GetValues(key);
                 IDictionary current = bag;
                 int i = 0; 
-                int j = key.IndexOf('.');
+                int j = key.IndexOf(Separator);
                 while (j >= 0)
                 {
                     string k = key.Substring(i, j - i);
@@ -58,7 +64,7 @@ namespace Glue.Lib
                         current[k] = sub;
                     }
                     i = j + 1;
-                    j = key.IndexOf('.', i);
+                    j = key.IndexOf(Separator, i);
                     current = sub;
                 }
                 if (values.Length == 1)
