@@ -805,6 +805,20 @@ namespace Glue.Data
             InvalidateCache(type);
         }
 
+        public bool Exists(object obj)
+        {
+            Type type = obj.GetType();
+            Accessor info = Accessor.Obtain(this, type);
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT COUNT(*) FROM ");
+            s.Identifier(info.Entity.Table.Name);
+            s.AppendLine(" WHERE ");
+            s.ColumnsParameters(info.Entity.KeyMembers, "=", " AND ");
+            IDbCommand cmd = CreateCommand(s.ToString());
+            info.AddParametersToCommandFixed(obj, cmd);
+            return ExecuteScalarInt32(cmd) > 0;
+        }
+
         /// <summary>
         /// Update given object.
         /// </summary>
@@ -839,9 +853,12 @@ namespace Glue.Data
         /// <summary>
         /// Save (insert or update) given object.
         /// </summary>
-        public void Save(object obj)
+        public virtual void Save(object obj)
         {
-            throw new NotImplementedException();
+            if (Exists(obj))
+                Update(obj);
+            else
+                Insert(obj);
         }
 
         /// <summary>

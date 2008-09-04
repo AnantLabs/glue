@@ -322,6 +322,11 @@ namespace Glue.Data
         Array List(Type type, IDbCommand command);
 
         /// <summary>
+        /// Tests if given object exists
+        /// </summary>
+        bool Exists(object obj);
+
+        /// <summary>
         /// Insert given object.
         /// </summary>
         void Insert(object obj);
