@@ -107,24 +107,39 @@ namespace Glue.Lib
                 if (info.Type == typeof(DateTime))
                 {
                     IDictionary bag = (IDictionary)value;
-                    try 
+                    try
                     {
-                        string val = (string)bag["value"];
-                        string pat = (string)bag["pattern"];
-                        if (val == null || val == "")
-                            return;
-                        if (pat == "")
-                            pat = null;
-                        DateTime dt = DateTime.MinValue;
-                        try
+                        DateTime dt;
+                        if (bag.Contains("day"))
                         {
-                            dt = DateTime.ParseExact(val, pat, null);
+                            int year = Convert.ToInt32(bag["year"]);
+                            int month = Convert.ToInt32(bag["month"]);
+                            int day = Convert.ToInt32(bag["day"]);
+                            dt = new DateTime(year, month, day);
                         }
-                        catch
+                        else
                         {
-                            dt = DateTime.Parse(val, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AllowWhiteSpaces);
+                            string val = (string)bag["value"];
+                            string pat = (string)bag["pattern"];
+                            if (val == null || val == "")
+                                return;
+                            if (pat == "")
+                                pat = null;
+                            try
+                            {
+                                dt = DateTime.ParseExact(val, pat, null);
+                            }
+                            catch
+                            {
+                                dt = DateTime.Parse(val, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AllowWhiteSpaces);
+                            }
                         }
                         info.SetValue(owner, dt, null);
+                        return;
+                    }
+                    catch (InvalidCastException e)
+                    {
+                        errors.Add(info.Name, e);
                         return;
                     }
                     catch (FormatException e)
