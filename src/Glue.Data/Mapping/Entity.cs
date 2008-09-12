@@ -128,30 +128,7 @@ namespace Glue.Data.Mapping
             em.AutoKey = GetAttribute(member, typeof(AutoKeyAttribute)) as AutoKeyAttribute;
             em.Calculated = GetAttribute(member, typeof(CalculatedAttribute)) as CalculatedAttribute;
 
-            if (em.Type == typeof(string) ||
-                em.Type == typeof(bool) ||
-                em.Type == typeof(short) ||
-                em.Type == typeof(int) ||
-                em.Type == typeof(long) ||
-                em.Type == typeof(double) ||
-                em.Type == typeof(float) ||
-                em.Type == typeof(Guid) ||
-                em.Type == typeof(DateTime) ||
-                em.Type == typeof(decimal) ||
-                em.Type == typeof(char) ||
-//[NET20
-                em.Type == typeof(bool?) ||
-                em.Type == typeof(short?) ||
-                em.Type == typeof(int?) ||
-                em.Type == typeof(long?) ||
-                em.Type == typeof(double?) ||
-                em.Type == typeof(float?) || 
-                em.Type == typeof(Guid?) ||
-                em.Type == typeof(DateTime?) ||
-                em.Type == typeof(decimal?) ||
-                em.Type == typeof(char?) ||
-//NET20]
-                em.Type.IsEnum)
+            if (em.Type.IsValueType || em.Type == typeof(string))
             {
                 EntityColumn ec = new EntityColumn();
                 if (ca != null && ca.Name != null)
@@ -165,77 +142,145 @@ namespace Glue.Data.Mapping
                     ec.MaxLength = ca.MaxLength;
                 }
 
-                if (em.Type == typeof(bool?))
+                if (em.Type.IsGenericType)
                 {
-                    ec.Type = typeof(bool);
+                    // We can handle Nullable<T>, nothing else.
+                    if (em.Type.GetGenericTypeDefinition() != typeof(Nullable<>))
+                        throw new InvalidOperationException("Member " + em.Name + " on " + root.Type + " has a type '" + em.Type.ToString() + "' which can't be mapped.");
                     ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(short?))
-                {
-                    ec.Type = typeof(short);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(int?))
-                {
-                    ec.Type = typeof(int);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(long?))
-                {
-                    ec.Type = typeof(long);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(double?))
-                {
-                    ec.Type = typeof(double);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(Guid?))
-                {
-                    ec.Type = typeof(Guid);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(DateTime?))
-                {
-                    ec.Type = typeof(DateTime);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(Decimal?))
-                {
-                    ec.Type = typeof(Decimal);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(float?))
-                {
-                    ec.Type = typeof(float);
-                    ec.GenericNullable = ec.Nullable = true;
-                }
-                else if (em.Type == typeof(char?))
-                {
-                    ec.Type = typeof(char);
-                    ec.GenericNullable = ec.Nullable = true;
+                    // Get inner type (i.e. Nullable<T>)
+                    ec.Type = em.Type.GetGenericArguments()[0];
                 }
                 else
                 {
-                ec.Type = em.Type;
-                
-                if (ec.Type == typeof(string))
-                    ec.Nullable = true;
-                else if (ec.Type == typeof(DateTime))
-                    ec.ConventionalNullValue = "DateTime.MinValue";
-                else if (ec.Type == typeof(Guid))
-                    ec.ConventionalNullValue = "Guid.Empty";
-                else if (ec.Type == typeof(string))
-                    ec.ConventionalNullValue = null;
-                else if (ec.Type == typeof(bool)) 
-                    ec.ConventionalNullValue = "false";
-                else if (ec.Type == typeof(char))
-                    ec.ConventionalNullValue = "' '";
-                else
-                    ec.ConventionalNullValue = "0";
+                    ec.Type = em.Type;
+
+                    if (ec.Type == typeof(string))
+                        ec.Nullable = true;
+                    else if (ec.Type == typeof(DateTime))
+                        ec.ConventionalNullValue = "DateTime.MinValue";
+                    else if (ec.Type == typeof(Guid))
+                        ec.ConventionalNullValue = "Guid.Empty";
+                    else if (ec.Type == typeof(string))
+                        ec.ConventionalNullValue = null;
+                    else if (ec.Type == typeof(bool))
+                        ec.ConventionalNullValue = "false";
+                    else if (ec.Type == typeof(char))
+                        ec.ConventionalNullValue = "' '";
+                    else
+                        ec.ConventionalNullValue = "0";
                 }
+
                 em.Column = ec;
             }
+//            if (em.Type == typeof(string) ||
+//                em.Type == typeof(bool) ||
+//                em.Type == typeof(short) ||
+//                em.Type == typeof(int) ||
+//                em.Type == typeof(long) ||
+//                em.Type == typeof(double) ||
+//                em.Type == typeof(float) ||
+//                em.Type == typeof(Guid) ||
+//                em.Type == typeof(DateTime) ||
+//                em.Type == typeof(decimal) ||
+//                em.Type == typeof(char) ||
+////[NET20
+//                em.Type == typeof(bool?) ||
+//                em.Type == typeof(short?) ||
+//                em.Type == typeof(int?) ||
+//                em.Type == typeof(long?) ||
+//                em.Type == typeof(double?) ||
+//                em.Type == typeof(float?) || 
+//                em.Type == typeof(Guid?) ||
+//                em.Type == typeof(DateTime?) ||
+//                em.Type == typeof(decimal?) ||
+//                em.Type == typeof(char?) ||
+////NET20]
+//                em.Type.IsEnum)
+//            {
+//                EntityColumn ec = new EntityColumn();
+//                if (ca != null && ca.Name != null)
+//                    ec.Name = prefix + ca.Name;
+//                else
+//                    ec.Name = prefix + member.Name;
+                
+//                if (ca != null)
+//                {
+//                    ec.Nullable = ca.Nullable;
+//                    ec.MaxLength = ca.MaxLength;
+//                }
+
+//                if (em.Type == typeof(bool?))
+//                {
+//                    ec.Type = typeof(bool);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(short?))
+//                {
+//                    ec.Type = typeof(short);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(int?))
+//                {
+//                    ec.Type = typeof(int);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(long?))
+//                {
+//                    ec.Type = typeof(long);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(double?))
+//                {
+//                    ec.Type = typeof(double);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(Guid?))
+//                {
+//                    ec.Type = typeof(Guid);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(DateTime?))
+//                {
+//                    ec.Type = typeof(DateTime);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(Decimal?))
+//                {
+//                    ec.Type = typeof(Decimal);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(float?))
+//                {
+//                    ec.Type = typeof(float);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else if (em.Type == typeof(char?))
+//                {
+//                    ec.Type = typeof(char);
+//                    ec.GenericNullable = ec.Nullable = true;
+//                }
+//                else
+//                {
+//                    ec.Type = em.Type;
+                    
+//                    if (ec.Type == typeof(string))
+//                        ec.Nullable = true;
+//                    else if (ec.Type == typeof(DateTime))
+//                        ec.ConventionalNullValue = "DateTime.MinValue";
+//                    else if (ec.Type == typeof(Guid))
+//                        ec.ConventionalNullValue = "Guid.Empty";
+//                    else if (ec.Type == typeof(string))
+//                        ec.ConventionalNullValue = null;
+//                    else if (ec.Type == typeof(bool)) 
+//                        ec.ConventionalNullValue = "false";
+//                    else if (ec.Type == typeof(char))
+//                        ec.ConventionalNullValue = "' '";
+//                    else
+//                        ec.ConventionalNullValue = "0";
+//                }
+//                em.Column = ec;
+//            }
             else if (GetAttribute(em.Type, typeof(TableAttribute)) != null)
             {
                 Entity foreign = Obtain(em.Type);
