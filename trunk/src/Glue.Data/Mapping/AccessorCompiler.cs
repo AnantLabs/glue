@@ -151,7 +151,7 @@ namespace Glue.Data.Mapping
         static string GetFromDataExpression(EntityMember member, string sourceExpression)
         {
             if (member.Column.GenericNullable)
-                return "NullConvert.To<" + member.Column.Type.Name + "?>(" + sourceExpression + ")";
+                return "NullConvert.To<" + member.Column.Type.FullName + "?>(" + sourceExpression + ")";
             else if (member.Column.Nullable)
                 if (member.Column.ConventionalNullValue != null)
                     return "NullConvert.To" + member.Type.Name + "(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
