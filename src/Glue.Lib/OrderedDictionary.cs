@@ -24,7 +24,8 @@ namespace Glue.Lib
         {
         }
 
-        public OrderedDictionary(IEqualityComparer comparer) : this(0, comparer)
+        public OrderedDictionary(IEqualityComparer comparer)
+            : this(0, comparer)
         {
         }
 
