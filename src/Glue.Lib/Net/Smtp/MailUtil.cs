@@ -15,7 +15,7 @@ namespace Glue.Lib.Mail
     /// that dont fit in other classes and to keep
     /// high cohesion on the other classes.
     /// </summary>
-    internal class MailUtil 
+    public class MailUtil 
     {
 	
         /// <summary>
