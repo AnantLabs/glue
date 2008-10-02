@@ -36,7 +36,7 @@
 		<!-- (re)creates the AssemblyVersion.cs file -->
 		<if test="${file::exists(glue.common.nant)}">
 			<property name="asminfo.dir" value="${project::get-base-directory()}" />
-			<property name="asminfo.version" value="0.9" />
+			<property name="asminfo.version" value="1.1" />
 			<nant buildfile="${glue.common.nant}" target="asminfo" />
 		</if>
 		<csc target="library" output="${glue.builddir}/${project::get-name()}.dll" doc="${glue.builddir}/${project::get-name()}.xml">
