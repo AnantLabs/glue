@@ -46,7 +46,6 @@
     <Compile Include="BaseDataProvider.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="FieldChange.cs" />
-    <Compile Include="FieldChangeList.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="IDataExporter.cs" />
     <Compile Include="IDataImporter.cs" />
