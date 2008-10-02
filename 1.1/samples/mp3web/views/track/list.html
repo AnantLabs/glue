@@ -1,0 +1,47 @@
+<%@include file="/views/_header.html" %>
+
+<% foreach (System.Exception e in Errors) { %>
+    <div class="error"><%= e.Message %></div>
+<% } %>
+
+<a href="/">Home</a> :: Tracks
+
+<h1>Tracks</h1>
+
+<%= Glue.Web.GridHelper.GridPager(Grid) %>
+
+<table id="track-grid" class="grid">
+
+    <tr>
+        <th id="title">Title</th>
+        <th id="artist">Artist</th>
+        <th id="year">Year</th>
+        <th id="path">Path</th>
+        <th id="comment">Comment</th>
+        
+    </tr>
+    
+    <% foreach(Track t in Grid.List) { %>
+        <tr href="/track/edit/<%=t.Id%>">
+            <td><%=H(t.Title) %></td>
+            <td><%=H(t.Artist) %></td>
+            <td><%=t.Year %></td>
+            <td><%=H(t.Path) %></td>
+            <td><%=H(t.Comment) %></td>
+            
+            <td><a href="/track/delete/<%= t.Id %>">[Delete]</a></td>
+        </tr>
+    <% } %>
+</table>
+
+<div><a href="/track/new">New Track</a></div>
+
+<h3>Upload mp3...</h3>
+<div>Get new track data from tags in an mp3 file.</div>
+
+<form method="post" action="/track/upload" enctype="multipart/form-data">
+        <input type="file" name="upload" id="upload" />
+        <input type="submit" value="Upload" />
+</form>   
+
+<%@include file="/views/_footer.html" %>
