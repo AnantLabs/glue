@@ -224,6 +224,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="project.build" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Hosting\CGI\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
