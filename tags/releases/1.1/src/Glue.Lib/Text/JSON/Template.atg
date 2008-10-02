@@ -1,0 +1,105 @@
+using Glue.Lib;
+using Glue.Lib.Text.JSON;
+using System.Collections;
+
+COMPILER Root
+
+/*--------------------------------------------------------------------------*/
+
+public object Result = null;
+
+void Log(string fmt, params object[] args) 
+{
+    Glue.Lib.Log.Debug(String.Format(fmt, args));
+}
+
+void Err(string msg) 
+{
+    errors.Error(la.line, la.col, msg);
+}
+
+bool ConvertToBool(string s) 
+{
+    return string.Compare(s, "true", true) == 0 || string.Compare(s, "yes", true) == 0;
+}
+
+string ConvertToString(string s) 
+{
+    Applet.
+    if (s != null && s.Length >= 2) 
+    {
+        if (s[0] == '"' && s[s.Length - 1] == '"')
+        {
+            s = s.Substring(1, s.Length - 2);
+        }
+        else if (s[0] == '\'' && s[s.Length - 1] == '\'')
+        {
+            s = s.Substring(1, s.Length - 2);
+        }
+    }
+    return s.Replace("\\r", "\r").Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\"", "\"").Replace("\\'", "'");
+}
+
+/*--------------------------------------------------------------------------*/
+
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
+  digit  = "0123456789".
+  cr     = '\r'.
+  lf     = '\n'.
+  tab    = '\t'.
+  stringchar1 = ANY - '"' - '\\' - cr - lf.
+  stringchar2 = ANY - '\'' - '\\' - cr - lf.
+
+TOKENS
+  string        = '"'  {stringchar1|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} '"' | 
+                  '\'' {stringchar2|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} '\''.
+  ident         = letter {letter | digit}.
+  number        = digit {digit}.
+
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO cr lf
+
+IGNORE '\t' + '\r' + '\n'
+
+PRODUCTIONS
+
+Root
+=                                       (. Result = null; .)
+  Object <out Result>
+| Array <out Result>
+.
+
+Object <out object value>
+=                                       (. OrderedDictionary dict = new OrderedDictionary(); value = dict; .)
+  '{' Member <dict> 
+      { ',' Member <dict> 
+      }
+  '}'
+.
+
+Member <IDictionary dict>
+= ident                                 (. string key = t.val; object value = null; .)
+  ':'
+  Value <out value>                     (. dict.Add(key, value); .)
+.
+
+Array <out object value>
+=                                       (. ArrayList list = new ArrayList(); value = list; object item = null; .)
+  '[' Value <out item>                  (. list.Add(item); .)
+      { ',' Value <out item>            (. list.Add(item); .)
+      }
+  ']'
+.
+  
+Value <out object value>                (. value = null; .)
+= number                                (. value = Convert.ToInt32(t.val); .)
+| string                                (. value = t.val; .)
+| ("true" | "false" | "yes" | "no")     (. value = (bool)(t.val == "true" || t.val == "yes"); .)
+| "null"                                (. value = null; .)
+| Array<out value>
+| Object<out value>
+.                                       
+
+END Root.
+

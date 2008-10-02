@@ -1,0 +1,12 @@
+<%@include file="/views/_header.html" %>
+
+<%= Glue.Web.GridHelper.WriteGrid(
+      (Glue.Data.IDataProvider)Glue.Lib.Configuration.Get("dataprovider"), 
+      typeof(Glue.Web.Minimal.Model.Contact)) %>
+
+<%= Glue.Web.GridHelper.WriteForm(
+      (Glue.Data.IDataProvider)Glue.Lib.Configuration.Get("dataprovider"), 
+      typeof(Glue.Web.Minimal.Model.Contact),
+      null) %>
+
+<%@include file="/views/_footer.html" %>

@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8' ?>
+<multistatus xmlns='DAV:'>
+    <response>
+        <href>http://localhost/</href>
+        <propstat>
+            <status>HTTP/1.1 200 OK</status>
+            <prop>
+                <creationdate>1997-12-01T17:42:21-08:00</creationdate>
+                <displayname>Root collection</displayname>
+                <resourcetype><collection/></resourcetype>
+                <getcontentlength>1320</getcontentlength>
+                <getcontenttype>text/html</getcontenttype>
+                <getlastmodified>2000-12-01T15:23:26-08:00</getlastmodified>
+                <getetag>"FAE04EC0-301F-11D3-BF4B-00C04F79EFBC"</getetag>
+            </prop>
+        </propstat>
+    </response>
+    <response>
+        <href>http://localhost/front.html</href>
+        <propstat>
+            <status>HTTP/1.1 200 OK</status>
+            <prop>
+                <creationdate>1997-12-01T18:27:21-08:00</creationdate>
+                <displayname>Example HTML resource</displayname>
+                <getcontentlength>1320</getcontentlength>
+                <getcontenttype>text/html</getcontenttype>
+                <getlastmodified>2000-12-01T15:23:26-08:00</getlastmodified>
+                <getetag>"FAE04EC1-301F-11D3-BF4B-00C04F79EFBC"</getetag>
+                <resourcetype/>
+            </prop>
+        </propstat>
+    </response>
+</multistatus>
