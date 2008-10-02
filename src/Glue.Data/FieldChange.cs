@@ -32,13 +32,13 @@ namespace Glue.Data
     /// and a list of <see cref="FieldChange"/>s (a <see cref="FieldChangeList"/>) is returned.
     /// </para>
 	/// <para>
-    /// Here's an example of a custom <c>Update</c>-method on a class <c>User</c>that returns the changes to the object:
+    /// Here's an example of a custom <c>Update</c>-method on a class <c>User</c> that returns the changes to the object:
 	/// </para>
     /// <code>
     ///        public FieldChangeList Update(string updateUser)
     ///        {
     ///            FieldChangeList changes = FieldChange.ComputeChanges(
-    ///                new string[] {                                  // compare these fields/ properties
+    ///                new string[] {										// compare these fields/ properties
     ///                    "UserName", 
     ///                    "FirstName", 
     ///                    "MiddleName",
@@ -48,8 +48,8 @@ namespace Glue.Data
     ///                    "CostRate",
     ///                    "IsAdmin"
     ///                },
-    ///                Global.DataProvider.Find&lt;User&gt;(Id),        // retrieve old data
-    ///                this,                                           // changed instance
+    ///                Global.DataProvider.Find&lt;User&gt;(Id),			// retrieve old data
+    ///                this,												// changed instance
     ///                updateUser);
     ///
     ///            // Store the updates to this instance
@@ -73,17 +73,20 @@ namespace Glue.Data
     /// If an object has more than one source of changes (i.e. child objects in linked tables), the following pattern can be used:
     /// </para>
     /// <code>
+	///     // List of changes
     ///     public FieldChangeList Changes;
-    ///     // main item
-    ///     Changes = Project.Insert(CurrentUser.UserName);
+	///
+    ///     // Changes to main item
+    ///     Changes = Project.Update(CurrentUser.UserName);
     ///     
-    ///     // other changes, linked tables etc.
-    ///     // use the '+' or '+=' operators to combine the list of changes
+    ///     // Other changes, linked tables etc.
+	///
+    ///     // Use the '+' or '+=' operators to combine the list of changes
     ///     Changes += Project.UpdateUserLinks(UserId, CurrentUser.UserName);
     ///     Changes += ProcessSubProjects(id);
     /// 
-    ///     // store changes to table "Changes_Project"
-	///     // add a reference to a key called "Project_Id" so we later on know how to retrieve changes for this project.
+    ///     // Store changes to table "Changes_Project"
+	///     // Add a reference to a key called "Project_Id" so we later on know how to retrieve changes for this project.
     ///     Changes.Store(Global.DataProvider, "Changes_Project", "Project_Id", Project.Id);
     /// </code>
     /// <para>
@@ -518,6 +521,46 @@ namespace Glue.Data
         /// Return changes as Html table
         /// </summary>
         /// <param name="tableClass">Name of css-class</param>
+		/// <remarks>
+		/// <para>
+		/// To display the changes on a web page, <see cref="FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+		/// </para>
+		/// <code>
+		///     &lt;h4&gt;Changes&lt;/h4&gt;
+		///     &lt;%=Changes.ToHtmlTable("grid") %&gt;
+		/// </code>
+		/// <para>
+		/// This generates the following table:
+		/// </para>
+		/// <code>
+		/// <![CDATA[
+		/// <h4>Changes</h4>
+		/// <table class="grid">
+		///		<tr>
+		///			<th>Date</th>
+		///			<th>User</th>
+		///			<th>Change</th>
+		///			<th>Old value</th>
+		///			<th>New value</th>
+		///		</tr>
+		///		<tr>
+		///			<td>29-9-2008 23:38:38</td>
+		///			<td>DOMAIN\Anonymous</td>
+		///			<td>NormalHoursPerWeek</td>
+		///			<td>0</td>
+		///			<td>40</td>
+		///		</tr>
+		///		<tr>
+		///			<td>29-9-2008 23:38:46</td>
+		///			<td>DOMAIN\Admin</td>
+		///			<td>NormalHoursPerWeek</td>
+		///			<td>40</td>
+		///			<td>48</td>
+		///		</tr>
+		///	</table>
+		/// ]]>
+		/// </code>
+		/// </remarks>
         public string ToHtmlTable(string tableClass)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
@@ -541,10 +584,51 @@ namespace Glue.Data
 
             return s.ToString();
         }
+
         /// <summary>
         /// Return changes as Html table
         /// </summary>
-        public string ToHtmlTable()
+		/// <remarks>
+		/// <para>
+		/// To display the changes on a web page, <see cref="FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+		/// </para>
+		/// <code>
+		///     &lt;h4&gt;Changes&lt;/h4&gt;
+		///     &lt;%=Changes.ToHtmlTable("grid") %&gt;
+		/// </code>
+		/// <para>
+		/// This generates the following table:
+		/// </para>
+		/// <code>
+		/// <![CDATA[
+		/// <h4>Changes</h4>
+		/// <table class="grid">
+		///		<tr>
+		///			<th>Date</th>
+		///			<th>User</th>
+		///			<th>Change</th>
+		///			<th>Old value</th>
+		///			<th>New value</th>
+		///		</tr>
+		///		<tr>
+		///			<td>29-9-2008 23:38:38</td>
+		///			<td>DOMAIN\Anonymous</td>
+		///			<td>NormalHoursPerWeek</td>
+		///			<td>0</td>
+		///			<td>40</td>
+		///		</tr>
+		///		<tr>
+		///			<td>29-9-2008 23:38:46</td>
+		///			<td>DOMAIN\Admin</td>
+		///			<td>NormalHoursPerWeek</td>
+		///			<td>40</td>
+		///			<td>48</td>
+		///		</tr>
+		///	</table>
+		/// ]]>
+		/// </code>
+		/// </remarks>
+		public string ToHtmlTable()
         {
             return ToHtmlTable(null);
         }
