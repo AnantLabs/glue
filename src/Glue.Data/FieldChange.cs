@@ -12,23 +12,28 @@ namespace Glue.Data
     /// Class to compute and store Field value changes.
     /// </summary>
     /// <remarks>
+	/// <para>
     /// This class can be used, in combination with the <see cref="FieldChangeList"/>-class, to compute and store 
     /// changes to object field/property values. 
-    /// 
+    /// </para>
+	/// <para>
     /// If the FieldChanges are to be stored in a database, the class expects a table of the following structure:
-    /// 
-    /// <list type="bullet">
-    /// <item>FieldName: string ((var)(n)char)</item>
-    /// <item>OldValue: string ((var)(n)char)</item>
-    /// <item>NewValue: string ((var)(n)char)</item>
-    /// <item>ChangeUser: string ((var)(n)char)</item>
-    /// <item>ChangeDate: datetime</item>
+    /// </para>
+    /// <list type="table">
+	/// <listheader><term>Field</term><description>Type</description></listheader>  
+    /// <item><term>FieldName</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>OldValue</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>NewValue</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>ChangeUser</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>ChangeDate</term><description>DateTime ((small)datetime)</description></item>
     /// </list>
-    /// 
+    /// <para>
     /// How does it work? Easy: call <c>FieldChange.ComputeChanges()</c> with two objects and a list of field- and/or propertynames
     /// and a list of <see cref="FieldChange"/>s (a <see cref="FieldChangeList"/>) is returned.
-    /// 
+    /// </para>
+	/// <para>
     /// Here's an example of a custom <c>Update</c>-method on a class <c>User</c>that returns the changes to the object:
+	/// </para>
     /// <code>
     ///        public FieldChangeList Update(string updateUser)
     ///        {
@@ -54,7 +59,9 @@ namespace Glue.Data
     ///            return changes;
     ///        }
     /// </code>
-    /// To save a <see cref="FieldChangeList"/> to the database, call <c>Store()</c> on the <see cref="FieldChangeList"/>. <see cref="FieldChange"/> has a method List() to retrieve the changes.
+	/// <para>
+	/// To save a <see cref="FieldChangeList"/> to the database, call <c>Store()</c> on the <see cref="FieldChangeList"/>. <see cref="FieldChange"/> has a method List() to retrieve the changes.
+	/// </para>
     /// <code>
     ///     // store changes
     ///     Changes.Store(Global.DataProvider, "Changes_User", "User_Id", User.Id);
@@ -62,8 +69,9 @@ namespace Glue.Data
     ///     // retrieve changes
     ///     Changes = FieldChange.List(Global.DataProvider, "Changes_User", Filter.Create("User_Id=@0", User.Id));
     /// </code>
+	/// <para>
     /// If an object has more than one source of changes (i.e. child objects in linked tables), the following pattern can be used:
-    /// 
+    /// </para>
     /// <code>
     ///     public FieldChangeList Changes;
     ///     // main item
@@ -74,15 +82,48 @@ namespace Glue.Data
     ///     Changes += Project.UpdateUserLinks(UserId, CurrentUser.UserName);
     ///     Changes += ProcessSubProjects(id);
     /// 
-    ///     // store changes
+    ///     // store changes to table "Changes_Project"
+	///     // add a reference to a key called "Project_Id" so we later on know how to retrieve changes for this project.
     ///     Changes.Store(Global.DataProvider, "Changes_Project", "Project_Id", Project.Id);
     /// </code>
-    /// 
-    /// Last but not least: to display the changes on a web page, <see cref="FieldChangeList"/> has a <c>ToHtmlTable()</c>-method:
+    /// <para>
+    /// Last but not least: to display the changes on a web page, <see cref="FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+	/// </para>
     /// <code>
     ///     &lt;h4&gt;Changes&lt;/h4&gt;
-    ///     &lt;%=Changes.ToHtmlTable() %&gt;
+    ///     &lt;%=Changes.ToHtmlTable("grid") %&gt;
     /// </code>
+	/// <para>
+	/// This generates the following table:
+	/// </para>
+	/// <code>
+	/// <![CDATA[
+	/// <h4>Changes</h4>
+	/// <table class="grid">
+	///		<tr>
+	///			<th>Date</th>
+	///			<th>User</th>
+	///			<th>Change</th>
+	///			<th>Old value</th>
+	///			<th>New value</th>
+	///		</tr>
+	///		<tr>
+	///			<td>29-9-2008 23:38:38</td>
+	///			<td>DOMAIN\Anonymous</td>
+	///			<td>NormalHoursPerWeek</td>
+	///			<td>0</td>
+	///			<td>40</td>
+	///		</tr>
+	///		<tr>
+	///			<td>29-9-2008 23:38:46</td>
+	///			<td>DOMAIN\Admin</td>
+	///			<td>NormalHoursPerWeek</td>
+	///			<td>40</td>
+	///			<td>48</td>
+	///		</tr>
+	///	</table>
+	/// ]]>
+	/// </code>
     /// </remarks>
     /// <seealso cref="FieldChangeList"/>
     public class FieldChange
@@ -258,19 +299,24 @@ namespace Glue.Data
     /// List of field value changes
     /// </summary>
     /// <remarks>
+	/// <para>
     /// This class can be used, in combination with the <see cref="FieldChange"/>-class, to compute and store 
     /// changes to object field/property values. 
-    /// 
+    /// </para>
+	/// <para>
     /// If the <see cref="FieldChange"/>s are to be stored in a database, the class expects a table of the following structure:
-    /// <list type="bullet">
-    /// <item>FieldName: string ((var)(n)char)</item>
-    /// <item>OldValue: string ((var)(n)char)</item>
-    /// <item>NewValue: string ((var)(n)char)</item>
-    /// <item>ChangeUser: string ((var)(n)char)</item>
-    /// <item>ChangeDate: datetime</item>
+    /// </para>
+	/// <list type="table">
+	/// <listheader><term>Field</term><description>Type</description></listheader>  
+    /// <item><term>FieldName</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>OldValue</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>NewValue</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>ChangeUser</term><description>string ((var)(n)char)</description></item>
+    /// <item><term>ChangeDate</term><description>DateTime ((small)datetime)</description></item>
     /// </list>
-    /// 
+    /// <para>
     /// See <see cref="FieldChange"/> for some examples.
+	/// </para>
     /// </remarks>
     /// <seealso cref="FieldChange"/>
     public class FieldChangeList : IList<FieldChange>
