@@ -6,8 +6,10 @@ Targets:
 
 clean			- Cleans build dir.
 build			- Builds project in ../bin
-doc				- Builds api documentation, using ndoc
-doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
+dist			- Create package (zip) of exported sources in dist-directory
+doc			- Builds api documentation, using ndoc
+doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
+
 -->
 
 	<!-- Properties -->
@@ -81,6 +83,19 @@ doc-sandcastle	- Builds api documentation with Sandcastle Help File Builder.
 		<echo>Family:             ${framework::get-family(framework)} </echo>
 		<echo>CLR version:        ${framework::get-clr-version(framework)} </echo>
 		<echo>Runtime engine:     ${framework::get-runtime-engine(framework)} </echo>
+	</target>
+
+	<target name="dist" description="Create package (zip) of exported sources in dist-directory.">
+		<delete dir="disttemp" failonerror="false" />
+		<exec
+			program="svn"
+			commandline="export .. disttemp"
+		/>
+		<zip zipfile="Glue-src-1.1.zip">
+		    <fileset basedir="disttemp" prefix="">
+			<include name="**/*" />
+		    </fileset>
+		</zip>
 	</target>
 
 </project>
