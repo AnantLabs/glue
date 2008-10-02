@@ -1,7 +1,7 @@
 ﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -408,6 +408,7 @@
     <Compile Include="Xml\XmlNodeWriter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="project.build" />
     <None Include="Text\DSON\build.bat" />
     <None Include="Text\DSON\Parser.frame" />
     <None Include="Text\DSON\Scanner.frame" />
