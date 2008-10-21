@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisibleAttribute(false)]
 [assembly: AssemblyProductAttribute("Glue")]
-[assembly: AssemblyTitleAttribute("Glue.Data.Oracle")]
+[assembly: AssemblyTitleAttribute("Glue.Data.PostgreSQL")]
 [assembly: AssemblyCompanyAttribute("Glue Project, http://www.glueproject.com")]
 [assembly: AssemblyCopyrightAttribute("Copyright Glue Project 2008")]
+

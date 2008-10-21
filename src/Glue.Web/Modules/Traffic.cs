@@ -66,7 +66,7 @@ namespace Glue.Web.Modules
             provider.ExecuteNonQuery(@"
 INSERT INTO [Traffic] (IP,Status,Method,Path,Query,Referrer,UserAgent) 
 VALUES (@IP,@Status,@Method,@Path,@Query,@Referrer,@UserAgent)",
-                "IP", Trunc(request.Params["REMOTE_ADDR"], 16),
+                "IP", Trunc(NullConvert.Coalesce(request.Params["HTTP_X_FORWARDED_FOR"], request.Params["REMOTE_ADDR"]), 16),
                 "Status", response.StatusCode,
                 "Method", Trunc(request.Method, 16),
                 "Path", Trunc(request.Params["URL"], 100),

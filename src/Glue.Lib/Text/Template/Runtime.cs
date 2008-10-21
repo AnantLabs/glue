@@ -260,7 +260,15 @@ namespace Glue.Lib.Text.Template
 
         public static object GetWithBag(object instance, string member, IDictionary bag)
         {
-            return Get(instance, member, new object[]{bag});
+            MethodInfo method = instance.GetType().GetMethod(member, BindingFlags.Instance | BindingFlags.Public);
+            ParameterInfo[] parameters = method.GetParameters();
+            object[] arguments = new object[parameters.Length];
+            for (int i = 0; i < parameters.Length; i++)
+                if (bag.Contains(parameters[i].Name))
+                    arguments[i] = bag[parameters[i].Name];
+                else
+                    arguments[i] = parameters[i].DefaultValue;
+            return Get(instance, member, arguments);
         }
 
         public static void Set(object instance, string member, object value, object[] args)
