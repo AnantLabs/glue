@@ -33,9 +33,9 @@ def filegsub(path, pattern, replacement)
 end
 
 # set version in assemblyinfo.cs files
-def set_version(files, version)
-  files.each do |path|
-    filegsub path, /AssemblyVersion(\"[^\"]+\")/, "AssemblyVersion(\"#{version}\")"
+def set_version(pathspec, version)
+  Dir.glob(pathspec).each do |path|
+    filegsub path, /AssemblyVersion\("[^"]+"\)/, "AssemblyVersion(\"#{version}\")"
   end
 end
 
@@ -57,6 +57,7 @@ end
 
 desc "Build project"
 task :build do
+  # set_version "src/*/AssemblyInfo.cs", "1.1"
   msbuild "src/#$product_name.sln", :target=>"build"
 end
 
