@@ -25,10 +25,11 @@ namespace Glue.Lib.Test
             JSONTest.Test();
 
             // StringTemplate
-            // StringTemplateTest.Test();
+            StringTemplateTest.Test();
             // Glue.Lib.Text.StringTemplate t = Glue.Lib.Text.StringTemplate.CreateFromFile(@"D:\Drafts\Sitelauncher_Design\sitelauncher2.html");
             // Console.WriteLine(t.Render());
 
+            return;
 
             CsvTest csvTest = new CsvTest();
             // csvTest.Test();

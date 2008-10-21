@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B14142E6-FBA7-48E1-ABF2-946654A84869}</ProjectGuid>
+    <ProjectGuid>{A4273673-6584-4130-9CF4-AAFA27F5691C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Glue.Data.Oracle</RootNamespace>
-    <AssemblyName>Glue.Data.Oracle</AssemblyName>
+    <RootNamespace>Glue.Data.PostgreSQL</RootNamespace>
+    <AssemblyName>Glue.Data.PostgreSQL</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,22 +30,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PostgreSQLDataProvider.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="OracleDataProvider.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Glue.Data\Glue.Data.csproj">
-      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
-      <Name>Glue.Data</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Glue.Lib\Glue.Lib.csproj">
-      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
-      <Name>Glue.Lib</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

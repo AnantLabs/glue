@@ -2,7 +2,7 @@
 CONTENT
 ========
 
-test $afko(datetime.now) unicode еазк 
+test $afko(datetime.now) unicode xxx
 een dollar $$ een hekje ##
 
 <table>
@@ -20,11 +20,11 @@ een naampje $expr dus
 een dollar $$
 test
 
-#def hyperlink(text='niks', url="#nowhere")
+#def hyperlink(text='niks', url='nowhere')
     <a href="$url" tip='$text.toupper()'>$text</a>
 #end
 
-#def hyperlink2
+#def hyperlink2()
     <a href="$expr">$expr</a>
 #end
 

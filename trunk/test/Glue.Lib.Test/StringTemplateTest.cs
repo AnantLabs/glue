@@ -54,7 +54,9 @@ Hello $age $level $perc(5,8) $test(0)
         public static void TestComplex()
         {
             string test = LoadRes(Assembly.GetExecutingAssembly(), "Glue.Lib.Test.StringTemplateTest.txt");
-            Console.WriteLine(test);
+            StringTemplate t = StringTemplate.Create(test);
+            t.Render(Console.Out);
+            // Console.WriteLine(test);
         }
 
         public static string LoadRes(Assembly assembly, string name)
