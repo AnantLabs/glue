@@ -235,4 +235,75 @@ CREATE TABLE [ContactCategory] (
 ";
     }
 
+    /// <summary>
+    /// OracleSetup
+    /// </summary>
+    public class OracleContext : Context
+    {
+        public OracleContext(XmlNode node)
+        {
+            Provider = new Glue.Data.Providers.Oracle.OracleDataProvider(node);
+        }
+
+        public override void CreateDatabase()
+        {
+            Provider.ExecuteNonQuery(Script);
+        }
+
+        public string Script = @"
+DROP TABLE IF EXISTS ""ContactCategory"";
+DROP TABLE IF EXISTS ""Contact"";
+DROP TABLE IF EXISTS ""Category"";
+DROP TABLE IF EXISTS ""Customer"";
+DROP TABLE IF EXISTS ""Country"";
+DROP TABLE IF EXISTS ""Language"";
+
+CREATE TABLE ""Language"" (
+  ""Code"" VarChar(4) NOT NULL,
+  ""Name"" NVarChar(50) NOT NULL,
+  CONSTRAINT ""PK_Language"" PRIMARY KEY CLUSTERED (""Code"")
+);
+
+CREATE TABLE ""Country"" (
+  ""Code"" VarChar(4) NOT NULL,
+  ""Name"" NVarChar(50) NOT NULL,
+  CONSTRAINT ""PK_Country"" PRIMARY KEY CLUSTERED (""Code"")
+);
+
+CREATE TABLE ""Customer"" (
+  ""CustomerCode"" NVarChar(8) NOT NULL,
+  ""DisplayName"" NVarChar(100) NOT NULL,
+  CONSTRAINT ""PK_Customer"" PRIMARY KEY CLUSTERED (""CustomerCode"")
+);
+
+CREATE TABLE ""Category"" (
+  ""CategoryId"" INT AUTO_INCREMENT,
+  ""CategoryName"" NVarChar(100) NOT NULL,
+  CONSTRAINT ""PK_Category"" PRIMARY KEY CLUSTERED (""CategoryId"")
+);
+
+CREATE TABLE ""Contact"" (
+  ""ContactId"" INT AUTO_INCREMENT NOT NULL,
+  ""FirstName"" NVarChar(50) NULL,
+  ""LastName"" NVarChar(100) NOT NULL,
+  ""Email"" NVarChar(100) NOT NULL,
+  ""AddressStreet"" NVarChar(100) NULL,
+  ""AddressCity"" NVarChar(100) NULL,
+  ""AddressZipCode"" VarChar(10) NULL,
+  ""AddressCountryCode"" VarChar(4) NULL,
+  ""CustomerCode"" VarChar(8) NULL,
+  ""LanguageCode"" VarChar(4) NULL,
+  CONSTRAINT ""PK_Contact"" PRIMARY KEY CLUSTERED (""ContactId"")
+);
+CREATE INDEX ""IX_LastName"" ON ""Contact""(""LastName"");
+CREATE INDEX ""IX_Email"" ON ""Contact""(""Email"");
+
+CREATE TABLE ""ContactCategory"" (
+  ""ContactId"" Int NOT NULL,
+  ""CategoryId"" Int NOT NULL,
+  CONSTRAINT ""PK_ContactCategory"" PRIMARY KEY CLUSTERED (""ContactId"",""CategoryId"")
+);
+";
+    }
+
 }
