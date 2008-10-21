@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.Test", "..\test\G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Web.IronPython", "Glue.Web.Python\Glue.Web.IronPython.csproj", "{07607474-CFEB-4F20-ACC1-7467A4600B18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.Oracle", "Glue.Data.Oracle\Glue.Data.Oracle.csproj", "{B14142E6-FBA7-48E1-ABF2-946654A84869}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,9 +54,11 @@ Global
 		{4120617F-1595-4C28-8219-4A335E3B64D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4120617F-1595-4C28-8219-4A335E3B64D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{07607474-CFEB-4F20-ACC1-7467A4600B18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07607474-CFEB-4F20-ACC1-7467A4600B18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07607474-CFEB-4F20-ACC1-7467A4600B18}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07607474-CFEB-4F20-ACC1-7467A4600B18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B14142E6-FBA7-48E1-ABF2-946654A84869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B14142E6-FBA7-48E1-ABF2-946654A84869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B14142E6-FBA7-48E1-ABF2-946654A84869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B14142E6-FBA7-48E1-ABF2-946654A84869}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

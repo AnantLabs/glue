@@ -15,6 +15,7 @@ namespace Glue.Data.Mapping
         public EntityMemberList AllMembers;
         public EntityMemberList KeyMembers;
         public EntityMemberList AutoMembers;
+        public EntityMemberList CalculatedMembers;
         public EntityMember AutoKeyMember;
         public Type Type;
         public TableAttribute Table;
@@ -27,6 +28,7 @@ namespace Glue.Data.Mapping
             AllMembers = new EntityMemberList();
             KeyMembers = new EntityMemberList();
             AutoMembers = new EntityMemberList();
+            CalculatedMembers = new EntityMemberList();
             
             Table = (TableAttribute)GetAttribute(Type, typeof(TableAttribute));
             if (Table == null)
@@ -51,6 +53,7 @@ namespace Glue.Data.Mapping
                 else if (em.Calculated != null)
                 {
                     AutoMembers.Add(em);
+                    CalculatedMembers.Add(em);
                 }
             }
         }

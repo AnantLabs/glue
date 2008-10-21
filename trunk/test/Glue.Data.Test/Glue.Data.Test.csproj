@@ -34,6 +34,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +49,10 @@
     <ProjectReference Include="..\..\src\Glue.Data.MySql\Glue.Data.MySql.csproj">
       <Project>{9B40F644-C1A6-4F69-B249-5BE517E06C04}</Project>
       <Name>Glue.Data.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Data.Oracle\Glue.Data.Oracle.csproj">
+      <Project>{B14142E6-FBA7-48E1-ABF2-946654A84869}</Project>
+      <Name>Glue.Data.Oracle</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Glue.Data.SQLite\Glue.Data.SQLite.csproj">
       <Project>{46246856-7109-4962-A291-E8DD114CAE56}</Project>

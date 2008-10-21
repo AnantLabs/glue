@@ -30,7 +30,7 @@ namespace Glue.Data.Mapping
         /// <param name="provider"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        internal static Accessor Obtain(BaseDataProvider provider, Type type)
+        public static Accessor Obtain(BaseDataProvider provider, Type type)
         {
             Type providerType = provider.GetType();
             Dictionary<Type, Accessor> bag;
