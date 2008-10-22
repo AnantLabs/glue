@@ -40,13 +40,20 @@ namespace Glue.Data.Mapping
             foreach (EntityMember m in info.AllMembers)
                 GenerateInitFromReaderDynamic(code, m, "");
             code.WriteLine("    }");
-            code.WriteLine("    public override void AddParametersToCommandFixed(object obj, IDbCommand command)");
+            code.WriteLine("    public override void AddAllParametersToCommand(object obj, IDbCommand command)");
             code.WriteLine("    {");
             code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
             code.WriteLine("      " + dbprefix + "ParameterCollection parameters = (" + dbprefix + "ParameterCollection)command.Parameters;");
             foreach (EntityMember m in info.KeyMembers)
                 GenerateAddParameter(code, m, "", dbprefix, parmchar);
             foreach (EntityMember m in EntityMemberList.Subtract(info.AllMembers, info.KeyMembers, info.AutoMembers))
+                GenerateAddParameter(code, m, "", dbprefix, parmchar);
+            code.WriteLine("    }");
+            code.WriteLine("    public override void AddKeyParametersToCommand(object obj, IDbCommand command)");
+            code.WriteLine("    {");
+            code.WriteLine("      " + type.FullName + " instance = obj as " + type.FullName + ";");
+            code.WriteLine("      " + dbprefix + "ParameterCollection parameters = (" + dbprefix + "ParameterCollection)command.Parameters;");
+            foreach (EntityMember m in info.KeyMembers)
                 GenerateAddParameter(code, m, "", dbprefix, parmchar);
             code.WriteLine("    }");
             code.WriteLine("  }");

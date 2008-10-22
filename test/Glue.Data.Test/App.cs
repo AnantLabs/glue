@@ -66,6 +66,7 @@ namespace Glue.Data.Test
             //using (System.Data.OracleClient.OracleDataReader rdr = cmd.ExecuteReader())
             //    while (rdr.Read())
             //        Console.WriteLine("Id:{0} Name:{1}", rdr[0], rdr[1]);
+            /*
             cmd.CommandText = "insert into fonds(id,status,modifiedon,AanbiederId,Naam,FondsType) values(FONDS_SEQ.NEXTVAL,0,sysdate,1,'TestFonds2',1) returning id into :p1";
             System.Data.OracleClient.OracleParameter p1 = new System.Data.OracleClient.OracleParameter("p1", System.Data.OracleClient.OracleType.Int32);
             p1.Direction = System.Data.ParameterDirection.Output;
@@ -73,9 +74,17 @@ namespace Glue.Data.Test
             cmd.ExecuteNonQuery();
             Console.WriteLine(p1.Value);
             con.Close();
+            */
 
-
+            int x = prov.ExecuteScalarInt32("SELECT COUNT(*) FROM gebruiker");
+            
             Fonds fonds = new Fonds();
+            fonds.Id = 1;
+            fonds.Status = 1;
+            x = prov.ExecuteScalarInt32("SELECT COUNT(*) FROM fonds WHERE id=:id and status=:status", "id", 1, "status", 1);
+
+            prov.Exists(fonds);
+
             fonds.Naam = "Testfonds99";
             fonds.AanbiederId = 1;
             fonds.FondsType = 1;
