@@ -794,7 +794,7 @@ namespace Glue.Data
             }
 
             IDbCommand command = CreateCommand(info.InsertCommandText);
-            info.AddParametersToCommandFixed(obj, command);
+            info.AddAllParametersToCommand(obj, command);
 
             object autokey = ExecuteScalar(command);
             if (info.Entity.AutoKeyMember != null)
@@ -815,7 +815,7 @@ namespace Glue.Data
             s.AppendLine(" WHERE ");
             s.ColumnsParameters(info.Entity.KeyMembers, "=", " AND ");
             IDbCommand cmd = CreateCommand(s.ToString());
-            info.AddParametersToCommandFixed(obj, cmd);
+            info.AddKeyParametersToCommand(obj, cmd);
             return ExecuteScalarInt32(cmd) > 0;
         }
 
@@ -844,7 +844,7 @@ namespace Glue.Data
             }
 
             IDbCommand cmd = CreateCommand(info.UpdateCommandText);
-            info.AddParametersToCommandFixed(obj, cmd);
+            info.AddAllParametersToCommand(obj, cmd);
             ExecuteNonQuery(cmd);
 
             InvalidateCache(type);

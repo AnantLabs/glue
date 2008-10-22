@@ -141,7 +141,7 @@ namespace Glue.Data.Providers.Oracle
             }
 
             IDbCommand command = CreateCommand(info.InsertCommandText);
-            info.AddParametersToCommandFixed(obj, command);
+            info.AddAllParametersToCommand(obj, command);
             OracleParameter identity = null;
             if (info.Entity.AutoKeyMember != null)
             {

@@ -156,14 +156,14 @@ namespace Glue.Data.Mapping
         /// <summary>
         /// 
         /// </summary>
-        public virtual void AddParametersToCommandDynamic(object instance, IDbCommand command, IList names)
+        public virtual void AddAllParametersToCommand(object instance, IDbCommand command)
         {
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public virtual void AddParametersToCommandFixed(object instance, IDbCommand command)
+        public virtual void AddKeyParametersToCommand(object instance, IDbCommand command)
         {
         }
     }
