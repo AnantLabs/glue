@@ -68,7 +68,7 @@ namespace Glue.Data.Providers.Oracle
                         else if (col.Type == "NVARCHAR" || col.Type == "NVARCHAR2" || col.Type == "VARCHAR" || col.Type == "CHAR" || col.Type == "VARCHAR2")
                             output.Write("'" + data + "'");
                         else if (col.Type == "DATE")
-                            output.Write("to_date('" + data + "','YYYY-MM-DD HH24:MI:SS')");
+                            output.Write("to_date('" + Convert.ToDateTime(data).ToString("yyyy-MM-dd HH:mm:ss") + "','YYYY-MM-DD HH24:MI:SS')");
                         else
                             output.Write(data);
                     }
