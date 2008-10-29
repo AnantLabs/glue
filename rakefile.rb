@@ -22,23 +22,17 @@ def unison(source, dest, options = {})
 end
 
 # Perform regex replace in file
-def filegsub(path, pattern, replacement)
-  text = File.readlines(path).join
-  text = text.gsub(pattern, replacement)
-  puts "============="
-  puts "File: #{path}"
-  puts "============="
-  puts text
-  puts
-end
-
-# set version in assemblyinfo.cs files
-def set_version(pathspec, version)
-  Dir.glob(pathspec).each do |path|
-    filegsub path, /AssemblyVersion\("[^"]+"\)/, "AssemblyVersion(\"#{version}\")"
+def filereplace(pathspec, pattern, replacement)
+  Dir.glob(pathspec) do |path|
+    oldtext = File.open(path, 'r').read()
+	newtext = oldtext.gsub(pattern, replacement)
+	if (oldtext != newtext) 
+	  File.open(path, 'w') { |f| f.write(newtext) } 
+	end
   end
 end
 
+# subversion tag 
 def tag(version)
   output = `svn info` 
   output =~ /^URL\: (.*$)/
@@ -57,7 +51,8 @@ end
 
 desc "Build project"
 task :build do
-  # set_version "src/*/AssemblyInfo.cs", "1.1"
+  filereplace "src/**/AssemblyInfo.cs", /Assembly(Informational)?Version(Attribute)?\(\"[0-9\.]+\"\)/, "Assembly\\1Version\\2(\"#$product_version\")"
+  filereplace "src/**/AssemblyVersion.cs", /Assembly(Informational)?Version(Attribute)?\(\"[0-9\.]+\"\)/, "Assembly\\1Version\\2(\"#$product_version\")"
   msbuild "src/#$product_name.sln", :target=>"build"
 end
 
