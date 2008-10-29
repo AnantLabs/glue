@@ -17,3 +17,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitleAttribute("Glue.Data.Oracle")]
 [assembly: AssemblyCompanyAttribute("Glue Project, http://www.glueproject.com")]
 [assembly: AssemblyCopyrightAttribute("Copyright Glue Project 2008")]
+[assembly: AssemblyVersionAttribute("0.9.10")]
+[assembly: AssemblyInformationalVersionAttribute("0.9.10")]
+
