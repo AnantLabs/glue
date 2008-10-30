@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 
 namespace Glue.Lib
@@ -48,8 +49,10 @@ namespace Glue.Lib
             if (instance == null)
                 return null;
 
-            return Assign(instance, bag, errors);
+            return Assign(instance, bag, CultureInfo.CurrentCulture, errors);
         }
+
+        
 
         /// <summary>
         /// Assign values in bag to given instance.
@@ -57,8 +60,17 @@ namespace Glue.Lib
         /// </summary>
         public static object Assign(object instance, IDictionary bag)
         {
+            return Assign(instance, bag, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Assign values in bag to given instance.
+        /// Throws CombinedException on error.
+        /// </summary>
+        public static object Assign(object instance, IDictionary bag, IFormatProvider culture)
+        {
             CombinedException errors = new CombinedException();
-            Assign(instance, bag, errors);
+            Assign(instance, bag, culture, errors);
             if (errors.Count > 0)
                 throw errors;
             return instance;
@@ -68,6 +80,14 @@ namespace Glue.Lib
         /// Assign values in bag to given instance.
         /// </summary>
         public static object Assign(object instance, IDictionary bag, CombinedException errors)
+        {
+            return Assign(instance, bag, CultureInfo.InvariantCulture, errors);
+        }
+
+        /// <summary>
+        /// Assign values in bag to given instance.
+        /// </summary>
+        public static object Assign(object instance, IDictionary bag, IFormatProvider culture, CombinedException errors)
         {
             Type type = instance.GetType();
             MemberHelper[] members = MemberHelper.GetFieldsOrProperties(type, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
@@ -81,7 +101,7 @@ namespace Glue.Lib
                     object value = bag[name];
                     if (value != null)
                     {
-                        Assign(instance, member, value, errors);
+                        Assign(instance, member, value, culture, errors);
                     }
                 }
                 catch (Exception e)
@@ -100,7 +120,7 @@ namespace Glue.Lib
         /// fill parameters in calls to methods. In that case owner will always
         /// be null.
         /// </summary>
-        static void Assign(object owner, MemberHelper info, object value, CombinedException errors)
+        static void Assign(object owner, MemberHelper info, object value, IFormatProvider culture, CombinedException errors)
         {
             if (value is IDictionary)
             {
@@ -177,7 +197,7 @@ namespace Glue.Lib
                 object current = info.GetValue(owner, null);
                 if (current != null)
                 {
-                    Assign(current, value as IDictionary, errors);
+                    Assign(current, value as IDictionary, culture, errors);
                 }
                 else
                 {
@@ -261,13 +281,34 @@ namespace Glue.Lib
                 else if (info.Type == typeof(Double))
                 {
                     if (!NullConvert.IsNullOrEmpty(value))
-                        info.SetValue(owner, Convert.ToDouble(value), null);
+                    {
+                        if (value.GetType() == typeof(string))
+                            info.SetValue(owner, Double.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                        else
+                            info.SetValue(owner, Convert.ToDouble(value), null);
+                    }
                 }
                 else if (info.Type == typeof(Single))
                 {
                     if (!NullConvert.IsNullOrEmpty(value))
-                        info.SetValue(owner, Convert.ToSingle(value), null);
+                    {
+                        if (value.GetType() == typeof(string))
+                            info.SetValue(owner, Single.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                        else
+                            info.SetValue(owner, Convert.ToSingle(value), null);
+                    }
                 }
+                else if (info.Type == typeof(Decimal))
+                {
+                    if (!NullConvert.IsNullOrEmpty(value))
+                    {
+                        if (value.GetType() == typeof(string))
+                            info.SetValue(owner, Decimal.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                        else
+                            info.SetValue(owner, Convert.ToSingle(value), null);
+                    }
+                }
+
                 else
                 {
                     TypeConverter converter = TypeDescriptor.GetConverter(info.Type);
@@ -435,7 +476,7 @@ namespace Glue.Lib
                 
                     if (value != null)
                     {
-                        Assign(null, param, value, errors);
+                        Assign(null, param, value, CultureInfo.CurrentCulture, errors);
                         args[i] = param.GetValue(null, null);
                     }
                 }
