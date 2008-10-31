@@ -26,8 +26,17 @@ namespace Glue.Lib
         /// </summary>
         public static object Create(Type type, IDictionary bag)
         {
+            return Create(type, bag, CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Create an instance of given type. Construct it with data in bag.
+        /// Throws CombinedException on error.
+        /// </summary>
+        public static object Create(Type type, IDictionary bag, IFormatProvider culture)
+        {
             CombinedException errors = new CombinedException();
-            object instance = Create(type, bag, errors);
+            object instance = Create(type, bag, culture, errors);
             if (errors.Count > 0)
                 throw errors;
             return instance;
@@ -37,6 +46,14 @@ namespace Glue.Lib
         /// Create an instance of given type. Construct it with data in bag.
         /// </summary>
         public static object Create(Type type, IDictionary bag, CombinedException errors)
+        {
+            return Create(type, bag, CultureInfo.InvariantCulture, errors);
+        }
+
+        /// <summary>
+        /// Create an instance of given type. Construct it with data in bag.
+        /// </summary>
+        public static object Create(Type type, IDictionary bag, IFormatProvider culture, CombinedException errors)
         {
             if (type.IsAbstract || type.IsInterface ) 
                 return null;
@@ -49,7 +66,7 @@ namespace Glue.Lib
             if (instance == null)
                 return null;
 
-            return Assign(instance, bag, CultureInfo.CurrentCulture, errors);
+            return Assign(instance, bag, culture, errors);
         }
 
         
@@ -177,7 +194,7 @@ namespace Glue.Lib
                 {
                     // We'are dealing with an object.
                     // If it's writable try to create and set a new object.
-                    object newinst = Create(info.Type, value as IDictionary, errors);
+                    object newinst = Create(info.Type, value as IDictionary, culture, errors);
                     if (newinst != null)
                     {
                         info.SetValue(owner, newinst, null);
@@ -283,7 +300,7 @@ namespace Glue.Lib
                     if (!NullConvert.IsNullOrEmpty(value))
                     {
                         if (value.GetType() == typeof(string))
-                            info.SetValue(owner, Double.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                            info.SetValue(owner, Double.Parse((string)value, NumberStyles.Number, culture), null);
                         else
                             info.SetValue(owner, Convert.ToDouble(value), null);
                     }
@@ -293,7 +310,7 @@ namespace Glue.Lib
                     if (!NullConvert.IsNullOrEmpty(value))
                     {
                         if (value.GetType() == typeof(string))
-                            info.SetValue(owner, Single.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                            info.SetValue(owner, Single.Parse((string)value, NumberStyles.Number, culture), null);
                         else
                             info.SetValue(owner, Convert.ToSingle(value), null);
                     }
@@ -303,7 +320,7 @@ namespace Glue.Lib
                     if (!NullConvert.IsNullOrEmpty(value))
                     {
                         if (value.GetType() == typeof(string))
-                            info.SetValue(owner, Decimal.Parse((string)value, NumberStyles.AllowThousands, culture), null);
+                            info.SetValue(owner, Decimal.Parse((string)value, NumberStyles.Number, culture), null);
                         else
                             info.SetValue(owner, Convert.ToSingle(value), null);
                     }
