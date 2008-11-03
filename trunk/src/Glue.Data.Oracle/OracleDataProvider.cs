@@ -15,7 +15,7 @@ namespace Glue.Data.Providers.Oracle
     {
         private static string BuildConnectionString(string server, string database, string username, string password)
         {
-            return "Data Source =(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=" + server + ")(PORT=1521))(CONNECT_DATA=(SID=" + database + "))); User Id=" + username + "; Password=" + password + ";";
+            return "Data Source =(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=" + server + ")(PORT=1521))(CONNECT_DATA=(SID=" + database + "))); Unicode=True; User Id=" + username + "; Password=" + password + ";";
         }
 
         public OracleDataProvider(string connectionString)
