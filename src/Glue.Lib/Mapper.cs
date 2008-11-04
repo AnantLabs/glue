@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
@@ -106,9 +107,33 @@ namespace Glue.Lib
         /// </summary>
         public static object Assign(object instance, IDictionary bag, IFormatProvider culture, CombinedException errors)
         {
+            return AssignAllowed(instance, bag, null, culture, errors);
+        }
+
+        public static object AssignAllowed(object instance, IDictionary bag, string allowed, IFormatProvider culture)
+        {
+            CombinedException errors = new CombinedException();
+            AssignAllowed(instance, bag, allowed, culture, errors);
+            if (errors.Count > 0)
+                throw errors;
+            return instance;
+        }
+
+        /// <summary>
+        /// Assign values in bag to given instance. 'allowed' is a comma separated list of names of fields/properties that may be assigned to.
+        /// </summary>
+        public static object AssignAllowed(object instance, IDictionary bag, string allowed, IFormatProvider culture, CombinedException errors)
+        {
             Type type = instance.GetType();
             MemberHelper[] members = MemberHelper.GetFieldsOrProperties(type, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-            foreach (MemberHelper member in members)
+            List<string> allowedList = new List<string>(allowed.Split(','));
+            List<string> notAllowed = CheckAllowed(type, bag, allowedList, "");
+
+            if (notAllowed.Count > 0)
+            {
+                errors.Add("Acces not allowed to fields or properties: " + String.Join(",", notAllowed.ToArray()));
+            }
+            else foreach (MemberHelper member in members)
             {
                 try
                 {
@@ -117,17 +142,41 @@ namespace Glue.Lib
 
                     object value = bag[name];
                     if (value != null)
-                    {
                         Assign(instance, member, value, culture, errors);
-                    }
                 }
                 catch (Exception e)
                 {
                     errors.Add(member.Name, e);
                 }
             }
-
             return instance;
+        }
+
+        static List<string> CheckAllowed(Type type, IDictionary bag, List<string> allowedList, string prefix)
+        {
+            List<string> notAllowed = new List<string>();
+            MemberHelper[] members = MemberHelper.GetFieldsOrProperties(type, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
+            Dictionary<string, MemberHelper> memberDict = new Dictionary<string,MemberHelper>();
+            foreach (MemberHelper member in members)
+            {   // add all members to a dictionary, to be able to look them up by name.
+                string memberName = member.Name.ToLower();
+                if (memberDict.ContainsKey(memberName)) 
+                    throw new Exception("Duplicate member name in case-insensitive member list: " + type.Name + "." + member.Name);
+                memberDict[member.Name.ToLower()] = member;
+            }
+
+            foreach (DictionaryEntry item in bag)
+            {
+                string memberName = ((string)item.Key).ToLower();
+                if (memberDict.ContainsKey(memberName))
+                {
+                    if (item.Value is IDictionary && !allowedList.Contains(prefix + memberName))
+                        notAllowed.AddRange(CheckAllowed(memberDict[memberName].Type, (IDictionary)item.Value, allowedList, prefix + memberName + "."));
+                    else if (!allowedList.Contains(prefix + memberName))
+                        notAllowed.Add(prefix + memberName);
+                }
+            }
+            return notAllowed;
         }
     
         /// <summary>
