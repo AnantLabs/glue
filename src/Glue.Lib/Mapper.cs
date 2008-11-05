@@ -175,7 +175,7 @@ namespace Glue.Lib
                 if (memberDict.ContainsKey(memberName))
                 {
                     if (item.Value is IDictionary && !allowedList.Contains(prefix + memberName))
-                        notAllowed.AddRange(CheckAllowed(memberDict[memberName].Type, (IDictionary)item.Value, allowedList, prefix + memberName + "."));
+                        notAllowed.AddRange( CheckAllowed(memberDict[memberName].Type, (IDictionary)item.Value, allowedList, prefix + memberName + ".") );
                     else if (!allowedList.Contains(prefix + memberName))
                         notAllowed.Add(prefix + memberName);
                 }

@@ -46,6 +46,8 @@ namespace Glue.Lib
             if (exception is CombinedException)
             {
                 CombinedException other = exception as CombinedException;
+                if (other == this)
+                    throw new ArgumentException("CombinedException cannot add itself to itself.");
                 for(int n=0; n < other.Count; n++)
 					this.Add(other.Members[n], other[n]);
             }
