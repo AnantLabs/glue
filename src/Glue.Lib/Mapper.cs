@@ -126,29 +126,33 @@ namespace Glue.Lib
         {
             Type type = instance.GetType();
             MemberHelper[] members = MemberHelper.GetFieldsOrProperties(type, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
-            List<string> allowedList = new List<string>(allowed.Split(','));
-            List<string> notAllowed = CheckAllowed(type, bag, allowedList, "");
-
-            if (notAllowed.Count > 0)
+            if (allowed != null)
             {
-                errors.Add("Acces not allowed to fields or properties: " + String.Join(",", notAllowed.ToArray()));
-            }
-            else foreach (MemberHelper member in members)
-            {
-                try
-                {
-                    // TODO: Handle attribute to remap names
-                    string name = member.Name;
+                List<string> allowedList = new List<string>(allowed.Split(','));
+                List<string> notAllowed = CheckAllowed(type, bag, allowedList, "");
 
-                    object value = bag[name];
-                    if (value != null)
-                        Assign(instance, member, value, culture, errors);
-                }
-                catch (Exception e)
+                if (notAllowed.Count > 0)
                 {
-                    errors.Add(member.Name, e);
+                    errors.Add("Acces not allowed to fields or properties: " + String.Join(",", notAllowed.ToArray()));
+                    return instance;
                 }
             }
+            foreach (MemberHelper member in members)
+                {
+                    try
+                    {
+                        // TODO: Handle attribute to remap names
+                        string name = member.Name;
+
+                        object value = bag[name];
+                        if (value != null)
+                            Assign(instance, member, value, culture, errors);
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add(member.Name, e);
+                    }
+                }
             return instance;
         }
 
