@@ -175,15 +175,21 @@ namespace Glue.Data.Mapping
 
         static string GetIntoDataExpression(EntityMember member, string sourceExpression)
         {
+            string s = "";
+            
             if (member.Column.GenericNullable)
-                return "((" + sourceExpression + ") == null ? DBNull.Value : (object)(" + sourceExpression + "))";
+                s = "((" + sourceExpression + ") == null ? DBNull.Value : (object)(" + sourceExpression + "))";
             else if (member.Column.Nullable)
                 if (member.Column.ConventionalNullValue != null)
-                    return "NullConvert.From(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
+                    s = "NullConvert.From(" + sourceExpression + ", " + member.Column.ConventionalNullValue + ")";
                 else
-                    return "NullConvert.From(" + sourceExpression + ")";
+                    s = "NullConvert.From(" + sourceExpression + ")";
             else
-                return sourceExpression;
+                s = sourceExpression;
+
+            if (member.Column.MaxLength != 0)
+                s = "CheckLength(" + s + ", " + member.Column.MaxLength + ", \"" + member.Name + "\")";
+            return s;
         }
     }
 }
