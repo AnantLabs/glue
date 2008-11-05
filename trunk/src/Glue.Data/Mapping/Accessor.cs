@@ -144,6 +144,16 @@ namespace Glue.Data.Mapping
         }
         
         /// <summary>
+        /// Throws exception if value is a string and value is longer than maxlength/
+        /// </summary>
+        public object CheckLength(object value, int maxlength, string name)
+        {
+            if (value != null && value is string && ((string)value).Length > maxlength)
+                throw new ArgumentOutOfRangeException(name, "String too long");
+            return value;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         public abstract void InitFromReaderDynamic(object instance, IDataReader reader, IDictionary fieldOrdinalMap);
