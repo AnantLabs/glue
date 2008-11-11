@@ -66,7 +66,7 @@ namespace Glue.Data.Providers.Oracle
                         if (data == DBNull.Value)
                             output.Write("null");
                         else if (col.Type == "NVARCHAR" || col.Type == "NVARCHAR2" || col.Type == "VARCHAR" || col.Type == "CHAR" || col.Type == "VARCHAR2")
-                            output.Write("'" + data + "'");
+                            output.Write(EscapeString(data.ToString()));
                         else if (col.Type == "DATE")
                             output.Write("to_date('" + Convert.ToDateTime(data).ToString("yyyy-MM-dd HH:mm:ss") + "','YYYY-MM-DD HH24:MI:SS')");
                         else
@@ -76,5 +76,40 @@ namespace Glue.Data.Providers.Oracle
                 }
         }
 
+        public static string EscapeString(string s)
+        {
+            StringBuilder d = new StringBuilder(s.Length);
+            int mode = 0;
+            for (int i = 0; i < s.Length; i++)
+            {
+                switch (s[i])
+                {
+                    case '&':
+                    case '\'':
+                    case '\n':
+                    case '\r':
+                    case '\t':
+                    case '\\':
+                        if (mode == 1) // in string
+                            d.Append("'||");
+                        else if (mode == 2) // in escape
+                            d.Append("||");
+                        d.Append("chr(" + (int)s[i] + ")");
+                        mode = 2;
+                        break;
+                    default:
+                        if (mode == 0) // beginning
+                            d.Append('\'');
+                        if (mode == 2) // in escape
+                            d.Append("||'");
+                        mode = 1; // in string
+                        d.Append(s[i]);
+                        break;
+                }
+            }
+            if (mode == 1)
+                d.Append('\'');
+            return d.ToString();
+        }
     }
 }
