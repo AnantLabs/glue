@@ -54,9 +54,16 @@ namespace Glue.Lib.Text
             return this;
         }
 
+        public HtmlBuilder Attr(IDictionary attributes)
+        {
+            foreach (DictionaryEntry e in attributes)
+                Attr("" + e.Key, e.Value);
+            return this;
+        }
+
         public HtmlBuilder Attr(string name, object value)
         {
-            if (value == null || value == DBNull.Value)
+            if (name == null || name.Length == 0 || value == null || value == DBNull.Value)
                 return this;
             string v;
             if (value is Boolean)
@@ -65,6 +72,11 @@ namespace Glue.Lib.Text
                 v = value as string;
             if (v == null)
                 v = Convert.ToString(value);
+            if (name == "disabled")
+                if (v == null || v == "no" || v == "" || v == "false" || v == "0")
+                    return this;
+                else
+                    v = "disabled";
             //if (v.Length == 0)
                 //return this;
             if (!skip)
