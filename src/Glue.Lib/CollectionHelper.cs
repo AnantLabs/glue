@@ -59,10 +59,7 @@ namespace Glue.Lib
                     string k = key.Substring(i, j - i);
                     IDictionary sub = current[k] as IDictionary;
                     if (sub == null)
-                    {
-                        sub = new HybridDictionary(true);
-                        current[k] = sub;
-                    }
+                        current[k] = sub = new HybridDictionary(true);
                     i = j + 1;
                     j = key.IndexOf(Separator, i);
                     current = sub;
@@ -77,31 +74,94 @@ namespace Glue.Lib
 
         /// <summary>
         /// Utility function to convert a param list (consisting of 
-        /// alternating key/value pairs) to a case-insensitive dictionary.
+        /// alternating key/value pairs) to a case-insensitive hierarchical 
+        /// dictionary.
         /// 
-        /// CollectionHelper.ToBag("name", "John", "age", 25) => { "name" => "John", "age", 25 }
+        /// CollectionHelper.ToBag("name", "John", "age", 25, "address.street", "Elm St") => { "name" => "John", "age", 25, "addres" => { "street" => "Elm St" } }
         /// </summary>
         public static IDictionary ToBag(params object[] namevalues)
         {
             HybridDictionary bag = new HybridDictionary(namevalues.Length / 2, true);
-            int i = 0;
-            while (i < namevalues.Length - 1)
-                bag.Add(namevalues[i++], namevalues[i++]);
+            int m = 0;
+            while (m < namevalues.Length - 1)
+            {
+                string key = namevalues[m++].ToString();
+                IDictionary current = bag;
+                int i = 0;
+                int j = key.IndexOf(Separator);
+                while (j >= 0)
+                {
+                    string k = key.Substring(i, j - i);
+                    IDictionary sub = current[k] as IDictionary;
+                    if (sub == null)
+                        current[k] = sub = new HybridDictionary(true);
+                    i = j + 1;
+                    j = key.IndexOf(Separator, i);
+                    current = sub;
+                }
+                current[key.Substring(i)] = namevalues[m++];
+            }
             return bag;
         }
 
         /// <summary>
         /// Utility function to convert a param list (consisting of 
-        /// alternating key/value pairs) to a case-insensitive dictionary.
+        /// alternating key/value pairs) to a case-insensitive hierarchical 
+        /// dictionary.
         /// 
-        /// CollectionHelper.ToOrderedBag("name", "John", "age", 25) => { "name" => "John", "age", 25 }
+        /// CollectionHelper.ToOrderedBag("name", "John", "age", 25) => { "age" => 25, "name" => "John" }
         /// </summary>
         public static IDictionary ToOrderedBag(params object[] namevalues)
         {
             OrderedDictionary bag = new OrderedDictionary(namevalues.Length / 2);
-            int i = 0;
-            while (i < namevalues.Length - 1)
-                bag.Add(namevalues[i++], namevalues[i++]);
+            int m = 0;
+            while (m < namevalues.Length - 1)
+            {
+                string key = namevalues[m++].ToString();
+                IDictionary current = bag;
+                int i = 0;
+                int j = key.IndexOf(Separator);
+                while (j >= 0)
+                {
+                    string k = key.Substring(i, j - i);
+                    IDictionary sub = current[k] as IDictionary;
+                    if (sub == null)
+                        current[k] = sub = new OrderedDictionary();
+                    i = j + 1;
+                    j = key.IndexOf(Separator, i);
+                    current = sub;
+                }
+                current[key.Substring(i)] = namevalues[m++];
+            }
+            return bag;
+        }
+
+        public static IDictionary Intersect(IDictionary a, string[] keys)
+        {
+            IDictionary bag = new HybridDictionary(true);
+            foreach (string key in keys)
+            {
+                IDictionary dest = bag;
+                IDictionary source = a;
+                int i = 0;
+                int j = key.IndexOf(Separator);
+                while (j >= 0)
+                {
+                    string k = key.Substring(i, j - i);
+                    source = source[k] as IDictionary;
+                    if (source == null)
+                        goto next;
+                    IDictionary sub = dest[k] as IDictionary;
+                    if (sub == null)
+                        dest[k] = sub = new HybridDictionary(true);
+                    i = j + 1;
+                    j = key.IndexOf(Separator, i);
+                    dest = sub;
+                }
+                dest[key.Substring(i)] = source[key.Substring(i)];
+            next:
+                ;
+            }
             return bag;
         }
 
