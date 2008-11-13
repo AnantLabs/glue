@@ -26,7 +26,7 @@ namespace Glue.Data.Providers.Oracle
         public static IList<Column> GetColumns(OracleDataProvider provider, string table)
         {
             List<Column> columns = new List<Column>();
-            using (System.Data.IDataReader reader = provider.ExecuteReader("select * from sys.all_tab_columns where owner='TEST' and table_name='" + table + "' order by column_id"))
+            using (System.Data.IDataReader reader = provider.ExecuteReader("select * from sys.user_tab_columns where table_name='" + table + "' order by column_id"))
             while (reader.Read())
             {
                 Column c = new Column();
