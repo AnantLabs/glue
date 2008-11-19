@@ -23,6 +23,30 @@ namespace Glue.Data.Providers.Oracle
             public bool Nullable;
         }
 
+        public static IDataReader ExecuteCursorProc(OracleDataProvider provider, string package, string name, IDictionary args)
+        {
+            System.Data.OracleClient.OracleCommand command = (System.Data.OracleClient.OracleCommand)provider.CreateStoredProcedureCommand(package + "." + name);
+
+            using (System.Data.IDataReader cols = provider.ExecuteReader("select * from sys.user_arguments where object_name='" + name + "' and package_name='" + package + "' order by position"))
+                while (cols.Read())
+                {
+                    System.Data.OracleClient.OracleParameter parm;
+                    if ("" + cols["DATA_TYPE"] == "REF CURSOR")
+                    {
+                        parm = new OracleParameter("" + cols["ARGUMENT_NAME"], OracleType.Cursor);
+                        parm.OracleType = OracleType.Cursor;
+                        parm.Direction = ParameterDirection.Output;
+                    }
+                    else
+                    {
+                        parm = new OracleParameter("" + cols["ARGUMENT_NAME"], args[cols["ARGUMENT_NAME"]]);
+                        parm.Direction = System.Data.ParameterDirection.Input;
+                    }
+                    command.Parameters.Add(parm);
+                }
+            return provider.ExecuteReader(command);
+        }
+
         public static IList<Column> GetColumns(OracleDataProvider provider, string table)
         {
             List<Column> columns = new List<Column>();
