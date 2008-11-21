@@ -274,7 +274,7 @@ namespace Glue.Lib
                             args
                             );
                     foreach (LogAppender appender in _appenders)
-                        try   { appender.Write(level, dt, threadid, msg); }
+                        try   { appender.Write(level, msg); }
                         catch { }
                 }
             }
@@ -315,7 +315,7 @@ namespace Glue.Lib
         public virtual void Close()
         {
         }
-        public abstract void Write(Level level, DateTime dt, int threadid, string msg);
+        public abstract void Write(Level level, string msg);
     }
 
     /// <summary>
@@ -355,13 +355,13 @@ namespace Glue.Lib
         {
         }
 
-        public string FormatLine(Level level, DateTime dt, int threadid, string msg)
+        public string FormatLine(Level level, string msg)
         {
             string line = string.Format(
                 System.Globalization.CultureInfo.InvariantCulture,
                 "{0:yyyy-MM-dd HH:mm:ss,fff} [{1:X4}] {2,-8} ",
-                dt,
-                threadid,
+                DateTime.Now,
+                System.Threading.Thread.CurrentThread.ManagedThreadId,
                 Log.LevelText[(int)level]
                 );
             int indent = line.Length;
@@ -370,9 +370,9 @@ namespace Glue.Lib
             return line + msg;
         }
 
-        public override void Write(Level level, DateTime dt, int threadid, string msg)
+        public override void Write(Level level, string msg)
         {
-            System.Diagnostics.Debug.WriteLine(FormatLine(level, dt, threadid, msg));
+            System.Diagnostics.Debug.WriteLine(FormatLine(level, msg));
         }
     }
     
@@ -409,7 +409,7 @@ namespace Glue.Lib
         {
         }
 
-        public override void Write(Level level, DateTime dt, int threadid, string msg)
+        public override void Write(Level level, string msg)
         {
             ConsoleColor color = Console.ForegroundColor;
             if (level == Level.Error || level == Level.Fatal)
@@ -420,7 +420,7 @@ namespace Glue.Lib
                 Console.ForegroundColor = ConsoleColor.White;
             else
                 Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(FormatLine(level, dt, threadid, msg));
+            Console.WriteLine(FormatLine(level, msg));
         }
     }
 
@@ -504,11 +504,11 @@ namespace Glue.Lib
             writer = null;
         }
 
-        public override void Write(Level level, DateTime dt, int threadid, string msg)
+        public override void Write(Level level, string msg)
         {
             if (DateTime.Now > check)
                 RollOver();
-            writer.WriteLine(FormatLine(level, dt, threadid, msg));
+            writer.WriteLine(FormatLine(level, msg));
             writer.Flush();
         }
     }
