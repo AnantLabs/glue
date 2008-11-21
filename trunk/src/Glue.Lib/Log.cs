@@ -70,7 +70,7 @@ namespace Glue.Lib
     {
         // Static members
 
-        private static string[] LevelText = {"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
+        public static string[] LevelText = {"FATAL", "ERROR", "WARN", "INFO", "DEBUG"};
 
         public static Log Instance
         {
@@ -263,27 +263,18 @@ namespace Glue.Lib
             {
                 if (level <= _level)
                 {
-                    System.Threading.Thread x = System.Threading.Thread.CurrentThread;
-                    string h = string.Format(
-                            System.Globalization.CultureInfo.InvariantCulture, 
-                            "{0:yyyy-MM-dd HH:mm:ss,fff} [{1:X4}] {2,-8} ",
-                            DateTime.Now, 
-                            /* AppDomain.GetCurrentThreadId(), */
-                            System.Threading.Thread.CurrentThread.ManagedThreadId,
-                            LevelText[(int)level]
-                            );
-                    string m = args == null ? msg : string.Format(
-                            System.Globalization.CultureInfo.InvariantCulture, 
-                            msg, 
+                    int threadid = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                    DateTime dt = DateTime.Now;
+                    if (msg == null)
+                        msg = "";
+                    else if (args != null)
+                        msg = string.Format(
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            msg,
                             args
                             );
-                    if (m.IndexOf('\n') >= 0)
-                        m = m.Replace("\n", "\n" + new String(' ', h.Length));
-
-                    string s = h + m;
-
                     foreach (LogAppender appender in _appenders)
-                        try   { appender.Write(level, s); }
+                        try   { appender.Write(level, dt, threadid, msg); }
                         catch { }
                 }
             }
@@ -324,7 +315,7 @@ namespace Glue.Lib
         public virtual void Close()
         {
         }
-        public abstract void Write(Level level, string s);
+        public abstract void Write(Level level, DateTime dt, int threadid, string msg);
     }
 
     /// <summary>
@@ -364,9 +355,24 @@ namespace Glue.Lib
         {
         }
 
-        public override void Write(Level level, string s)
+        public string FormatLine(Level level, DateTime dt, int threadid, string msg)
         {
-            System.Diagnostics.Debug.WriteLine(s);
+            string line = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                "{0:yyyy-MM-dd HH:mm:ss,fff} [{1:X4}] {2,-8} ",
+                dt,
+                threadid,
+                Log.LevelText[(int)level]
+                );
+            int indent = line.Length;
+            if (msg != null && msg.IndexOf('\n') >= 0)
+                msg = msg.Replace("\n", "\n" + new String(' ', line.Length));
+            return line + msg;
+        }
+
+        public override void Write(Level level, DateTime dt, int threadid, string msg)
+        {
+            System.Diagnostics.Debug.WriteLine(FormatLine(level, dt, threadid, msg));
         }
     }
     
@@ -397,13 +403,13 @@ namespace Glue.Lib
     /// </code>
     /// </remarks>
     [System.Diagnostics.DebuggerNonUserCode]
-    public class ConsoleAppender : LogAppender
+    public class ConsoleAppender : DefaultAppender
     {
         public ConsoleAppender(XmlNode node)
         {
         }
 
-        public override void Write(Level level, string s)
+        public override void Write(Level level, DateTime dt, int threadid, string msg)
         {
             ConsoleColor color = Console.ForegroundColor;
             if (level == Level.Error || level == Level.Fatal)
@@ -414,8 +420,7 @@ namespace Glue.Lib
                 Console.ForegroundColor = ConsoleColor.White;
             else
                 Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(s);
-            Console.ForegroundColor = color;
+            Console.WriteLine(FormatLine(level, dt, threadid, msg));
         }
     }
 
@@ -456,7 +461,7 @@ namespace Glue.Lib
     /// </list>
     /// </p>
     /// </remarks>
-    public class FileAppender : LogAppender
+    public class FileAppender : DefaultAppender
     {
         TextWriter writer;
         string spec;
@@ -499,11 +504,11 @@ namespace Glue.Lib
             writer = null;
         }
 
-        public override void Write(Level level, string s)
+        public override void Write(Level level, DateTime dt, int threadid, string msg)
         {
             if (DateTime.Now > check)
                 RollOver();
-            writer.WriteLine(s);
+            writer.WriteLine(FormatLine(level, dt, threadid, msg));
             writer.Flush();
         }
     }
