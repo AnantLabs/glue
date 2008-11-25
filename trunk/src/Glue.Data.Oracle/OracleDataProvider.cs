@@ -13,9 +13,9 @@ namespace Glue.Data.Providers.Oracle
 {
     public class OracleDataProvider : BaseDataProvider
     {
-        private static string BuildConnectionString(string server, string database, string username, string password)
+        private static string BuildConnectionString(string server, string database, int port, string username, string password)
         {
-            return "Data Source =(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=" + server + ")(PORT=1521))(CONNECT_DATA=(SID=" + database + "))); Unicode=True; User Id=" + username + "; Password=" + password + ";";
+            return "Data Source =(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=" + server + ")(PORT=" + port + "))(CONNECT_DATA=(SID=" + database + "))); Unicode=True; User Id=" + username + "; Password=" + password + ";";
         }
 
         public OracleDataProvider(string connectionString)
@@ -24,7 +24,7 @@ namespace Glue.Data.Providers.Oracle
         }
 
         public OracleDataProvider(string server, string database, string username, string password)
-            : base(BuildConnectionString(server, database, username, password))
+            : base(BuildConnectionString(server, database, 1521, username, password))
         {
         }
 
@@ -37,7 +37,8 @@ namespace Glue.Data.Providers.Oracle
                 string database = Configuration.GetAttr(node, "database");
                 string username = Configuration.GetAttr(node, "username", null);
                 string password = Configuration.GetAttr(node, "password", null);
-                _connectionString = BuildConnectionString(server, database, username, password);
+                int port = Configuration.GetAttrUInt(node, "port", 1521);
+                _connectionString = BuildConnectionString(server, database, port, username, password);
             }
         }
 
