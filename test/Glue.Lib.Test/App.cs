@@ -75,6 +75,10 @@ namespace Glue.Lib.Test
             // Mail
             MailTest mailTest = new MailTest();
             mailTest.TestSpecialChars();
+
+            // Log
+            LogTest logTest = new LogTest();
+            logTest.Test();
         }
     }
 }
