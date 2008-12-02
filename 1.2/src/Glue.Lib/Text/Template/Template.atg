@@ -1,0 +1,270 @@
+//run: coco %1 -namespace Glue.Lib.Text.Template
+using Glue.Lib.Text.Template;
+using Glue.Lib.Text.Template.AST;
+
+COMPILER Root
+
+  string identifier = "";
+  Unit unit = null;
+
+  public Unit Unit
+  {
+      get { return unit; }
+  }
+
+  void Err(string msg) 
+  {
+      errors.Error(la.line, la.col, msg);
+  }
+
+  void L(string fmt, params object[] args) 
+  {
+      Console.WriteLine(fmt, args);
+  }
+
+  int ConvertToNumber(string s) 
+  {
+      return Convert.ToInt32(s);
+  }
+
+  bool ConvertToBool(string s) 
+  {
+      return string.Compare(s, "true", true) == 0 || string.Compare(s, "yes", true) == 0;
+  }
+
+  string ConvertToString(string s) 
+  {
+      if (s != null && s.Length >= 2) 
+      {
+          if (s[0] == '"' && s[s.Length - 1] == '"')
+          {
+              s = s.Substring(1, s.Length - 2);
+          }
+          else if (s[0] == '\'' && s[s.Length - 1] == '\'')
+          {
+              s = s.Substring(1, s.Length - 2);
+          }
+      }
+      return s.Replace("\\r", "\r").Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\"", "\"").Replace("\\'", "'");
+  }
+
+  bool IsNamedArgument() 
+  {
+      Token next = scanner.Peek();
+      return la.kind == _ident && next.val == "=";
+  }
+
+ 
+/*--------------------------------------------------------------------------*/
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
+  digit  = "0123456789".
+  cr     = '\r'.
+  lf     = '\n'.
+  tab    = '\t'.
+  lit     = ANY - '#' - '$'.
+  stringchar1 = ANY - '"' - '\\' - cr - lf.
+  stringchar2 = ANY - '\'' - '\\' - cr - lf.
+
+TOKENS
+  string        = '"'  {stringchar1|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} '"' | 
+                  '\'' {stringchar2|"\\r"|"\\n"|"\\t"|"\\\""|"\\'"|"\\\\"} '\''.
+  ident         = letter {letter | digit}.
+  number        = digit {digit}.
+
+
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO cr lf
+
+IGNORE '\t' + '\r' + '\n'
+
+PRODUCTIONS
+
+Root
+=                                       (. unit = new Unit(t); .)
+  Block<unit.Inner>
+.
+
+Block<ElementList list>
+= {                                     (. Statement stm; .)
+    Statement <out stm>                 (. list.Add(stm); .)
+  }
+.
+
+Statement<out Statement stm>            (. stm = null; .)
+= PutStatement<out stm>
+| ForStatement<out stm>
+| WhileStatement<out stm>
+| IfStatement<out stm>
+| AssignStatement<out stm>
+| ReturnStatement<out stm>
+| DefStatement<out stm>
+| TemplateStatement<out stm>
+| ApplyStatement<out stm>
+| HaltStatement<out stm>
+.
+
+PutStatement<out Statement stm>
+= "put"                                 (. PutStatement s = new PutStatement(t); .)
+  Expr <out s.Expression>               (. stm = s; .) 
+.
+
+HaltStatement<out Statement stm>
+= "halt"                                (. stm = new HaltStatement(t); .)
+.
+
+ForStatement<out Statement stm>
+= "for"                                 (. ForStatement s = new ForStatement(t); .)
+  Ident                                 (. s.Iterator = identifier; .)
+  "in"
+  Expr <out s.Container>
+  [
+    "counter"
+    Ident                               (. s.Counter = identifier; .)
+  ]
+  Block <s.Inner>
+  [ "alt"                               
+    Block <s.Alt>
+  ]
+  [ "sep"
+    Block <s.Sep>
+  ]
+  "end"                                 (. stm = s; .)
+.
+
+WhileStatement<out Statement stm>
+= "while"                               (. WhileStatement s = new WhileStatement(t); .)
+  Expr <out s.Test> 
+  Block <s.True>
+  [ "else"
+    Block <s.False>
+  ]
+  "end"                                 (. stm = s; .)
+.
+
+IfStatement<out Statement stm>
+= "if"                                  (. IfStatement s = new IfStatement(t); .)
+  Expr <out s.Test> 
+  Block <s.True>
+  [ "else"
+    Block <s.False>
+  ]
+  "end"                                 (. stm = s; .)
+.
+
+AssignStatement<out Statement stm>
+= "set"                                 
+  Ident                                 (. AssignStatement s = new AssignStatement(t, identifier); .)
+  '=' 
+  Expr <out s.Expression>               (. stm = s; .)
+.
+  
+ReturnStatement<out Statement stm>
+= "return"                              (. stm = new ReturnStatement(t); .)   
+.
+  
+TemplateStatement<out Statement stm>
+= "template"                            
+  Ident                                 (. TemplateDefinition s = new TemplateDefinition(t, identifier); .)
+  Block <s.Header>
+  [ 
+    "inner"
+    Block <s.Footer>
+  ]
+  "end"                                 (. stm = s; .)
+.
+  
+ApplyStatement<out Statement stm>
+= Ident                                 (. ApplyStatement s = new ApplyStatement(t, identifier); .)
+  Block <s.Inner>
+  "end"                                 (. stm = s; .)
+.
+  
+DefStatement<out Statement stm>
+= "def"                                 
+  Ident                                 (. MethodDefinition s = new MethodDefinition(t, identifier); .)
+  [ '(' [                               (. ParameterDefinition p; .)
+      Par <out p>                       (. s.Parameters.Add(p); .)
+      { ',' 
+        Par <out p>                     (. s.Parameters.Add(p); .)
+      }
+  ] ')' ]
+  Block <s.Inner>
+  "end"                                 (. stm = s; .)
+.
+
+Par<out ParameterDefinition par>
+= Ident                                 (. par = new ParameterDefinition(t, identifier); .)
+  [ '='                                 
+    Expr <out par.Default>
+  ]
+.
+  
+Arg<out Expression expr>                (. expr = null; .)
+= IF(IsNamedArgument()) 
+    Ident                               (. NamedArgumentExpression e = new NamedArgumentExpression(t, identifier); .)
+    '=' 
+    Expr <out e.Expression>             (. expr = e; .)
+| Expr <out expr>
+.
+
+Expr<out Expression expr>
+= WokExpr<out expr>
+  {                                             
+    ("&&"|"||"|"and"|"or"|"xor")        (. string op = t.val; Expression right; .)
+    WokExpr <out right>                 (. expr = new BinaryExpression(t, expr, op, right); .)
+  }
+.
+
+WokExpr<out Expression expr>
+= SimpleExpr<out expr>
+  {                                             
+    ("=="|"!="|"<="|">="|'<'|'>')       (. string op = t.val; Expression right; .)
+    SimpleExpr <out right>              (. expr = new BinaryExpression(t, expr, op, right); .)
+  }
+.
+
+SimpleExpr<out Expression expr>
+= Term <out expr>
+  {
+    ('+' | '-')                         (. string op = t.val; Expression right; .)
+    Term <out right>                    (. expr = new BinaryExpression(t, expr, op, right); .)
+  }
+.
+
+Term<out Expression expr>
+= Factor <out expr>
+  {
+    ('*' | '/' | '%')                   (. string op = t.val; Expression right; .)
+    Factor <out right>                  (. expr = new BinaryExpression(t, expr, op, right); .)
+  }
+.
+
+Factor<out Expression expr>             (. expr = null; .)
+= Qualident                             (. ReferenceExpression refexpr = new ReferenceExpression(t, identifier);
+                                           expr = refexpr; .)
+  ['('                                  (. Expression arg; .)
+    [ Arg <out arg>                     (. refexpr.Arguments.Add(arg); .)
+      { ',' Arg <out arg>               (. refexpr.Arguments.Add(arg); .)
+      }
+    ]
+    ')'
+  ]
+| number                                (. expr = new PrimitiveExpression(t, ConvertToNumber(t.val)); .)
+| string                                (. expr = new PrimitiveExpression(t, ConvertToString(t.val)); .)
+| ("true" | "false" | "yes" | "no")     (. expr = new PrimitiveExpression(t, ConvertToBool(t.val)); .)
+| ('-' | '+')                           (. string op = t.val; .)
+  Factor <out expr>                     (. expr = new BinaryExpression(t, new PrimitiveExpression(t, 0), op, expr); .)
+.
+
+Qualident
+= ident                                 (. identifier = t.val; .) 
+  { '.' ident                           (. identifier += "." + t.val; .)
+  }
+.
+
+Ident
+= ident                                 (. identifier = t.val; .)
+.
+
+END Root.
