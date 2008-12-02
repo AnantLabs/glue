@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B14142E6-FBA7-48E1-ABF2-946654A84869}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -52,6 +52,9 @@
       <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
       <Name>Glue.Lib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.build" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
