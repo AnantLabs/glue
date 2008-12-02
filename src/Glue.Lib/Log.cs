@@ -250,7 +250,8 @@ namespace Glue.Lib
         
         public void AddAppender(LogAppender appender)
         {
-            _appenders.Add(appender);   
+            _appenders.Add(appender);
+            appender.InitLevel(_level);
         }
 
         public void Write(Level level, Exception e)
@@ -267,22 +268,19 @@ namespace Glue.Lib
         {
             try 
             {
-                if (level <= _level)
-                {
-                    int threadid = System.Threading.Thread.CurrentThread.ManagedThreadId;
-                    DateTime dt = DateTime.Now;
-                    if (msg == null)
-                        msg = "";
-                    else if (args != null)
-                        msg = string.Format(
-                            System.Globalization.CultureInfo.InvariantCulture,
-                            msg,
-                            args
-                            );
-                    foreach (LogAppender appender in _appenders)
-                        try   { appender.Write(level, msg); }
-                        catch { }
-                }
+                int threadid = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                DateTime dt = DateTime.Now;
+                if (msg == null)
+                    msg = "";
+                else if (args != null)
+                    msg = string.Format(
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        msg,
+                        args
+                        );
+                foreach (LogAppender appender in _appenders)
+                    try   { appender.Write(level, msg); }
+                    catch { }
             }
             catch 
             {
@@ -316,9 +314,29 @@ namespace Glue.Lib
     ///   </logging>
     /// ]]>
     /// </code>
+    /// <p>
+    /// A level-attribute is optional. This sets the log level for one specific appender. The default value is the global log level.
+    /// </p>
     /// </remarks>
     public abstract class LogAppender
     {
+        /// <summary>
+        /// Log level
+        /// </summary>
+        public Level Level;
+
+        protected bool _usingDefaultLevel = true;
+
+        /// <summary>
+        /// Initialize log level for this appender
+        /// </summary>
+        /// <param name="defaultLevel">Default log level</param>
+        public virtual void InitLevel(Level defaultLevel)
+        {
+            if (_usingDefaultLevel)
+                Level = defaultLevel;
+        }
+
         public virtual void Close()
         {
         }
@@ -351,6 +369,9 @@ namespace Glue.Lib
     ///   </logging>
     /// ]]>
     /// </code>
+    /// <p>
+    /// A level-attribute is optional. This sets the log level for one specific appender. The default value is the global log level.
+    /// </p>
     /// </remarks>
     [System.Diagnostics.DebuggerNonUserCode]
     public class DefaultAppender : LogAppender
@@ -361,6 +382,12 @@ namespace Glue.Lib
 
         public DefaultAppender(XmlNode node)
         {
+            // Level
+            if (Configuration.GetAttr(node, "level", "") != "")
+            {
+                Level = (Level)Configuration.GetAttrEnum(node, "level", typeof(Level));
+                _usingDefaultLevel = false;
+            }
         }
 
         public string FormatLine(Level level, string msg)
@@ -380,6 +407,9 @@ namespace Glue.Lib
 
         public override void Write(Level level, string msg)
         {
+            if (level > Level)
+                return;
+
             System.Diagnostics.Debug.WriteLine(FormatLine(level, msg));
         }
     }
@@ -410,16 +440,28 @@ namespace Glue.Lib
     ///   </logging>
     /// ]]>
     /// </code>
+    /// <p>
+    /// A level-attribute is optional. This sets the log level for one specific appender. The default value is the global log level.
+    /// </p>
     /// </remarks>
     [System.Diagnostics.DebuggerNonUserCode]
     public class ConsoleAppender : DefaultAppender
     {
         public ConsoleAppender(XmlNode node)
         {
+            // Level
+            if (Configuration.GetAttr(node, "level", "") != "")
+            {
+                Level = (Level)Configuration.GetAttrEnum(node, "level", typeof(Level));
+                _usingDefaultLevel = false;
+            }
         }
 
         public override void Write(Level level, string msg)
         {
+            if (level > Level)
+                return;
+
             ConsoleColor color = Console.ForegroundColor;
             if (level == Level.Error || level == Level.Fatal)
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -469,6 +511,9 @@ namespace Glue.Lib
     /// <item>$exe$: process name</item>
     /// </list>
     /// </p>
+    /// <p>
+    /// A level-attribute is optional. This sets the log level for one specific appender. The default value is the global log level.
+    /// </p>
     /// </remarks>
     public class FileAppender : DefaultAppender
     {
@@ -480,6 +525,13 @@ namespace Glue.Lib
         public FileAppender(XmlNode node)
         {
             spec = Configuration.GetAttr(node, "file");
+
+            // Level
+            if (Configuration.GetAttr(node, "level", "") != "")
+            {
+                Level = (Level)Configuration.GetAttrEnum(node, "level", typeof(Level));
+                _usingDefaultLevel = false;
+            }
         }
 
         public void RollOver()
@@ -515,6 +567,9 @@ namespace Glue.Lib
 
         public override void Write(Level level, string msg)
         {
+            if (level > Level)
+                return;
+
             if (DateTime.Now > check)
                 RollOver();
             writer.WriteLine(FormatLine(level, msg));
@@ -550,13 +605,16 @@ namespace Glue.Lib
     /// </code>
     /// 
     /// <p>
-    /// The method-attribute is mandatory. Can be either "TCP" or "UDP".
-    /// </p>
-    /// <p>
     /// The category-attribute is mandatory. This should contain the name of the application or service. 
     /// </p>
     /// <p>
-    /// The port-attribute is optional. Default value is 514.
+    /// The method-attribute is optional. Can be either "TCP" or "UDP". Default is UDP.
+    /// </p>
+    /// <p>
+    /// A level-attribute is optional. This sets the log level for one specific appender. The default value is the global log level.
+    /// </p>
+    /// <p>
+    /// The port-attribute is optional. Default value is 514 for UDP, 1468 for TCP.
     /// </p>
     /// <p>
     /// The facility-attribute is optional. Default value is 'deamon'. Other possible values:
@@ -659,21 +717,21 @@ namespace Glue.Lib
             _server = Configuration.GetAttr(node, "server");
             
             // default: UDP
-            _method = Configuration.GetAttr(node, "method").ToUpper(); 
+            _method = Configuration.GetAttr(node, "method", "UDP").ToUpper(); 
 
-            if (_method == "UDP")
-            {
-                // UDP
-                _port = Configuration.GetAttrUInt(node, "port", 514);
-                _client = new UdpSyslogClient(_server, _port);
-            }
-            else
+            if (_method == "TCP")
             {
                 // TCP
                 _port = Configuration.GetAttrUInt(node, "port", 1468);
                 _client = new TcpSyslogClient(_server, _port);
             }
-
+            else
+            {
+                // UDP
+                _port = Configuration.GetAttrUInt(node, "port", 514);
+                _client = new UdpSyslogClient(_server, _port);
+            }
+            
             // facility
             _facility = (FacilityType) Configuration.GetAttrEnum(node, "facility", typeof(FacilityType), FacilityType.Daemon);
 
@@ -684,6 +742,13 @@ namespace Glue.Lib
 
             // local machine
             _machine = System.Net.Dns.GetHostName();
+
+            // Level
+            if (Configuration.GetAttr(node, "level", "") != "")
+            {
+                Level = (Level)Configuration.GetAttrEnum(node, "level", typeof(Level));
+                _usingDefaultLevel = false;
+            }
         }
 
         public override void Close()
@@ -704,6 +769,10 @@ namespace Glue.Lib
         public override void Write(Level level, string msg)
         {
             PriorityType priority;
+
+            // log this event with this appender?
+            if (level > Level)
+                return;
 
             switch (level)
             {
