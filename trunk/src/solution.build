@@ -47,6 +47,8 @@ doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
 		<nant buildfile="Glue.Lib/project.build" target="build"/>
 		<nant buildfile="Glue.Data/project.build" target="build"/>
 		<nant buildfile="Glue.Data.MySql/project.build" target="build"/>
+		<nant buildfile="Glue.Data.Oracle/project.build" target="build"/>
+		<nant buildfile="Glue.Data.PostgreSQL/project.build" target="build"/>
 		<nant buildfile="Glue.Data.SQLite/project.build" target="build"/>
 		<nant buildfile="Glue.Web/project.build" target="build"/>
 		<nant buildfile="Glue.Web.Python/project.build" target="build"/>
@@ -91,7 +93,7 @@ doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
 			program="svn"
 			commandline="export .. disttemp"
 		/>
-		<zip zipfile="Glue-src-1.1.zip">
+		<zip zipfile="Glue-src-1.2.zip">
 		    <fileset basedir="disttemp" prefix="">
 			<include name="**/*" />
 		    </fileset>
