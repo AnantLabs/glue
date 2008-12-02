@@ -210,7 +210,7 @@ namespace Glue.Lib
 #endif
                 return;
             }
-            fpath = Path.GetFullPath(fpath).ToLower();
+            fpath = Path.GetFullPath(fpath); //.ToLower();
 #if DEBUG
             Console.WriteLine("Configuration: loading: " + fpath);
 #endif
