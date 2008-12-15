@@ -136,6 +136,15 @@ namespace Glue.Lib.Compilation
             _imports = new StringCollection();
             _defaultLanguage = "c#";
             _tempDirectory = System.IO.Path.GetTempPath();
+			
+			/*
+            <compiler language='js;jscript;javascript' extension='.js' type='Microsoft.JScript.JScriptCodeProvider, Microsoft.JScript, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
+            <!--
+            <compiler language='VJ#;VJS;VJSharp' extension='.jsl' type='Microsoft.VJSharp.VJSharpCodeProvider, VJSharpCodeProvider, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
+            -->
+            <add assembly='System.EnterpriseServices, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
+            <add assembly='System.Web.Mobile, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
+            */
 
             // Load machine settings
             XmlDocument doc = new XmlDocument();
@@ -144,10 +153,6 @@ namespace Glue.Lib.Compilation
     <compilers>
         <compiler language='c#;cs;csharp' extension='.cs' type='Microsoft.CSharp.CSharpCodeProvider, System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089' warningLevel='1'/>
         <compiler language='vb;vbs;visualbasic;vbscript' extension='.vb' type='Microsoft.VisualBasic.VBCodeProvider, System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'/>
-        <compiler language='js;jscript;javascript' extension='.js' type='Microsoft.JScript.JScriptCodeProvider, Microsoft.JScript, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
-        <!--
-        <compiler language='VJ#;VJS;VJSharp' extension='.jsl' type='Microsoft.VJSharp.VJSharpCodeProvider, VJSharpCodeProvider, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
-        -->
     </compilers>
     <assemblies>
         <add assembly='mscorlib'/>
@@ -157,8 +162,6 @@ namespace Glue.Lib.Compilation
         <add assembly='System.Web.Services, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
         <add assembly='System.Xml, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'/>
         <add assembly='System.Drawing, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
-        <add assembly='System.EnterpriseServices, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
-        <add assembly='System.Web.Mobile, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'/>
         <add assembly='*'/>
     </assemblies>
 </compilation>"

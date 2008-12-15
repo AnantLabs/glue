@@ -48,6 +48,9 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.lib</AssemblyName>
+    <RootNamespace>Glue.Lib</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -69,12 +72,15 @@
     <WarningLevel>4</WarningLevel>
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.lib</AssemblyName>
+    <RootNamespace>Glue.Lib</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
@@ -419,12 +425,12 @@
     <None Include="Text\Template\Template.atg" />
     <None Include="Text\Yaml\Template.atg" />
     <EmbeddedResource Include="Xml\Sgml\frameset.dtd" />
-    <EmbeddedResource Include="Xml\Sgml\html.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\Html.dtd" />
     <EmbeddedResource Include="Xml\Sgml\htmllat1.ent" />
-    <EmbeddedResource Include="Xml\Sgml\htmlspecial.ent" />
-    <EmbeddedResource Include="Xml\Sgml\htmlsymbol.ent" />
+    <EmbeddedResource Include="Xml\Sgml\HTMLspecial.ent" />
+    <EmbeddedResource Include="Xml\Sgml\HTMLsymbol.ent" />
     <EmbeddedResource Include="Xml\Sgml\loose.dtd" />
-    <EmbeddedResource Include="Xml\Sgml\sloppy.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\Sloppy.dtd" />
     <EmbeddedResource Include="Xml\Sgml\strict.dtd">
       <SubType>Code</SubType>
     </EmbeddedResource>
@@ -439,5 +445,7 @@
     </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
+    <ProjectGuid>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</ProjectGuid>
+    <RootNamespace>Glue.Lib</RootNamespace>
   </PropertyGroup>
 </Project>

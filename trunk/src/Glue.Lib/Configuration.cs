@@ -78,7 +78,7 @@ namespace Glue.Lib
         [System.Diagnostics.DebuggerNonUserCode]
         public static object Get(string key)
         {
-            return Get(key, null);
+			return Get(key, null);
         }
 
         static string[] _rootdependency = {"#Glue.Lib.Configuration#"};
@@ -98,7 +98,7 @@ namespace Glue.Lib
                 Type t = null;
                 XmlNode n = GetElement(key);
                 if (n == null)
-                {
+				{
                     t = type;
                 }
                 else
