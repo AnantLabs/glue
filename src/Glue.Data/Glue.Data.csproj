@@ -25,6 +25,11 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\glue.data.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.data</AssemblyName>
+    <RootNamespace>Glue.Data</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +40,12 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\glue.data.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.data</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <RootNamespace>Glue.Data</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
