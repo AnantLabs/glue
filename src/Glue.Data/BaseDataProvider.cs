@@ -890,7 +890,7 @@ namespace Glue.Data
             {
                 QueryBuilder s = CreateQueryBuilder();
                 s.Append("DELETE FROM ");
-                s.Append(info.Entity.Table.Name);
+                s.Identifier(info.Entity.Table.Name);
                 s.AppendLine(" WHERE ");
                 s.ColumnsParameters(info.Entity.KeyMembers, "=", " AND ");
 
