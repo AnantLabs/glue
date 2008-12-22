@@ -1,0 +1,451 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>glue.lib</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Glue.Lib</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DocumentationFile>bin\glue.lib.XML</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.lib</AssemblyName>
+    <RootNamespace>Glue.Lib</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\glue.lib.xml</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <OutputType>Library</OutputType>
+    <AssemblyName>glue.lib</AssemblyName>
+    <RootNamespace>Glue.Lib</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Applet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="CollectionHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CombinedException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\AspTemplateCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\BaseCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\CompilerInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\CompilerInfoCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\Exceptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\FileCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\Proxy.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\Settings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\SourceCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\TemplateCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configuration.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConvertXml.cs" />
+    <Compile Include="Graphics\HSL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphics\Imaging.cs" />
+    <Compile Include="Graphics\YUV.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IO\FileSet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IO\Search.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IO\WildCard.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Log.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimeHeader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimeHeaderCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimeMapping.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimePart.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimePartCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\MimeUtility.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mime\TransferEncoding.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Pop3\Pop3Client.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Pop3\Pop3Exception.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailAddress.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailAddressCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailAttachment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailEncoding.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailPriority.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\MailUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\SmtpClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\SmtpException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\SmtpMail.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\SmtpResponse.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Net\Smtp\ToUUEncodingTransform.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="NullConvert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectDumper.cs" />
+    <Compile Include="Options\OptionAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Options\OptionConvert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Options\OptionConvertFlags.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Options\OptionException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OrderedDictionary.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\HttpConnection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\HttpProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\HttpRequest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\HttpResponse.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\HttpServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\LineParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\SmtpConnection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\SmtpException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\SmtpServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\TcpConnection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Servers\TcpServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Base64Encoding.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\BaseTokenizer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\BinHexEncoding.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\ByteString.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\CsvReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\DSON\Helper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\DSON\Parser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\DSON\Scanner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\HtmlBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\HtmlListEnum.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\JSON\Helper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\JSON\Parser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\JSON\Scanner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Markdown.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\SmartyPants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\StringTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ApplyStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\AssignStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\BinaryExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\Element.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ElementList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\Expression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ForStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\HaltStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\IfStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\MethodDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\NamedArgumentExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ParameterDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\PrimitiveExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\PutStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ReferenceExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\ReturnStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\Statement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\TemplateDefinition.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\Unit.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\AST\WhileStatement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\Compiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\Parser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\Runtime.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Template\Scanner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\Textile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Text\TextileConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Threading\ThreadLocal.cs" />
+    <Compile Include="Threading\ThreadLocalDictionary.cs" />
+    <Compile Include="Xml\Sgml\SgmlParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Xml\Sgml\SgmlReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Xml\XmlNodeWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="project.build" />
+    <None Include="Text\DSON\build.bat" />
+    <None Include="Text\DSON\Parser.frame" />
+    <None Include="Text\DSON\Scanner.frame" />
+    <None Include="Text\DSON\Template.atg" />
+    <None Include="Text\JSON\Template.atg" />
+    <None Include="Text\Template\Parser.frame" />
+    <None Include="Text\Template\Scanner.frame" />
+    <None Include="Text\Template\Template.atg" />
+    <None Include="Text\Yaml\Template.atg" />
+    <EmbeddedResource Include="Xml\Sgml\frameset.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\Html.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\htmllat1.ent" />
+    <EmbeddedResource Include="Xml\Sgml\HTMLspecial.ent" />
+    <EmbeddedResource Include="Xml\Sgml\HTMLsymbol.ent" />
+    <EmbeddedResource Include="Xml\Sgml\loose.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\Sloppy.dtd" />
+    <EmbeddedResource Include="Xml\Sgml\strict.dtd">
+      <SubType>Code</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Net\Ftp\" />
+    <Folder Include="Net\Nntp\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <ProjectGuid>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</ProjectGuid>
+    <RootNamespace>Glue.Lib</RootNamespace>
+  </PropertyGroup>
+</Project>

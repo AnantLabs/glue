@@ -1,0 +1,11 @@
+<%@include file="/views/_header.html" %>
+
+<table>
+<% foreach (string s in Request.Params.AllKeys) { %>
+    <tr>
+        <td><%=s %></td>
+        <td><%=Request.Params[s] %></td>
+    </tr>
+<% } %>
+</table>
+<%@include file="/views/_footer.html" %>

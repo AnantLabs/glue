@@ -1,0 +1,118 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{32FF025E-FEC5-4B32-BAA9-2679BEB97FB9}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>mp3web</RootNamespace>
+    <AssemblyName>mp3web</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Boo.Lang, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\boo\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang.CodeDom, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\boo\Boo.Lang.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="public\css\default.css" />
+    <Content Include="public\js\jquery-1.2.3.js" />
+    <Content Include="public\js\jquery_query-1.2.2.js" />
+    <Content Include="views\album\edit.html" />
+    <Content Include="views\album\list.html" />
+    <Content Include="views\base\info.html" />
+    <Content Include="views\empty.html" />
+    <Content Include="views\base\index.html" />
+    <Content Include="views\track\addalbum.html" />
+    <Content Include="views\track\edit.html" />
+    <Content Include="views\track\list.html" />
+    <Content Include="views\_footer.html" />
+    <Content Include="views\_header.html" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.cs" />
+    <Compile Include="controllers\AlbumController.cs" />
+    <Compile Include="controllers\BaseController.cs" />
+    <Compile Include="controllers\TrackController.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Glue.Data.SQLite\Glue.Data.SQLite.csproj">
+      <Project>{46246856-7109-4962-A291-E8DD114CAE56}</Project>
+      <Name>Glue.Data.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Data\Glue.Data.csproj">
+      <Project>{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}</Project>
+      <Name>Glue.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Lib\Glue.Lib.csproj">
+      <Project>{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}</Project>
+      <Name>Glue.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Web.Python\Glue.Web.IronPython.csproj">
+      <Project>{07607474-CFEB-4F20-ACC1-7467A4600B18}</Project>
+      <Name>Glue.Web.IronPython</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Glue.Web\Glue.Web.csproj">
+      <Project>{306F21B0-6B55-4A25-8D8D-C949FC374D49}</Project>
+      <Name>Glue.Web</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\mp3sql\mp3sql.csproj">
+      <Project>{CFCCFEB6-3D64-4446-932B-EEBF4A226F21}</Project>
+      <Name>mp3sql</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="views\base\python.html" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v8.0\WebApplications\Microsoft.WebApplication.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>1868</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
