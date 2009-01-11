@@ -64,7 +64,7 @@ namespace Glue.Data.Mapping
         }
     }
 
-    [Obsolete("Nullable attribute is obsolete; please use a nullable type (like int?, DateTime? etc.)")]
+    //[Obsolete("Nullable attribute is obsolete; please use a nullable type (like int?, DateTime? etc.)")]
     public class NullableAttribute : ColumnAttribute
     {
         public NullableAttribute() : base(true)
