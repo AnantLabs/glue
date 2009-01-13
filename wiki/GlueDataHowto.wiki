@@ -1,0 +1,84 @@
+#summary Creating a simple data model with Glue.Data.
+
+= Glue.Data =
+
+Glue.Data is Glue's data access layer. It helps you to map your .Net classes to your SQL data tables.
+
+===With Glue.Data you can:===
+ * Map .Net classes to SQL database tables
+ * Can save, delete, list and search stored objects in a database independent way
+ * Still allows you to execute SQL commands directly
+
+===What Glue.Data does not do:===
+ * Glue.Data does not create or alter the database schema
+ * Glue.Data does not enforce database independence
+
+In part one of this howto we will use Glue.Data to store and retrieve the messages in a simple asp.net blogging application. In later parts, we will use Glue's form processing and Model/View/Controller classes.
+
+= The data model =
+
+Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems.
+
+Create a 'Message' class to use on your blog. To make it Glue.Data enabled, add the [Table] attribute. Glue ...
+
+{{{ 
+using System;
+using Glue.Data;
+using Glue.Data.Mapping;
+
+/// <summary>
+/// A Blog message
+/// </summary>
+[Table]
+public class Message
+{
+    [AutoKey]
+    public int Id;
+
+    [Column(MaxLength = 10000)]
+    public string Content;
+
+    [Column(MaxLength = 100)]
+    public string Author;
+
+    public DateTime Published;
+
+    public Message()
+    {
+        Published = DateTime.Now;
+    }
+}
+}}}
+
+Next, create the 'Message' table in your SQLite databse.
+
+{{{
+CREATE TABLE [Message] (
+    [id] INTEGER PRIMARY KEY,
+    [content] VARCHAR(10000),
+    [author] VARCHAR(100),
+    [published] DATETIME
+);
+}}}
+
+Web.config
+
+{{{
+<configSections>
+    <section name="settings" type="Glue.Lib.Configuration,glue.lib" />
+</configSections>
+
+<settings>
+    <!-- Dynamic compilation options -->
+    <compilation>
+        <assemblies>
+            <add assembly="System.Data.SQLite" />
+            <add assembly="Glue.Lib" />
+            <add assembly="Glue.Data" />
+            <add assembly="GlueBlog" />
+        </assemblies>
+        <imports>
+        </imports>
+    </compilation>
+</settings>
+}}}
