@@ -110,6 +110,36 @@ namespace GlueBlog
 }}}
 
 {{{
+<%@ Page Language="C#" CodeBehind="Default.aspx.cs" Inherits="GlueBlog._Default" %>
+<html>
+<head>
+    <title>The Glue Blog</title>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>author</th>
+                <th>message</th>
+                <th>date</th>
+            </tr>
+            <% foreach (Message m in provider.List<Message>(null, null, null)) { %>
+                <tr>
+                    <td><%= m.Id %></td>
+                    <td><%= m.Author %></td>
+                    <td><%= m.Content %></td>
+                    <td><%= m.Published %></td>
+                </tr>
+            <% } %>
+        </table>
+    </div>
+</body>
+</html>
+}}}
+_default.aspx_
+
+{{{
 <configSections>
     <section name="settings" type="Glue.Lib.Configuration,glue.lib" />
 </configSections>
@@ -128,3 +158,4 @@ namespace GlueBlog
     </compilation>
 </settings>
 }}}
+_Web.config_
