@@ -11,15 +11,29 @@ Glue.Data is Glue's data access layer. It helps you to map your .Net classes to 
 
 ===What Glue.Data does not do:===
  * Glue.Data does not create or alter the database schema
- * Glue.Data does not enforce database independence
 
-In part one of this howto we will use Glue.Data to store and retrieve the messages in a simple asp.net blogging application. In later parts, we will use Glue's form processing and Model/View/Controller classes.
+In part one of this howto you will use Glue.Data to store and retrieve the messages in a simple asp.net blogging application. In later parts, you will use Glue's form processing and Model/View/Controller classes.
+
+= Web application setup =
+
+Setup your asp.net web application with a single Default.aspx page.
+
+{{{
+    /App_Data
+    /bin
+        glue.data.dll
+        glue.lib.dll
+        System.Data.SQLite.dll
+    Default.aspx
+    Default.aspx.cs
+    Web.config
+}}}
 
 = The data model =
 
-Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems.
+Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems, but you can use any database for which a DataProvider exists. They are listed on the [http://www.glueproject.com/api/html/T_Glue_Data_BaseDataProvider.htm DataProvider] page.
 
-Create a 'Message' class to use on your blog. To make it Glue.Data enabled, add the [Table] attribute. Glue ...
+Create a 'Message' class to use on your blog. To make it Glue.Data enabled, add the [Table] attribute.
 
 {{{ 
 using System;
@@ -50,7 +64,11 @@ public class Message
 }
 }}}
 
-Next, create the 'Message' table in your SQLite databse.
+Glue uses the attributes in [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm Glue.Data.Mapping] to map your classes. It will map all public members unless they have an `[Exclude`] attribute. If the name of a database column is different than your class member, use the `[Column(Name="SomeOtherName")`] attribute. For all attributes, see the [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm API]
+
+
+
+Next, create the 'Message' table in your SQLite database. In this example we stored the database file (blog.db3) in the App_Data directory in the website root.
 
 {{{
 CREATE TABLE [Message] (
@@ -61,7 +79,35 @@ CREATE TABLE [Message] (
 );
 }}}
 
-Web.config
+{{{
+using System;
+using System.IO;
+using Glue.Data;
+using Glue.Data.Providers.SQLite;
+
+namespace GlueBlog
+{
+    public partial class _Default : System.Web.UI.Page
+    {
+        public IDataProvider provider;
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            string dbPath = Server.MapPath("App_Data/blog.db3");
+            provider = new SQLiteDataProvider(null, dbPath, null, null);
+
+            // Initialise the blog with a welcome message.
+            if (provider.Count<Message>(null) == 0)
+            {
+                Message m = new Message();
+                m.Author = "Administrator";
+                m.Content = "Welcome to my blog!";
+                provider.Insert(m);
+            }
+        }
+    }
+}
+}}}
 
 {{{
 <configSections>
