@@ -6,13 +6,12 @@ In this tutorial you start with a simple (one-page) asp.net web application. On 
 
 Glue.Data is Glue's data access layer. It helps you to map your .Net classes to your SQL data tables.
 
-===With Glue.Data you can:===
+====With Glue.Data you can:====
  * Map .Net classes to SQL database tables
  * Save, delete, list and search stored objects in a database independent way
 
-===What Glue.Data does not do:===
+====What Glue.Data does not do:====
  * Glue.Data does not create or alter the database schema
- * Glue.Data does not prevent you from executing SQL commands directly.
 
 In later parts of this tutorial, you will use Glue's form processing and Model/View/Controller classes.
 
