@@ -2,21 +2,23 @@
 
 = Glue.Data =
 
+In this tutorial you start with a simple (one-page) asp.net web application. On this page you will then display a list of blog messages that you load from a database, using Glue.Data.
+
 Glue.Data is Glue's data access layer. It helps you to map your .Net classes to your SQL data tables.
 
 ===With Glue.Data you can:===
  * Map .Net classes to SQL database tables
- * Can save, delete, list and search stored objects in a database independent way
- * Still allows you to execute SQL commands directly
+ * Save, delete, list and search stored objects in a database independent way
 
 ===What Glue.Data does not do:===
  * Glue.Data does not create or alter the database schema
+ * Glue.Data does not prevent you from executing SQL commands directly.
 
-In part one of this howto you will use Glue.Data to store and retrieve the messages in a simple asp.net blogging application. In later parts, you will use Glue's form processing and Model/View/Controller classes.
+In later parts of this tutorial, you will use Glue's form processing and Model/View/Controller classes.
 
 = Web application setup =
 
-Setup your asp.net web application with a single Default.aspx page.
+Setup your asp.net web application with a single Default.aspx page. The directory structure will look like this:
 
 {{{
     /App_Data
@@ -66,8 +68,6 @@ public class Message
 
 Glue uses the attributes in [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm Glue.Data.Mapping] to map your classes. It will map all public members unless they have an `[Exclude`] attribute. If the name of a database column is different than your class member, use the `[Column(Name="SomeOtherName")`] attribute. For all attributes, see the [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm API]
 
-
-
 Next, create the 'Message' table in your SQLite database. In this example we stored the database file (blog.db3) in the App_Data directory in the website root.
 
 {{{
@@ -78,6 +78,8 @@ CREATE TABLE [Message] (
     [published] DATETIME
 );
 }}}
+
+Glue uses Data Providers to access data. In Default.aspx's code-behind page, create a new SQLite data provider. 
 
 {{{
 using System;
@@ -101,13 +103,18 @@ namespace GlueBlog
             {
                 Message m = new Message();
                 m.Author = "Administrator";
-                m.Content = "Welcome to my blog!";
+                m.Content = "Welcome! This blog has just been created.";
                 provider.Insert(m);
             }
         }
     }
 }
 }}}
+_default.aspx.cs_
+
+Here, we used the DataProvider method 'Count' to count the number of messages. If the blog is empty, the first blog message is created programmatically and inserted in the database with provider.Insert(). 
+
+In Default.aspx, you can use the provider to get a list of messages to display:
 
 {{{
 <%@ Page Language="C#" CodeBehind="Default.aspx.cs" Inherits="GlueBlog._Default" %>
@@ -139,6 +146,8 @@ namespace GlueBlog
 }}}
 _default.aspx_
 
+One more thing you need to do is to add the assemblies containing the Message class and the Glue classes to the glue configuration. Add a "settings" section to Web.config with these assemblies:
+
 {{{
 <configSections>
     <section name="settings" type="Glue.Lib.Configuration,glue.lib" />
@@ -158,4 +167,4 @@ _default.aspx_
     </compilation>
 </settings>
 }}}
-_Web.config_
+_Web.config (part)_
