@@ -90,11 +90,11 @@ namespace Glue.Data.Providers.Oracle
             QueryBuilder s = CreateQueryBuilder();
             if (limit.Index > 0 || limit.Count >= 0)
             {
-                s.Append("SELECT ").Append(columns).Append(", row_number").Append(" FROM (");
-                s.Append("  SELECT ").Append(columns).Append(", ROWNUM row_number").Append(" FROM (");
+                s.Append("SELECT ").Append(columns).Append(" FROM (");
+                s.Append("  SELECT ").Append(columns).Append(", ROWNUM row_number__").Append(" FROM (");
                 s.Append("    SELECT ").Append(columns).Append(" FROM ").Identifier(table).Filter(constraint).Order(order);
                 s.Append("  )");
-                s.Append(") WHERE row_number >= " + limit.Index + 1 + " AND row_number <= " + limit.Index + limit.Count);
+                s.Append(") WHERE row_number__ >= " + (limit.Index + 1) + " AND row_number__ <= " + (limit.Index + limit.Count));
             }
             else
             {
