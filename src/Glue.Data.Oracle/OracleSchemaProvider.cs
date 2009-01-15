@@ -63,10 +63,11 @@ namespace Glue.Data.Providers.Oracle
             return columns;
         }
 
-        public static void GenerateInsertScript(OracleDataProvider provider, TextWriter output, string table)
+        public static void GenerateInsertScript(OracleDataProvider provider, TextWriter output, string table, Filter filter)
         {
             IList<Column> columns = GetColumns(provider, table);
-            using (System.Data.IDataReader reader = provider.ExecuteReader("select * from " + table))
+            filter = Filter.Coalesce(filter, Filter.Empty);
+            using (System.Data.IDataReader reader = provider.ExecuteReader("select * from " + table + " " + filter.ToSql()))
                 while (reader.Read())
                 {
                     bool first = true;
