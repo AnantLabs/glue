@@ -71,6 +71,8 @@ public class Message
 
 Glue uses the attributes in [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm Glue.Data.Mapping] to map your classes. It will map all public members unless they have an `[Exclude`] attribute. If the name of a database column is different than your class member, use the `[Column(Name="SomeOtherName")`] attribute. For all attributes, see the [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm API]
 
+= The web page =
+
 Glue uses Data Providers to access data. In Default.aspx's code-behind page, create a new SQLite data provider. 
 
 {{{
@@ -122,7 +124,7 @@ namespace GlueBlog
 }}}
 _default.aspx.cs_
 
-Here, we used the DataProvider method 'Count' to count the number of messages. If the blog is empty, the first blog message is created programmatically and inserted in the database with provider.Insert(). 
+Here, we used the !DataProvider method 'Count' to count the number of messages. If the blog is empty, the first blog message is created programmatically and inserted in the database with provider.Insert(). 
 
 In Default.aspx, you can use the provider to get a list of messages to display:
 
@@ -155,6 +157,8 @@ In Default.aspx, you can use the provider to get a list of messages to display:
 </html>
 }}}
 _default.aspx_
+
+= Glue configuration =
 
 One more thing you need to do is to add the assemblies containing the Message class and the Glue classes to the glue configuration. Add a "settings" section to Web.config with these assemblies:
 
