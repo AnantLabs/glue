@@ -36,9 +36,9 @@ Add references to the Glue.Data.SQLite and Glue.Data dll's to your project.
 
 = The data model =
 
-Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems, but you can use any database for which a DataProvider exists. They are listed on the [http://www.glueproject.com/api/html/T_Glue_Data_BaseDataProvider.htm DataProvider] page.
+Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems, but you can use any database for which a !DataProvider exists. They are listed on the [http://www.glueproject.com/api/html/T_Glue_Data_BaseDataProvider.htm DataProvider] page.
 
-Create a 'Message' class to use on your blog. To make it Glue.Data enabled, add the [Table] attribute.
+Create a 'Message' class to use on your blog. To make it Glue.Data enabled, add the `[Table`] attribute.
 
 {{{ 
 using System;
