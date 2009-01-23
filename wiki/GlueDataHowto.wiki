@@ -30,6 +30,10 @@ Setup your asp.net web application with a single Default.aspx page. The director
     Web.config
 }}}
 
+Alternatively, you can download the glue source and add the Glue.Lib.csproj, Glue.Data.csproj and Glue.Data.SQLite.csproj projects to your solution.
+
+Add references to the Glue.Data.SQLite and Glue.Data dll's to your project.
+
 = The data model =
 
 Glue supports most SQL variants like MSSQL, MySQL and Oracle. In this howto we will use SQLite because is it easier to install on most systems, but you can use any database for which a DataProvider exists. They are listed on the [http://www.glueproject.com/api/html/T_Glue_Data_BaseDataProvider.htm DataProvider] page.
@@ -67,17 +71,6 @@ public class Message
 
 Glue uses the attributes in [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm Glue.Data.Mapping] to map your classes. It will map all public members unless they have an `[Exclude`] attribute. If the name of a database column is different than your class member, use the `[Column(Name="SomeOtherName")`] attribute. For all attributes, see the [http://www.glueproject.com/api/html/N_Glue_Data_Mapping.htm API]
 
-Next, create the 'Message' table in your SQLite database. In this example we stored the database file (blog.db3) in the App_Data directory in the website root.
-
-{{{
-CREATE TABLE [Message] (
-    [id] INTEGER PRIMARY KEY,
-    [content] VARCHAR(10000),
-    [author] VARCHAR(100),
-    [published] DATETIME
-);
-}}}
-
 Glue uses Data Providers to access data. In Default.aspx's code-behind page, create a new SQLite data provider. 
 
 {{{
@@ -95,7 +88,25 @@ namespace GlueBlog
         protected void Page_Load(object sender, EventArgs e)
         {
             string dbPath = Server.MapPath("App_Data/blog.db3");
-            provider = new SQLiteDataProvider(null, dbPath, null, null);
+            if (!System.IO.File.Exists(dbPath))
+            {
+                // If the database doesn't exist, create it by adding 'New=True' to 
+                // SQLite's connection string.
+                provider = new SQLiteDataProvider("Data Source=" + dbPath + ";New=True");
+                // Create the table
+                provider.ExecuteNonQuery(@"
+                        CREATE TABLE [Message] (
+                            [id]        INTEGER PRIMARY KEY,
+                            [content]   VARCHAR(10000),
+                            [author]    VARCHAR(100),
+                            [published] DATETIME
+                        );
+                ");
+            }
+            else
+            {
+                provider = new SQLiteDataProvider(null, dbPath, null, null);
+            }
 
             // Initialise the blog with a welcome message.
             if (provider.Count<Message>(null) == 0)
