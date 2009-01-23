@@ -1,13 +1,31 @@
 #summary Ways to dowload and install glue for use in your project.
 
-= Introduction =
+== Download ==
 
-Add your content here.
+=== Download binary: ===
 
+Download the latest version (currently [http://glue.googlecode.com/files/Glue-1.2.1.zip Glue-1.2.1.zip]) from the [http://code.google.com/p/glue/downloads/list downloads] page.
 
-= Details =
+=== Download source: ===
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Download the latest source code distribution (currently [http://glue.googlecode.com/files/Glue-src-1.2.1.zip Glue-src-1.2.1.zip]) from the [http://code.google.com/p/glue/downloads/list downloads] page.
+
+=== Checkout from subversion: ===
+
+Use this command to checkout the latest revision from the subversion repository:
+
+{{{svn checkout http://glue.googlecode.com/svn/trunk/ glue}}}
+
+== Build ==
+
+The source distribution includes the Visual Studio solution (.sln) file in /src. If you cannot build with Visual Studio, you can build with nant with the command
+
+{{{ nant build }}}
+
+The dll's will be placed in the /bin directory.
+
+== Use == 
+
+To use glue, reference the .dll's you need in your solution. For source distributions, you may also include the glue projects to your solution (by adding the .csproj files), and reference those projects.
+
+To get started with glue, look at some example code in /samples, look at the Glue.Data [GlueDataHowto tutorial], and don't forget to bookmark the [http://www.glueproject.com/api/ API]!
