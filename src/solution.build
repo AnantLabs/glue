@@ -13,7 +13,7 @@ doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
 -->
 
 	<!-- Properties -->
-	<property name="glue.supported_frameworks" value="net-2.0,mono-2.0" />
+	<property name="glue.supported_frameworks" value="mono-2.0,net-2.0" />
 	<property name="glue.builddir" value="${project::get-base-directory()}/../bin" /> 
 	<property name="glue.apidir" value="${project::get-base-directory()}/../doc/api" /> <!-- generated api documentation -->
 	<property name="glue.common.nant" value="${project::get-base-directory()}/common.nant" />
@@ -98,6 +98,22 @@ doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
 			<include name="**/*" />
 		    </fileset>
 		</zip>
+	</target>
+
+	<target name="dist-bin" description="Create binary distribution." depends="build">
+		<delete dir="disttemp" failonerror="false" />
+		<mkdir dir="disttemp" />
+		<copy todir="disttemp">
+			<fileset basedir="../bin">
+				<include name="*.dll" />
+			</fileset>
+		</copy>
+		<zip zipfile="../Glue-1.2.1.zip">
+		    <fileset basedir="disttemp" prefix="">
+			<include name="**/*" />
+		    </fileset>
+		</zip>
+		<delete dir="disttemp" failonerror="false" />
 	</target>
 
 </project>
