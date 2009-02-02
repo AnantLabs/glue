@@ -1,4 +1,5 @@
 #summary Creating a simple data model with Glue.Data.
+#labels Featured
 
 = Glue.Data =
 
