@@ -1,4 +1,5 @@
 #summary Ways to dowload and install glue for use in your project.
+#labels Featured
 
 == Download ==
 
