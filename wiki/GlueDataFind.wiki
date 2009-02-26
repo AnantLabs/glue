@@ -10,7 +10,13 @@
 _user = User.Find(UserId);
 }}}
 
-== FindByFilter ==
+== !FindByFilter ==
+
+You can also search for objects using a Filter. Only the first object that satisfies the conditions in the Filter is returned.
+
+{{{
+Customer fred = provider.FindByFilter<Customer>(new Filter("name='Fred'"));
+}}}
 
 == Exists ==
 
