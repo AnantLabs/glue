@@ -32,7 +32,7 @@
  * [GlueDataConfiguring Configuring Glue.Lib]
  * [GlueDataModeling Modeling your data classes]
  * [GlueDataWorkingWithDataProvider Working with the DataProvider]
- * [GlueDataBasics Basics: executing SELECT, INSERT, UPDATE, and DELETE statements with Glue.Data]  
+ * [GlueDataBasics Executing SELECT, INSERT, UPDATE, and DELETE statements with Glue.Data]  
  * [GlueDataFilterOrderLimit Filter, Order and Limit]
 
 == Glue.Lib: Advanced Topics == 
