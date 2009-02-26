@@ -1,0 +1,15 @@
+#summary Using List and Count
+
+= Glue.Data: Using List and Count =
+
+== List ==
+The List methods in the IDataProvider interface return lists of objects. They are generated from the rows returned by a SELECT query. The List methods take care of constructing the query itself
+
+{{{
+
+// Find the customers that joined in the last month.
+Filter newFilter = new Filter("date > @0", DateTime.Now - 30);
+
+List<Customer> newCustomers = provider.List<Customer>(newFilter, null, null);
+
+}}}
