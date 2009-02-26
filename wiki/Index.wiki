@@ -21,7 +21,7 @@
 
 == Getting Started with Glue.Lib ==
 
- * [GlueLibQuickstart Quickstart installation guide]
+ * [InstallingGlue Quickstart installation guide]
  * [GlueLibConfiguring Configuring Glue.Lib]
  * [GlueLibLogging Configuring logging with Glue.Lib]
  * [GlueLibConfiguration Using Glue.Lib.Configuration]
