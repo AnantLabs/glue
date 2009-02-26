@@ -1,0 +1,17 @@
+#summary One-sentence summary of this page.
+
+== Download ==
+
+=== Download binary: ===
+
+Download the latest stable version (currently [http://glue.googlecode.com/files/Glue-1.2.1.zip Glue-1.2.1.zip]) from the [http://code.google.com/p/glue/downloads/list downloads] page.
+
+=== Download source: ===
+
+Download the latest source code distribution (currently [http://glue.googlecode.com/files/Glue-src-1.2.1.zip Glue-src-1.2.1.zip]) from the [http://code.google.com/p/glue/downloads/list downloads] page.
+
+=== Checkout from subversion: ===
+
+Use this command to checkout the latest revision from the subversion repository:
+
+{{{svn checkout http://glue.googlecode.com/svn/trunk/ glue}}}
