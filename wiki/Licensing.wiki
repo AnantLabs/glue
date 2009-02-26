@@ -1,0 +1,6 @@
+#summary One-sentence summary of this page.
+
+= Licensing =
+
+Glue is licensed under the
+[http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License]
