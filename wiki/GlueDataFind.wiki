@@ -1,0 +1,21 @@
+#summary Using Find, FindByFilter and Exists
+
+= Using Find, FindByFilter and Exists =
+
+== Find ==
+
+{{{IDataProvider.Find()}}} attempts to find a single object by its primary key(s).
+
+{{{
+_user = User.Find(UserId);
+}}}
+
+== FindByFilter ==
+
+== Exists ==
+
+Tests if given object exists
+
+{{{
+bool Exists(object obj);
+}}}
