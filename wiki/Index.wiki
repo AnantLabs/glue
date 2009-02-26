@@ -52,5 +52,15 @@
  * [GlueDataExecuteReader Working with DataReaders (IDbDataReader)]
  * [GlueDataManyToMany Working with Many to Many relationships]
 
+== Glue.Data: database support ==
+ * [GlueDataSqlServer Glue.Data and Microsoft SQL Server]
+ * [GlueDataMySql Glue.Data and MySql]
+ * [GlueDataSqLite Glue.Data and SqLite]
+ * [GlueDataOracle Glue.Data and Oracle Db]
+ * [GlueDataPostGres Glue.Data and PostGresql]
+
+== Glue: platform support ==
+ * [GluePlatformSupport Glue under .Net and Mono]
+
 == Samples ==
  
