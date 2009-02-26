@@ -1,6 +1,6 @@
 #summary Using List and Count
 
-= Glue.Data: Using List and Count =
+= Glue.Data: Using {{{List}}} and {{{Count}}} =
 
 == List ==
 The {{{List}}} methods in the {{{IDataProvider}}} interface return lists of objects. They are generated from the rows returned by a SELECT query. The List methods take care of constructing the query itself, using a Filter, Order and Limit you provide. For more complex queries using as many views, joins and inner selects as you like, you can pass in your own IDbCommand.
