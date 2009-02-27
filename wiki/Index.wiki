@@ -1,6 +1,9 @@
 #summary Index of the Glue Wiki
+#labels Featured
 
 = Glue Wiki Index = 
+
+A work in progress...
 
 == About ==
  * [WhatIsGlue What is Glue?] 
