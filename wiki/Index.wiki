@@ -10,8 +10,9 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
  * [WhatIsGlueLib What is Glue.Lib?]
  * [WhatIsGlueData What is Glue.Data?]
  * [SystemRequirements System requirements]
- * [Licensing] 
  * [DownloadLatestVersion Downloading the latest version]
+ * [InstallingGlue Quickstart installation guide]
+ * [Licensing] 
  * [GetInvolved Get involved in the Glue Project!]
 
 == Release Notes == 
@@ -24,14 +25,12 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
 == Getting Started with Glue.Lib ==
 
- * [InstallingGlue Quickstart installation guide]
  * [GlueLibConfiguring Configuring Glue.Lib]
  * [GlueLibLogging Configuring logging with Glue.Lib]
  * [GlueLibConfiguration Using Glue.Lib.Configuration]
 
 == Getting Started with Glue.Data ==
 
- * [GlueDataQuickstart Quickstart installation guide]
  * [GlueDataHowto Glue.Data Tutorial]
  * [GlueDataConfiguring Configuring Glue.Lib]
  * [GlueDataModeling Modeling your data classes]
