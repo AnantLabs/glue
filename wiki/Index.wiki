@@ -43,7 +43,7 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
 == Glue.Data: Advanced Topics == 
  * [GlueDataMapping Mapping a database to classes]
- * [GlueDataMappingAttributes Mapping attributes]
+ * [GlueDataMappingAttributes Mapping class members to database columns]
  * [GlueDataExecuteQuery Working with queries] 
  * [GlueDataFind Using Find, FindByFilter and Exists] 
  * [GlueDataList Using List and Count]
