@@ -14,6 +14,8 @@ The parameters to the Table attribute are:
  * `Prefix`: Columns in the database table have this prefix. The prefix will be prepended to the property name.
  * `Explicit`: If true, a public property in this class will only be mapped to a database column if it has a `[Column]` attribute. If false (the default), every public property will be mapped, unless it has an `[Exclude]` attribute.
 
+= Example =
+
 {{{
 [Table(Name = "Users", Cached = false, Prefix = "Usr")]
 public class User
