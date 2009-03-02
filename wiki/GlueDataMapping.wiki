@@ -1,0 +1,73 @@
+#summary Mapping a database to classes
+
+Glue's object relation mapper maps SQL database tables to .Net classes. A class will normally correspond to a single database table, or sometimes to a database view. The public class members will map to the columns in that table. Glue's methods will create instances of your class from the rows returned by database queries, and vice versa.
+
+= The Table attribute =
+
+The `[Table]` attribute tells Glue how a class should be mapped.
+
+If no `[Table]` attribute exists for a class, Glue will assume default values, e.g. that the table name is equal to the class name. We advise you to always include a `[Table]` attribute for every mapped class, though. It helps to warn the programmer that it is dangerous to make changes to the class members.
+
+The parameters to the Table attribute are:
+ * `Name`: Table name. If not set, it is assumed to be the same as the class name.
+ * `Cached`: The complete table will be cached the first time it is loaded. It is stored in a hashtable by its primary key. Use the `IDataProvider.InvalidateCache()` method if you need to clear the cache. Useful for lookup tables.
+ * `Prefix`: Columns in the database table have this prefix. The prefix will be prepended to the property name.
+ * `Explicit`: If true, a public property in this class will only be mapped to a database column if it has a `[Column]` attribute. If false (the default), every public property will be mapped, unless it has an `[Exclude]` attribute.
+
+= Column attributes =
+
+The `[Column]` attribute tells Glue that a class member should be mapped to a column in the database's table. By default, every public class member is mapped to a column with the same name, so an empty `[Column`] is superfluous. To map a member to a differently named column, use: `[Column(Name = "AnotherName")]`. For string types, an optional !MaxLength parameter may be given for the maximum length of the database column.
+
+{{{
+
+// The Customer column is called "CUST" in the database.
+[Column(Name = "CUST")]
+public string Name;
+
+[Column(MaxLength = 1000)]
+string Comment;
+
+}}}
+
+= Keys =
+
+The `[Key]` attribute specifies that the corresponding column is (part of) the primary key.
+
+The `[AutoKey]` attribute specifies that a class member is an auto key. Its value will be set by the database when the object is inserted.
+
+= Excluding class members from the mapping =
+
+Entities with an `[Exclude]` attribute will not be mapped to database columns (by default, all public members are mapped).
+
+The `[Calculated]` attribute specifies that the database column is a calculated value. It will not be included in Inserts or Updates, but will be retrieved by Find and List.
+
+= Example =
+
+{{{ 
+using System;
+using Glue.Data;
+using Glue.Data.Mapping;
+
+/// <summary>
+/// A Blog message
+/// </summary>
+[Table]
+public class Message
+{
+    [AutoKey]
+    public int Id;
+
+    [Column(MaxLength = 10000)]
+    public string Content;
+
+    [Column(MaxLength = 100)]
+    public string Author;
+
+    public DateTime Published;
+
+    public Message()
+    {
+        Published = DateTime.Now;
+    }
+}
+}}}
