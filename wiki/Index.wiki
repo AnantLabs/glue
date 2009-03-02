@@ -33,22 +33,20 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
  * [GlueDataHowto Glue.Data Tutorial]
  * [GlueDataConfiguring Configuring Glue.Lib]
- * [GlueDataModeling Modeling your data classes]
+ * [GlueDataMapping Mapping a database to classes]
+ * [GlueDataMappingAttributes Mapping class members to database columns]
  * [GlueDataWorkingWithDataProvider Working with the DataProvider]
- * [GlueDataBasics Executing SELECT, INSERT, UPDATE, and DELETE statements]  
  * [GlueDataFilterOrderLimit Filter, Order and Limit]
+ * [GlueDataFind Using Find, FindByFilter and Exists] 
+ * [GlueDataList Using List and Count]
+ * [GlueDataInsert Using Insert, Update, Save and Delete]
 
 == Glue.Lib: Advanced Topics == 
  * [GlueLibNullConvert Using NullConvert]
 
 == Glue.Data: Advanced Topics == 
- * [GlueDataMapping Mapping a database to classes]
- * [GlueDataMappingAttributes Mapping class members to database columns]
+
  * [GlueDataExecuteQuery Working with queries] 
- * [GlueDataFind Using Find, FindByFilter and Exists] 
- * [GlueDataList Using List and Count]
- * [GlueDataInsert Using Insert, Update, Save and Delete]
- 
  * [GlueDataConnections Opening and closing connections]
  * [GlueDataParameter Working with parameters]
  * [GlueDataCommand Working with database commands (IDbCommand)]
