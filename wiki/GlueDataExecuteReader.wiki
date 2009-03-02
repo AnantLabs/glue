@@ -1,0 +1,28 @@
+#summary Using IDataReaders
+
+= !ExecuteReader =
+{{{IDataReader ExecuteReader(IDbCommand command);}}}<br>
+{{{IDataReader ExecuteReader(string commandText, params object[] paramNameValueList);}}}
+
+The Glue !ExecuteReader methods return an open IDataReader. Use it if you have created a custom SQL query or an IDbCommand for which the resulting data is not scalar and cannot be mapped to objects using Glue.Mapping.
+Readers should be closed after use. The easiest way is with a "using" statement.
+
+{{{
+// Using an IDbCommand
+IDbCommand command = DataProvider.Current.CreateSelectCommand(
+        "Contacts",             // table 
+        "Id,DisplayName",       // columns
+        null,                   // filter
+        "-DisplayName,+Id",     // order
+        Limit.Range(100,110)    // limit
+    );
+using (IDataReader reader = DataProvider.Current.ExecuteReader(command))
+    while (reader.Read())
+        Console.WriteLine(reader["Id"]);
+
+// Using a custom query
+using (IDataReader reader = DataProvider.Current.ExecuteReader("SELECT * FROM Contacts"))
+    while (reader.Read())
+        Console.WriteLine(reader[0]);
+
+}}}
