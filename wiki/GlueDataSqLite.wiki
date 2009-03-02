@@ -1,0 +1,32 @@
+#summary Glue.Data and SqLite
+
+= Connecting to SQLite =
+
+Three ways to connect to a SQLite database.
+
+== Connection string ==
+{{{SQLiteDataProvider(string connectionString);}}}
+
+With this constructor you pass the complete SQLite connection string. You can create a new SQLite database by putting in "New=True".
+{{{
+provider = new SQLiteDataProvider("Data Source=" + dbPath + ";New=True");
+}}}
+
+== Standard constructor ==
+{{{SQLiteDataProvider(string server, string database, string username, string password);}}}
+
+This is a default constructor. It works, but only the "database" is used.
+
+== XML node ==
+{{{public SQLiteDataProvider(XmlNode node);}}}
+
+Constructs a SQLiteDataprovider with an XmlNode as a parameter. The node has to have either an attribute "connectionString", containing the complete connection string, or an attribute "database", with a path to a database file. 
+
+{{{
+<!-- This is an XML node in the app's configuration file -->
+<dataprovider 
+      type="Glue.Data.Providers.SQLite.SQLiteDataProvider" 
+      database="App_Data/databasefile.db3"
+/>
+}}}
+        
