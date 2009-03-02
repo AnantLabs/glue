@@ -32,7 +32,7 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 == Getting Started with Glue.Data ==
 
  * [GlueDataQuickstart Quickstart installation guide]
- * [GlueDataTutorial Glue.Data Tutorial]
+ * [GlueDataHowto Glue.Data Tutorial]
  * [GlueDataConfiguring Configuring Glue.Lib]
  * [GlueDataModeling Modeling your data classes]
  * [GlueDataWorkingWithDataProvider Working with the DataProvider]
