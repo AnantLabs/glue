@@ -46,7 +46,7 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
 == Glue.Data: Advanced Topics == 
 
- * [GlueDataExecuteQuery Working with queries] 
+ * [GlueDataExecuteQuery Executing custom queries] 
  * [GlueDataConnections Opening and closing connections]
  * [GlueDataParameter Working with parameters]
  * [GlueDataCommand Working with database commands (IDbCommand)]
