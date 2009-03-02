@@ -701,7 +701,7 @@ namespace Glue.Data
         /// <summary>
         /// Search for first object which satisfies given conditions.
         /// </summary>
-        public object FindByFilter(Type type, IDbCommand command)
+        public object Find(Type type, IDbCommand command)
         {
             Array list = List(type, command);
             if (list != null && list.Length > 0)
@@ -1108,6 +1108,14 @@ namespace Glue.Data
         /// <summary>
         /// Search for first object which satisfies given conditions.
         /// </summary>
+        public T Find<T>(IDbCommand command)
+        {
+            return (T)Find(typeof(T), command);
+        }
+
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         public T FindByFilter<T>(Filter filter)
         {
             return (T)FindByFilter(typeof(T), filter);
@@ -1119,14 +1127,6 @@ namespace Glue.Data
         public T FindByFilter<T>(string table, Filter filter)
         {
             return (T)FindByFilter(table, typeof(T), filter);
-        }
-
-        /// <summary>
-        /// Search for first object which satisfies given conditions.
-        /// </summary>
-        public T FindByFilter<T>(IDbCommand command)
-        {
-            return (T)FindByFilter(typeof(T), command);
         }
 
         /// <summary>

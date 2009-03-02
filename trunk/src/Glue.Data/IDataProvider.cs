@@ -289,6 +289,11 @@ namespace Glue.Data
         /// <summary>
         /// Search for first object which satisfies given conditions.
         /// </summary>
+        object Find(Type type, IDbCommand command);
+
+        /// <summary>
+        /// Search for first object which satisfies given conditions.
+        /// </summary>
         object FindByFilter(Type type, Filter filter);
 
         /// <summary>
@@ -300,11 +305,6 @@ namespace Glue.Data
         /// Search for first object which satisfies given conditions.
         /// </summary>
         object FindByFilter(string table, Type type, Filter filter);
-
-        /// <summary>
-        /// Search for first object which satisfies given conditions.
-        /// </summary>
-        object FindByFilter(Type type, IDbCommand command);
 
         /// <summary>
         /// Return objects of given type. Parameters filter, order and limit can be null.
@@ -406,10 +406,10 @@ namespace Glue.Data
         ISchemaProvider GetSchemaProvider();
 
         T Find<T>(params object[] keys);
+        T Find<T>(IDbCommand command);
         T FindByFilter<T>(Filter filter);
         T FindByFilter<T>(Filter filter, Order order);
         T FindByFilter<T>(string table, Filter filter);
-        T FindByFilter<T>(IDbCommand command);
         IList<T> List<T>(Filter filter, Order order, Limit limit);
         IList<T> List<T>(string table, Filter filter, Order order, Limit limit);
         IList<T> List<T>(IDbCommand command);
