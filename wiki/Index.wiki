@@ -48,9 +48,7 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
  * [GlueDataExecuteQuery Executing custom queries] 
  * [GlueDataConnections Opening and closing connections]
- * [GlueDataParameter Working with parameters]
  * [GlueDataCommand Working with database commands (IDbCommand)]
- * [GlueDataExecuteReader Working with DataReaders (IDbDataReader)]
  * [GlueDataExecuteReader Working with DataReaders (IDbDataReader)]
  * [GlueDataManyToMany Working with Many to Many relationships]
 
