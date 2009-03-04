@@ -12,7 +12,7 @@ With this constructor you pass the complete SQLite connection string. You can cr
 IDataProvider provider = new SQLiteDataProvider("Data Source=" + dbPath + ";New=True");
 }}}
 
-== Standard constructor ==
+== Server, database, username and password ==
 {{{SQLiteDataProvider(string server, string database, string username, string password);}}}
 
 This is a default constructor. It works, but only the "database" is used.
