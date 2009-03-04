@@ -2,14 +2,14 @@
 
 = Connecting to SQLite =
 
-Three ways to connect to a SQLite database.
+There are three ways to construct a SQLiteDataProvider.
 
 == Connection string ==
 {{{SQLiteDataProvider(string connectionString);}}}
 
 With this constructor you pass the complete SQLite connection string. You can create a new SQLite database by putting in "New=True".
 {{{
-provider = new SQLiteDataProvider("Data Source=" + dbPath + ";New=True");
+IDataProvider provider = new SQLiteDataProvider("Data Source=" + dbPath + ";New=True");
 }}}
 
 == Standard constructor ==
