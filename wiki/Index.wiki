@@ -3,7 +3,7 @@
 
 = Glue Wiki Index = 
 
-As with most !OpenSource-projects, this is a work in progress. We can use [GetInvolved some help]! 
+As with most open source projects, this is a work in progress. We can use [GetInvolved some help]! 
 
 == About ==
  * [WhatIsGlue What is Glue?] 
