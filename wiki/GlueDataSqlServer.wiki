@@ -18,7 +18,7 @@ IDataProvider provider =
 == XML node ==
 {{{public SqlDataProvider(XmlNode node);}}}
 
-Constructs a SqlDataprovider with an XML node as a parameter. The node has to have either an attribute "connectionString", containing the complete connection string, or attributes for server, database, username and password.
+Constructs a !SqlDataprovider with an XML node as a parameter. The node has to have either an attribute "connectionString", containing the complete connection string, or attributes for server, database, username and password.
 
 {{{
 <!-- This is an XML node in the app's configuration file -->
