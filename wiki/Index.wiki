@@ -32,10 +32,10 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 == Getting Started with Glue.Data ==
 
  * [GlueDataHowto Glue.Data Tutorial]
+ * [GlueDataWorkingWithDataProvider Working with the DataProvider]
  * [GlueDataConfiguring Configuring Glue.Lib]
  * [GlueDataMapping Mapping a database to classes]
  * [GlueDataMappingAttributes Mapping class members to database columns]
- * [GlueDataWorkingWithDataProvider Working with the DataProvider]
  * [GlueDataFilterOrderLimit Filter, Order and Limit]
  * [GlueDataFind Using Find, FindByFilter and Exists] 
  * [GlueDataList Using List and Count]
