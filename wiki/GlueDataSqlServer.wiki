@@ -1,7 +1,7 @@
 #summary Glue.Data and MSSQL
 = Connecting to MSSQL =
 
-There are three ways to construct a SqlDataProvider.
+There are three ways to construct a !SqlDataProvider.
 
 == Connection string ==
 {{{SqlDataProvider(string connectionString);}}}
