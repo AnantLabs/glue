@@ -12,9 +12,7 @@ The connection settings should be set in an XML config file to keep your connect
     </configSections>
 
     <settings>	
-        <!-- 
-            Database connection to the Content-database
-        -->
+        <!-- Database connection to the Content-database -->
         <dataprovider
             type="Glue.Data.Providers.Sql.SqlDataProvider"
             database="dev"
