@@ -27,7 +27,7 @@ _Example: Web.config_
 
 = Store an IDataProvider as a global static variable =
 
-This has the advantage that the database connection stays open during the life of your program. Also, the different classes in your model can share the same !DataProvider, which means they also share the same connection.
+This has the advantage that the database connection stays open during the life of your program. Also, the different classes in your model can share the same !DataProvider, which means they also share the connection.
 
 This example shows how to load a !DataProvider in one line of code, using Glue.Lib.Configuration.
 
@@ -48,7 +48,7 @@ You can also use these class methods for
  * *Input validation:* For example, check that an e-mail address is valid
  * *Custom code on update or delete:* For example, set a '!ModifiedOn' variable before an update.
 
-The code below shows an extended Delete() method that clears a user's messages before deleting the user itself. A shortcut method "FindByName" is added for the common task of finding the user by its username, otherwise done using e.g. `Global.DataProvider.FindByFilter<User>(...)`
+The code below shows an extended Delete() method that clears a user's messages before deleting the user itself. A shortcut method "!FindByName" is added for the common task of finding the user by its username, otherwise done using e.g. `Global.DataProvider.FindByFilter<User>(...)`
 
 {{{
 [Table]
