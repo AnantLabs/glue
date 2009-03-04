@@ -57,7 +57,7 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
  * [GlueDataMySql Glue.Data and MySql]
  * [GlueDataSqLite Glue.Data and SqLite]
  * [GlueDataOracle Glue.Data and Oracle Db]
- * [GlueDataPostGres Glue.Data and PostGresql]
+ * [GlueDataPostgres Glue.Data and PostgreSQL]
 
 == Glue: platform support ==
  * [GluePlatformSupport Glue under .Net and Mono]
