@@ -33,7 +33,6 @@ As with most !OpenSource-projects, this is a work in progress. We can use [GetIn
 
  * [GlueDataHowto Glue.Data Tutorial]
  * [GlueDataWorkingWithDataProvider Working with the DataProvider]
- * [GlueDataConfiguring Configuring Glue.Lib]
  * [GlueDataMapping Mapping a database to classes]
  * [GlueDataMappingAttributes Mapping class members to database columns]
  * [GlueDataFilterOrderLimit Filter, Order and Limit]
