@@ -7,7 +7,7 @@ using System.IO;
 namespace Glue.Lib.Text
 {
 	/// <summary>
-	/// Summary description for CsvReader.
+	/// Csv-file reader class. Enables easy reading of Csv (and comparable) formats.
 	/// </summary>
 	public class CsvReader : IDisposable
 	{
@@ -20,10 +20,22 @@ namespace Glue.Lib.Text
         bool _header = false;
         char _separator = ',';
 
+        /// <summary>
+        /// Constructor. Creates a new CsvReader instance.
+        /// </summary>
+        /// <param name="reader">TextReader</param>
+        /// <param name="header">True if the first row in the file is a header row</param>
+        /// <remarks>The default seperator "," is used.</remarks>
         public CsvReader(TextReader reader, bool header) : this(reader, header, ',')
         {
         }
-        
+
+        /// <summary>
+        /// Constructor. Creates a new CsvReader instance.
+        /// </summary>
+        /// <param name="reader">TextReader</param>
+        /// <param name="header">True if the first row in the file is a header row</param>
+        /// <param name="separator">Separator charactor</param>
         public CsvReader(TextReader reader, bool header, char separator)
         {
             _reader = reader;
@@ -31,6 +43,9 @@ namespace Glue.Lib.Text
             _header = header;
         }
 
+        /// <summary>
+        /// Close the CsvReader and the underlying TextReader.
+        /// </summary>
         public void Close()
         {
             if (_reader != null)
@@ -45,6 +60,11 @@ namespace Glue.Lib.Text
             Close();
         }
 
+        /// <summary>
+        /// Return the index of the given column
+        /// </summary>
+        /// <param name="name">Column name</param>
+        /// <returns>Index; -1 if the column name could not be found.</returns>
         public int IndexOf(string name)
         {
             object o = _lookup[name];
@@ -54,6 +74,10 @@ namespace Glue.Lib.Text
                 return (int)o;
         }
 
+        /// <summary>
+        /// Read another line. 
+        /// </summary>
+        /// <returns>True if another line could be read from the TextReader</returns>
         public bool Read()
         {
             if (_names == null && _header)
@@ -84,27 +108,42 @@ namespace Glue.Lib.Text
                 _lookup.Add(_names[i], i);
         }
 
+        /// <summary>
+        /// Return the current line.
+        /// </summary>
         public string Line
         {
             get { return _line; }
         }
 
+        /// <summary>
+        /// Return the current line number
+        /// </summary>
         public int LineNumber
         {
             get { return _lineno; }
         }
 
+        /// <summary>
+        /// Separator char. Default is ",".
+        /// </summary>
         public char Separator
         {
             get { return _separator; }
             set { _separator = value; }
         }
 
+        /// <summary>
+        /// Return the values on the current line
+        /// </summary>
         public string[] Values
         {
             get { return _values; }
         }
 
+        /// <summary>
+        /// Return the column names
+        /// </summary>
         public string[] Names
         {
             get 
@@ -115,6 +154,11 @@ namespace Glue.Lib.Text
             }
         }
 
+        /// <summary>
+        /// Return the value in the given column number
+        /// </summary>
+        /// <param name="i">Column number</param>
+        /// <returns>Value</returns>
         public string this[int i]
         {
             get {  return _values[i]; }
