@@ -44,7 +44,7 @@ namespace Glue.Data.PostgreSQL
 
         protected override QueryBuilder CreateQueryBuilder()
         {
-            return new QueryBuilder('?', '"', '"', ";", "@@IDENTITY");
+            return new QueryBuilder('?', '"', '"', ";", "lastval()");
         }
 
         protected override Accessor CreateAccessor(Type type)
