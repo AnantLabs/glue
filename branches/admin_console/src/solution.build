@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Glue" default="build" basedir=".">
+
+<!--
+Targets:
+
+clean			- Cleans build dir.
+build			- Builds project in ../bin
+dist			- Create package (zip) of exported sources in dist-directory
+doc			- Builds api documentation, using ndoc
+doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
+
+-->
+
+	<!-- Properties -->
+	<property name="glue.supported_frameworks" value="mono-2.0,net-2.0" />
+	<property name="glue.builddir" value="${project::get-base-directory()}/../bin" /> 
+	<property name="glue.apidir" value="${project::get-base-directory()}/../doc/api" /> <!-- generated api documentation -->
+	<property name="glue.common.nant" value="${project::get-base-directory()}/common.nant" />
+
+	<!-- Select a supported framework -->
+	<foreach item="String" in="${glue.supported_frameworks}" delim="," property="framework">
+		<if test="${framework::exists(framework)}">
+			<echo message="Selecting framework: ${framework}" />
+			<property name="nant.settings.currentframework" value="${framework}" />
+			<property name="glue.currentframework" value="${framework}" />
+		</if>
+	</foreach>
+	<if test="${not property::exists('glue.currentframework')}">
+		<fail message="Could not find a supported framework. Supported frameforks are: ${glue.supported_frameworks}" />
+	</if>
+
+
+	<!-- CLEAN - Clean build directories  -->
+	<target name="clean" description="Clean build directories">
+		<delete>
+			<fileset>
+				<include name="${glue.builddir}/*.dll" />
+				<include name="${glue.builddir}/*.xml" />
+				<!--<include name="${glue.apidir}/**" />-->
+			</fileset>
+		</delete>
+	</target>
+
+	<!-- BUILD - Build target -->
+	<target name="build" description="Builds the projects">
+		<nant buildfile="Glue.Lib/project.build" target="build"/>
+		<nant buildfile="Glue.Data/project.build" target="build"/>
+		<nant buildfile="Glue.Data.MySql/project.build" target="build"/>
+		<nant buildfile="Glue.Data.Oracle/project.build" target="build"/>
+		<nant buildfile="Glue.Data.PostgreSQL/project.build" target="build"/>
+		<nant buildfile="Glue.Data.SQLite/project.build" target="build"/>
+		<nant buildfile="Glue.Web/project.build" target="build"/>
+		<nant buildfile="Glue.Web.Python/project.build" target="build"/>
+	</target>
+
+	<target name="doc">
+	<!-- TODO: this target does not work. -->
+		<ndoc>
+			<assemblies basedir="${glue.builddir}">
+				<include name="*.dll" />
+			</assemblies>
+			<documenters>
+				<documenter name="MSDN">
+					<property name="OutputDirectory" value="${apidir}" />
+					<property name="OutputTarget" value="Web" />
+					<property name="DocumentInternals" value="False" />
+				</documenter>
+			</documenters>
+		</ndoc>
+	</target>
+
+	<target name="doc-sandcastle" description="Builds api documentation with Sandcastle Help File Builder.">
+		<exec
+			program="c:/Program Files/EWSoftware/Sandcastle Help File Builder/SandcastleBuilderConsole.exe"
+			commandline="../doc/Glue.Help.shfb"
+		/>
+	</target>
+
+	<target name="info" description="Show configuration">
+		<property name="framework" value="${framework::get-target-framework()}" />
+		<echo>Platform:           ${platform::get-name()} </echo>
+		<echo>Target framework:   ${framework} </echo>
+		<echo>Description:        ${framework::get-description(framework)} </echo>
+		<echo>Family:             ${framework::get-family(framework)} </echo>
+		<echo>CLR version:        ${framework::get-clr-version(framework)} </echo>
+		<echo>Runtime engine:     ${framework::get-runtime-engine(framework)} </echo>
+	</target>
+
+	<target name="dist" description="Create package (zip) of exported sources in dist-directory.">
+		<delete dir="disttemp" failonerror="false" />
+		<exec
+			program="svn"
+			commandline="export .. disttemp"
+		/>
+		<zip zipfile="Glue-src-1.2.zip">
+		    <fileset basedir="disttemp" prefix="">
+			<include name="**/*" />
+		    </fileset>
+		</zip>
+	</target>
+
+	<target name="dist-bin" description="Create binary distribution." depends="build">
+		<delete dir="disttemp" failonerror="false" />
+		<mkdir dir="disttemp" />
+		<copy todir="disttemp">
+			<fileset basedir="../bin">
+				<include name="*.dll" />
+			</fileset>
+		</copy>
+		<zip zipfile="../Glue-1.2.1.zip">
+		    <fileset basedir="disttemp" prefix="">
+			<include name="**/*" />
+		    </fileset>
+		</zip>
+		<delete dir="disttemp" failonerror="false" />
+	</target>
+
+</project>

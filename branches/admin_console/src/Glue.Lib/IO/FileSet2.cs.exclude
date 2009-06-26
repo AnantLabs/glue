@@ -1,0 +1,222 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Collections;
+using System.Collections.Specialized;
+
+namespace Glue.Lib.IO
+{
+	/// <summary>
+	/// Summary description for FileSet.
+	/// </summary>
+	public class FileSet2
+	{
+        StringCollection _includes = new StringCollection();
+        StringCollection _excludes = new StringCollection();
+        StringCollection _files = new StringCollection();
+        StringCollection _directories = new StringCollection();
+        string _baseDirectory = ".";
+        bool _defaultExcludes = true;
+
+        public string BaseDirectory
+        {
+            get { return _baseDirectory; }
+            set { _baseDirectory = value; }
+        }
+        
+        public bool DefaultExcludes
+        {
+            get { return _defaultExcludes; }
+            set { _defaultExcludes = value; }
+        }
+
+        public StringCollection Includes
+        {
+            get { return _includes; }
+        }
+
+        public StringCollection Excludes
+        {
+            get { return _excludes; }
+        }
+        
+        public StringCollection Files
+        {
+            get { return _files; }
+        }
+        
+        public StringCollection Directories
+        {
+            get { return _directories; }
+        }
+        
+        public static void Test()
+        {
+            FileSet2 s = new FileSet2("d:/projects", "doc/**", "src/**.cs");
+            s.Scan();
+        }
+
+        public FileSet2()
+        {
+        }
+
+        public FileSet2(string baseDirectory, params string[] includes)
+		{
+            BaseDirectory = baseDirectory;
+            Includes.AddRange(includes);
+		}
+
+        public void Scan()
+        {
+            _files.Clear();
+            _directories.Clear();
+            StringCollection includes = new StringCollection();
+            foreach (string s in Includes)
+                includes.Add(s);
+            if (includes.Count == 0)
+                includes.Add("**");
+            StringCollection excludes = new StringCollection();
+            foreach (string s in Excludes)
+                excludes.Add(s);
+            if (DefaultExcludes)
+            {
+                excludes.Add("**/*~");
+                excludes.Add("**/#*#");
+                excludes.Add("**/.#*");
+                excludes.Add("**/%*%");
+                excludes.Add("**/CVS");
+                excludes.Add("**/.cvsignore");
+                excludes.Add("**/.svn");
+                excludes.Add("**/_svn");
+                excludes.Add("**/SCCS");
+                excludes.Add("**/vssver.scc");
+                excludes.Add("**/_vti_cnf");
+            }
+
+            // Expand basedir
+            string baseDirectory = Path.GetFullPath(_baseDirectory.Replace('/','\\'));
+
+            // Prepare include and exclude patterns
+            for (int i = includes.Count - 1; i >= 0; i--)
+            {
+                string pattern = includes[i];
+                pattern = pattern.Replace('/','\\');
+                pattern = Path.Combine(baseDirectory, pattern);
+                pattern = pattern.Replace("\\**\\", "|");
+                pattern = pattern.Replace("**", ">");
+                includes[i] = pattern;
+            }
+            for (int i = excludes.Count - 1; i >= 0; i--)
+            {
+                string pattern = excludes[i];
+                pattern = pattern.Replace('/','\\');
+                pattern = Path.Combine(baseDirectory, pattern);
+                pattern = pattern.Replace("\\**\\", "|");
+                pattern = pattern.Replace("**", ">");
+                excludes[i] = pattern;
+            }
+
+            // Obtain roots
+            StringCollection roots = new StringCollection();
+            for (int i = 0; i < includes.Count; i++)
+            {
+                string include = TruncAt(includes[i], '|','>','*');
+                for (int j = roots.Count - 1; j >= 0; j--)
+                {
+                    string root = TruncAt(roots[j], '|','>','*');
+                    if (include.Length < root.Length && string.Compare(include, 0, root, 0, include.Length, true) == 0)
+                        roots[j] = null;
+                }
+                roots.Add(include);
+            }
+            for (int i = roots.Count - 1; i >= 0; i--)
+                if (roots[i] == null)
+                    roots.RemoveAt(i);
+            
+            foreach (string s in roots)
+                Log.Info("Root=" + s);
+            foreach (string s in includes)
+                Log.Info("Include=" + s);
+            foreach (string s in excludes)
+                Log.Info("Exclude=" + s);
+        }
+
+        private static string TruncAt(string s, params char[] seps)
+        {
+            int i = s.IndexOfAny(seps);
+            if (i < 0)
+                return s;
+            else
+                return s.Substring(0, i);
+        }
+
+        /// <summary>
+        /// </summary>
+		private void Scan(string relativeDirectory, bool recursive, StringCollection scannedDirectories)
+        {
+            Log.Debug("Scanning: " + relativeDirectory);
+        }
+
+        /// <summary>
+        /// Ensure path has valid directory separator chars:
+        /// '\' on Win32, '/' on *nix.
+        /// </summary>
+        private static string CleanPath(string path) 
+        {
+            // NAnt patterns can use either / \ as a directory separator.
+            // We must replace both of these characters with Path.DirectoryseparatorChar
+            return path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+        }
+
+        /// <summary>
+        ///   Matches tests whether the given input string matches the wildcard. WildCard
+        ///   can contain * and ? special characters.
+        /// </summary>
+        private static bool Matches(string input, int i, string wild, int j)
+        {
+            // compare until we hit a wild card
+            while (i < input.Length && j < wild.Length)
+            {
+                if (wild[j] == '?' || char.ToUpper(input[i]) == char.ToUpper(wild[j]))
+                {
+                    i++;
+                    j++;
+                }
+                else if (wild[j] == '*')
+                {
+                    j++;
+                    // end of pattern?
+                    if (j >= wild.Length)
+                    {
+                        return true;
+                    }
+                    // do recursion on hitting a *
+                    while (i < input.Length)
+                    {
+                        // see if this remainder matches
+                        if (Matches(input, i, wild, j))
+                        {
+                            return true;
+                        }
+                        // next remainder
+                        i++;
+                    } 
+                    return false;
+                } 
+                else
+                {
+                    // return mismatch
+                    return false;
+                }
+            }
+            // skip remaining '*'
+            while (j < wild.Length && wild[j] == '*')
+            {
+                j++;
+            }
+            // it's a match if we are at the end of both wildcard and input
+            return (i >= input.Length && j >= wild.Length);
+        }
+    }
+}

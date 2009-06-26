@@ -1,0 +1,5 @@
+[DEFAULT]
+BASEURL=http://dev.mysql.com/downloads/connector/
+[InternetShortcut]
+URL=http://dev.mysql.com/downloads/connector/
+Modified=90360D747CECC50175

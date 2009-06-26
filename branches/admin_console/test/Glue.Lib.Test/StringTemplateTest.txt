@@ -1,0 +1,77 @@
+
+CONTENT
+========
+
+test $afko(datetime.now) unicode xxx
+een dollar $$ een hekje ##
+
+<table>
+  <tr>
+    <td>first name</td><td>$firstname</td></tr>
+    <td>last name </td><td>$LastName</td></tr>
+    <td>age       </td><td>$age</td></tr>
+    <td>test1     </td><td>$test1</td></tr>
+    <td>test2     </td><td>$test2</td></tr>
+  </tr>
+</table>
+
+${55*30+20+30}
+een naampje $expr dus
+een dollar $$
+test
+
+#def hyperlink(text='niks', url='nowhere')
+    <a href="$url" tip='$text.toupper()'>$text</a>
+#end
+
+#def hyperlink2()
+    <a href="$expr">$expr</a>
+#end
+
+_er_zijn_x_huizen_gevonden $n
+
+$hyperlink(url='bla', text='wok')
+
+$hyperlink(url="http://www.xxx.yy", text='een\n\tw""\'"eeebbsite\n')
+
+#template footer
+    <div class="footer">
+      <a href="$expr">link...</a>
+      <a href="$expr">#inner#</a>
+    </div>
+#end
+
+HEADER
+#set test=0
+#set wok=1
+
+#for user in users(20,30) counter i
+    <!-- even row -->
+    #if test
+        RED-ROW $i
+    #end
+    #if test
+        TEST-TRUE
+    #else
+        TEST-FALSE
+    #end
+    #set test=1-test
+    <!-- end even row -->
+#alt
+    <!-- odd row -->
+    #if test
+        BLUE-ROW $i
+    #end
+    #if test
+        TEST-TRUE
+    #else
+        TEST-FALSE
+    #end
+    #set test=1-test
+#end
+
+#footer
+    inner stuff
+#end
+
+----

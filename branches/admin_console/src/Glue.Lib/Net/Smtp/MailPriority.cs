@@ -1,0 +1,1 @@
+//// Glue.Lib.Mail.MailPriority.cs////namespace Glue.Lib.Mail {	/// <summary>	/// </summary>	public enum MailPriority 	{		/// <summary>		/// </summary>		Normal = 0,		/// <summary>		/// </summary>		Low = 1,        /// <summary>		/// </summary>		High = 2	} } //namespace Glue.Lib.Mail

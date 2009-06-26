@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project description="">
+	<description>
+		Common targets/methods for nant build
+	</description>
+
+	<target name="svnversion" description="Puts SVN version (or 0 if not found) into a property 'svnversion'.">
+		<!-- TODO failonerror -->
+		<exec program="svnversion" output="svnversion.tmp" />
+		<loadfile file="svnversion.tmp" property="svnversion_output" />
+		<delete file="svnversion.tmp" />
+		<!-- svnversion output can be like '32', '32:36', '32M', 'exported', etc. We just use the first number. -->
+		<regex pattern="^(?'svnversion'\d+)" input="${svnversion_output}" />
+		<if test="${not property::exists('svnversion')}">
+			<property name="svnversion" value="0" />
+		</if>
+	</target>
+
+	<target name="asminfo" depends="svnversion" 
+		description="Create an asminfo file. The properties 'asminfo.dir', 'asminfo.file', 
+					 'asminfo.version', 'asminfo.company', 'asminfo.copyright' and 'asminfo.title' should be set by the caller."
+		>
+		<if test="${not property::exists('asminfo.version')}">
+			<property name="asminfo.version" value="0.0" />
+		</if>
+		<asminfo language="CSharp" output="${asminfo.dir}/AssemblyVersion.cs">
+			<imports>
+				<import namespace="System" />
+				<import namespace="System.Reflection" />
+				<import namespace="System.Runtime.InteropServices" />
+			</imports>
+			<attributes>
+				<!--
+				<attribute type="ComVisibleAttribute" value="false" />
+				<attribute type="AssemblyProductAttribute" value="${asminfo.product}" />
+				<attribute type="AssemblyVersionAttribute" value="${asminfo.version}.${svnversion}" />
+				<attribute type="AssemblyInformationalVersionAttribute" value="${asminfo.version}.${svnversion}" />
+				<attribute type="AssemblyTitleAttribute" value="${asminfo.title}" />
+				<attribute type="AssemblyCompanyAttribute" value="${asminfo.company}" />
+				<attribute type="AssemblyCopyrightAttribute" value="${asminfo.copyright}" />
+				-->
+				<attribute type="AssemblyVersionAttribute" value="${asminfo.version}.${svnversion}" />
+				<attribute type="AssemblyInformationalVersionAttribute" value="${asminfo.version}.${svnversion}" />
+				<!--<attribute type="AssemblyProductAttribute" value="${product.name}" />-->
+				<!--<attribute type="AssemblyDescriptionAttribute" value="More fun than a barrel of monkeys" />-->
+				<!--<attribute type="AssemblyCopyrightAttribute" value="" />-->
+			</attributes>
+			<references />
+		</asminfo>
+	</target>
+
+</project>
