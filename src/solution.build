@@ -52,6 +52,7 @@ doc-sandcastle		- Builds api documentation with Sandcastle Help File Builder.
 		<nant buildfile="Glue.Data.SQLite/project.build" target="build"/>
 		<nant buildfile="Glue.Web/project.build" target="build"/>
 		<nant buildfile="Glue.Web.Python/project.build" target="build"/>
+		<nant buildfile="Glue.Web.Admin/project.build" target="build"/>
 	</target>
 
 	<target name="doc">
