@@ -1,0 +1,2222 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>glue.data</name>
+    </assembly>
+    <members>
+        <member name="T:Glue.Data.Schema.Scalar">
+            <summary>
+            Scalar
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.SchemaObject">
+            <summary>
+            SchemaObject
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.XmlDataExporter">
+            <summary>
+            Summary description for XmlDataExporter.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.IDataExporter">
+            <summary>
+            Exports the contents of a table. (Typically to a file/stream like object you pass to the constructor).
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataExporter.WriteStart(System.String,System.String[],System.Type[])">
+            <summary>
+            Declares table schema information like table and column names, to be used in the Set...() and Write...() methods
+            </summary>
+            <param name="name">table name</param>
+            <param name="columns">Column names, e.g. {"Id", "name", "birthdate"}</param>
+            <param name="types">Types for the columns in 'columns', e.g. {Int32, String, DateTime}</param>
+        </member>
+        <member name="M:Glue.Data.IDataExporter.WriteRow">
+            <summary>
+            Writes current row.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataExporter.WriteEnd">
+            <summary>
+            "Closes" the table (e.g. write closing tags). You should call this method after writing all the rows with WriteRow().
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataExporter.SetValue(System.Int32,System.Object)">
+            <summary>
+            Sets value of a column in the current row. After setting the values of all columns, call WriteRow().
+            </summary>
+            <param name="index">Column number (zero-based).</param>
+            <param name="value">Value to set in the current row. The object should have the type you declared in WriteStart().</param>
+        </member>
+        <member name="M:Glue.Data.IDataExporter.SetValue(System.String,System.Object)">
+            <summary>
+            Sets value of a column in the current row. After setting the values of all columns, call WriteRow().
+            </summary>
+            <param name="name">Column name. Should be one of the values of the columns[] parameter you passed to WriteStart().</param>
+            <param name="value">Value to set in the current row. The object should have the type you declared in WriteStart().</param>
+        </member>
+        <member name="T:Glue.Data.Schema.View">
+            <summary>
+            View
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Container">
+            <summary>
+            Base class for Table and View.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.PrimaryKey">
+            <summary>
+            PrimaryKey
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Constraint">
+            <summary>
+            Constraint
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Parameter">
+            <summary>
+            Parameter
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Index">
+            <summary>
+            Index
+            </summary>
+        </member>
+        <member name="T:Glue.Data.QueryBuilder">
+            <summary>
+            Helper class for creating SQL queries. Used by DataProvider classes.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Table">
+            <summary>
+            Table
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.TableAttribute">
+            <summary>
+            Properties for the database table.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.TableAttribute.Name">
+            <summary>
+            Table name. If not set, it is assumed to be the same as the class name.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.TableAttribute.Cached">
+            <summary>
+            Cache table?
+            The complete table will be cached the first time it is loaded. It is stored in a hashtable by its 
+            primary key. Use the IDataProvider.InvalidateCache() method if you need to clear the cache.
+            Useful for lookup tables.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.TableAttribute.Prefix">
+            <summary>
+            Columns in the database table have this prefix. The prefix will be prepended to the property name.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.TableAttribute.Explicit">
+            <summary>
+            If true, a public property in this class will only be mapped to a database column if it has
+            a [Column] attribute.
+            If false, every public property will be mapped, unless it has an [Exclude] attribute.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.TableAttribute.DataProvider">
+            <summary>
+            Name of the dataprovider configuration element. The default is 'dataprovider'.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.ColumnAttribute">
+            <summary>
+            Properties for the database column. 
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.ExcludeAttribute">
+            <summary>
+            Entities with an [Exclude] attribute will not be mapped to database columns.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.KeyAttribute">
+            <summary>
+            This attribute specifies that the corresponding column is (part of) the primary key.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.AutoKeyAttribute">
+            <summary>
+            Specifies that a class member is an auto key. Its value will be set by the database when the object is
+            inserted.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.CalculatedAttribute">
+            <summary>
+            Specifies that the database column is a calculated value. It will not be included in Inserts or Updates,
+            but will be retrieved by Find and List.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.Accessor">
+            <summary>
+            Summary description for Accessor.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Mapping.Accessor.Type">
+            <summary>
+            Type for this accessor
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.Obtain(Glue.Data.BaseDataProvider,System.Type)">
+            <summary>
+            Obtain an Accessor for given provider and object type.
+            </summary>
+            <param name="provider"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.#ctor(Glue.Data.IDataProvider,System.Type)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.CreateColumnOrdinals(System.Data.IDataReader)">
+            <summary>
+            Create a lookup list of fieldnames => ordinals on the opened DataReader.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.ListFromReaderDynamic(System.Data.IDataReader,Glue.Data.Limit)">
+            <summary>
+            Instantiates a list of objects from the IDataReader; the columns in the 
+            reader can be in any order.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.ListFromReaderFixed(System.Data.IDataReader)">
+            <summary>
+            Instantiates a list of objects from the IDataReader; the columns in the 
+            reader must be in fixed order, corresponding to the class in-memory layout.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.CreateFromReaderDynamic(System.Data.IDataReader,System.Collections.IDictionary)">
+            <summary>
+            Instantiate an object from given IDataReader. Columns must be in fixed order,
+            corresponding to the class member layout.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.CreateFromReaderFixed(System.Data.IDataReader,System.Int32)">
+            <summary>
+            Instantiate an object from given IDataReader. Columns must be in fixed order,
+            corresponding to the class member layout.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.CheckLength(System.Object,System.Int32,System.String)">
+            <summary>
+            Throws exception if value is a string and value is longer than maxlength/
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.InitFromReaderDynamic(System.Object,System.Data.IDataReader,System.Collections.IDictionary)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.InitFromReaderFixed(System.Object,System.Data.IDataReader,System.Int32)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.AddAllParametersToCommand(System.Object,System.Data.IDbCommand)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Mapping.Accessor.AddKeyParametersToCommand(System.Object,System.Data.IDbCommand)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Glue.Data.ISchemaProvider">
+            <summary>
+            ISchemaProvider
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Trigger">
+            <summary>
+            Trigger
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Providers.Sql.SqlDataProvider">
+            <summary>
+            DataProvider for Microsoft SQL Server databases.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.BaseDataProvider">
+            <summary>
+            Implements many common methods for DataProviders. Currently all Glue DataProviders
+            use this as a base class to implement the IDataProvider interface.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.IDataProvider">
+            <summary>
+            IDataProvider is a database independent interface to a database. A class that implements this
+            interface can connect to a single database. IDataProvider has methods to run arbitrary queries 
+            on a database, as well as generic methods to find, list, delete and count objects that can be 
+            mapped to tables in the database.
+            Use the attributes in Glue.Data.Mapping to adjust the way that a class will be mapped.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Open">
+            <summary>
+            Open connection and return a cloned provider associated with this connection.
+            </summary>
+            <example>
+            using (IDataProvider provider = Provider.Current.Open()) {
+                provider.ExecuteNonQuery("update Contacts set Login=Login+1 where Id=@Id", "Id",10);
+                ...
+                provider.ExecuteNonQuery( ... );
+            }
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Open(System.Data.IsolationLevel)">
+            <summary>
+            Open a transaction and return a cloned provider associated with this transaction.
+            </summary>
+            <example>
+            using (IDataProvider provider = Provider.Current.Open(IsolationLevel.ReadCommitted)) {
+                provider.ExecuteNonQuery("update Account set Saldo=Saldo+@Amount where Id=@Id", "Id", 10, Amount,99);
+                provider.ExecuteNonQuery("update Account set Saldo=Saldo-@Amount where Id=@Id", "Id", 11, Amount,99);
+                // Calling Commit is optional, because the "using" statement will make 
+                // sure the Close method is called, which will also commit any pending 
+                // transaction.
+                provider.Commit(); 
+            }
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Cancel">
+            <summary>
+            Rollback transaction.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Close">
+            <summary>
+            Close and commit any pending transactions
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.AddParameter(System.Data.IDbCommand,System.String,System.Object)">
+            <summary>
+            Add a single parameters on a IDbCommand using a name/value pair. 
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="name">Name of the parameter</param>
+            <param name="value">Value of the parameter</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.AddParameter(cmd, "Id", myGuid);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.AddParameters(System.Data.IDbCommand,System.Object[])">
+            <summary>
+            Add parameters on IDbCommand using a name/value parameter-collection.
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="paramNameValueList">Parameters as name/ value pairs</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.AddParameters(cmd, "Id", myGuid, "Name", name);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.SetParameter(System.Data.IDbCommand,System.String,System.Object)">
+            <summary>
+            Set a single parameters on a IDbCommand using a name/value pair. 
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="name">Name of the parameter</param>
+            <param name="value">Value of the parameter</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.SetParameter(cmd, "Id", myGuid);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.SetParameters(System.Data.IDbCommand,System.Object[])">
+            <summary>
+            Set parameters on IDbCommand using a name/value parameter-collection.
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="paramNameValueList">Parameters as name/ value pairs</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.SetParameters(cmd, "Id", myGuid, "Name", name);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.CreateCommand(System.String,System.Object[])">
+            <summary>
+            Create command from command text and parameters
+            </summary>
+            <param name="commandText">Command text</param>
+            <param name="paramNameValueList">Parameters</param>
+            <returns></returns>
+            <example>
+            DataProvider.Current.CreateCommand("SELECT * FROM User Where Name=@Name", "Name", name);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.CreateSelectCommand(System.String,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit,System.Object[])">
+            <summary>
+            Create SELECT command
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.CreateInsertCommand(System.String,System.Object[])">
+            <summary>
+            Create INSERT-command
+            </summary>
+            <param name="table">Table name</param>
+            <param name="columnNameValueList">Name/ value pairs</param>
+            <returns></returns>
+            <example>
+            DataProvider.Current.CreateInsertCommand("User", "Name", name, "DateOfBirth", dateOfBirth);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.CreateUpdateCommand(System.String,Glue.Data.Filter,System.Object[])">
+            <summary>
+            Create UPDATE command and set up parameters
+            </summary>
+            <example>
+            DataProvider.Current.CreateInsertCommand("User", "Name", name, "DateOfBirth", dateOfBirth);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.CreateStoredProcedureCommand(System.String,System.Object[])">
+            <summary>
+            Create stored procedure command and initialize parameters.
+            </summary>
+            <example>
+            DataProvider.Current.CreateStoredProcedureCommand("FindUserByEmail", "Name", "john@doe");
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteNonQuery(System.Data.IDbCommand)">
+            <summary>
+            Execute non-query command. No need to set Connection and Transaction properties on the command.
+            Returns number of rows affected (if applicable).
+            </summary>
+            <example>
+            IDbCommand command = MyProvider.CreateCommand("UPDATE Contact SET Logins=Logins+1 WHERE Id=@Id", "Id", 20);
+            MyProvider.ExecuteNonQuery(command);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteNonQuery(System.String,System.Object[])">
+            <summary>
+            Execute non-query command. No need to set Connection and Transaction properties on the command.
+            Returns number of rows affected (if applicable).
+            </summary>
+            <example>
+            DataProvider.Current.ExecuteNonQuery(
+                "UPDATE Contact SET DisplayName=@DisplayName WHERE Id=@Id", 
+                "Id", 10,                   // @Id => 10
+                "DisplayName", "John Doe"   // @DisplayName => "John Doe"
+            );
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteReader(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning data in a IDataReader. No need to set Connection and Transaction 
+            properties on the command. You are responsible for closing the IDataReader. Easiest way
+            is with a "using" statement.
+            Returns an open IDataReader
+            </summary>
+            <example>
+            IDbCommand command = DataProvider.Current.CreateSelectCommand(
+                "Contacts",             // table 
+                "Id,DisplayName",       // columns
+                null,                   // filter
+                "-DisplayName,+Id",     // order
+                Limit.Range(100,110)    // limit
+            );
+            using (IDataReader reader = DataProvider.Current.ExecuteReader(command))
+                while (reader.Read())
+                    Console.WriteLine(reader["Id"]);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteReader(System.String,System.Object[])">
+            <summary>
+            Execute command returning data in a IDataReader. No need to set Connection and Transaction 
+            properties on the command. You are responsible for closing the IDataReader. Easiest way
+            is with a "using" statement.
+            Returns an open IDataReader.
+            </summary>
+            <example>
+            using (IDataReader reader = DataProvider.Current.ExecuteReader("SELECT * FROM Contacts"))
+                while (reader.Read())
+                    Console.WriteLine(reader[0]);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalar(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning scalar value. No need to set Connection and Transaction 
+            properties on the command. 
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns single value (scalar).</returns>
+            <example>
+            DateTime? dt = (DataTime?)DataProvider.Current.ExecuteScalar(command);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalar(System.String,System.Object[])">
+            <summary>
+            Execute command returning scalar value. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns a single value (scalar).
+            </summary>
+            <example>
+            DateTime? dt = (DataTime?)DataProvider.Current.ExecuteScalar("SELECT BirthDate FROM Contacts WHERE Id=@Id", "Id",10);
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalarInt32(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning an int value. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns a single value (scalar).
+            </summary>
+            <example>
+            int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalarInt32(System.String,System.Object[])">
+            <summary>
+            Execute command returning an int value. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns a single value (scalar).
+            </summary>
+            <example>
+            int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalarString(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning a string. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns string or null.
+            </summary>
+            <example>
+            string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ExecuteScalarString(System.String,System.Object[])">
+            <summary>
+            Execute command returning a string. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns string or null.
+            </summary>
+            <example>
+            string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
+            </example>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Find(System.Type,System.Object[])">
+            <summary>
+            Find object by its primary key(s)
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Find(System.Type,System.Data.IDbCommand)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.FindByFilter(System.Type,Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.FindByFilter(System.Type,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.FindByFilter(System.String,System.Type,Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.List(System.Type,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.List(System.String,System.Type,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.List(System.Type,System.Data.IDbCommand)">
+            <summary>
+            Return objects of given type selected by command.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Exists(System.Object)">
+            <summary>
+            Tests if given object exists
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Insert(System.Object)">
+            <summary>
+            Insert given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Update(System.Object)">
+            <summary>
+            Update given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Save(System.Object)">
+            <summary>
+            Save (insert or update) given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Delete(System.Object)">
+            <summary>
+            Delete given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Delete(System.Type,System.Object[])">
+            <summary>
+            Delete object by primary key(s).
+            </summary>
+            <param name="type">Type of object</param>
+            <param name="keys">Keys</param>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.DeleteAll(System.Type,Glue.Data.Filter)">
+            <summary>
+            Delete all objects satisfying given filter.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Count(System.Type,Glue.Data.Filter)">
+            <summary>
+            Determine number of objects satisfying given filter.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ListManyToMany(System.Object,System.Type,System.String)">
+            <summary>
+            List all associated (right-side) objects for given instance (left-side) 
+            in a many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.ListManyToMany(System.Object,System.Type,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            List all associated (right-side) objects for given instance (left-side) 
+            in a many-to-many relationship. Explicitly specify the joining table.
+            Filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.AddManyToMany(System.Object,System.Object,System.String)">
+            <summary>
+            Create an association between left and right object in a 
+            many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.DelManyToMany(System.Object,System.Object,System.String)">
+            <summary>
+            Delete an association between left and right object in a 
+            many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Map(System.Type,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Creates a dictionary of key-entity pairs for a given type. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.Map(System.String,System.String,System.String,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Creates a dictionary of key-value pairs where the keys and values are taken from two columns in a table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.IDataProvider.GetSchemaProvider">
+            <summary>
+            Returns a schema provider of the correct type for this data provider (e.g. a MySqlDataProvider returns a
+            MySqlSchemaProvider).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Glue.Data.IDataProvider.ConnectionString">
+            <summary>
+            Returns the ConnectionString for this DataProvider
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.#ctor">
+            <summary>
+            Protected default constructor.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.#ctor(Glue.Data.BaseDataProvider)">
+            <summary>
+            Protected copy constructor. Needed for Open() methods.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.#ctor(System.String)">
+            <summary>
+            Initialize the DataProvider with given connection string.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Copy">
+            <summary>
+            Create a copy of this connection. Override this in your derived provider.
+            Only copy the connection string, do not copy connection and transaction fields.
+            Needed for Open() methods.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.InternalOpen(System.Data.IsolationLevel)">
+            <summary>
+            Internal open function. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Open">
+            <summary>
+            Open connection and return a cloned provider associated with this connection.
+            </summary>
+            <example>
+            using (IDataProvider provider = Provider.Current.Open()) {
+                provider.ExecuteNonQuery("update Contacts set Login=Login+1 where Id=@Id", "Id",10);
+                ...
+                provider.ExecuteNonQuery( ... );
+            }
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Open(System.Data.IsolationLevel)">
+            <summary>
+            Open connection and return a cloned provider associated with this connection.
+            </summary>
+            <example>
+            using (IDataProvider provider = Provider.Current.Open()) {
+                provider.ExecuteNonQuery("update Contacts set Login=Login+1 where Id=@Id", "Id",10);
+                ...
+                provider.ExecuteNonQuery( ... );
+            }
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Cancel">
+            <summary>
+            Rollback transaction.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Close">
+            <summary>
+            Close and commit any pending transactions
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.System#IDisposable#Dispose">
+            <summary>
+            Close and commit any pending transactions
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateConnection">
+            <summary>
+            Create a provider specific connection. Override this in your derived provider.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.GetConnection">
+            <summary>
+            Get an existing connection or create a new one.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CollectParameters(System.Object[])">
+            <summary>
+            Collect parameter names and values from a array of objects.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.AddParameter(System.Data.IDbCommand,System.String,System.Object)">
+            <summary>
+            Add a single parameters on a IDbCommand using a name/value pair. 
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="name">Name of the parameter</param>
+            <param name="value">Value of the parameter</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.AddParameter(cmd, "Id", myGuid);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.SetParameter(System.Data.IDbCommand,System.String,System.Object)">
+            <summary>
+            Set a single parameters on a IDbCommand using a name/value pair. 
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="name">Name of the parameter</param>
+            <param name="value">Value of the parameter</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.SetParameter(cmd, "Id", myGuid);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.AddParameters(System.Data.IDbCommand,System.Object[])">
+            <summary>
+            Set parameters on IDbCommand using a name/value parameter-collection.
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="paramNameValueList">Parameters as name/ value pairs</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.SetParameters(cmd, "Id", myGuid, "Name", name);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.SetParameters(System.Data.IDbCommand,System.Object[])">
+            <summary>
+            Set parameters on IDbCommand using a name/value parameter-collection.
+            </summary>
+            <param name="command">IDbCommand</param>
+            <param name="paramNameValueList">Parameters as name/ value pairs</param>
+            <remarks>
+            Usage looks like this:
+            <example>
+            DataProvider.Current.SetParameters(cmd, "Id", myGuid, "Name", name);
+            </example>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateQueryBuilder">
+            <summary>
+            Create a QueryBuilder helper specific to the SQL dialect of
+            this provider.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateCommand(System.String,System.Object[])">
+            <summary>
+            Create command from command text and parameters
+            </summary>
+            <param name="commandText">Command text</param>
+            <param name="paramNameValueList">Parameters</param>
+            <returns></returns>
+            <example>
+            DataProvider.Current.CreateCommand("SELECT * FROM User Where Name=@Name", "Name", name);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateSelectCommand(System.String,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit,System.Object[])">
+            <summary>
+            Create SELECT command
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateInsertCommand(System.String,System.Object[])">
+            <summary>
+            Create INSERT-command
+            </summary>
+            <param name="table">Table name</param>
+            <param name="columnNameValueList">Name/ value pairs</param>
+            <returns></returns>
+            <example>
+            DataProvider.Current.CreateInsertCommand("User", "Name", name, "DateOfBirth", dateOfBirth);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateUpdateCommand(System.String,Glue.Data.Filter,System.Object[])">
+            <summary>
+            Create UPDATE command and set up parameters
+            </summary>
+            <example>
+            DataProvider.Current.CreateInsertCommand("User", "Name", name, "DateOfBirth", dateOfBirth);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateStoredProcedureCommand(System.String,System.Object[])">
+            <summary>
+            Create stored procedure command and initialize parameters.
+            </summary>
+            <example>
+            DataProvider.Current.CreateStoredProcedureCommand("FindUserByEmail", "Name", "john@doe");
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteNonQuery(System.Data.IDbCommand)">
+            <summary>
+            Execute non-query command. No need to set Connection and Transaction properties on the command.
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns number of rows affected (if applicable).</returns>
+            <example>
+            IDbCommand command = MyProvider.CreateCommand("UPDATE Contact SET Logins=Logins+1 WHERE Id=@Id", "Id", 20);
+            MyProvider.ExecuteNonQuery(command);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteNonQuery(System.String,System.Object[])">
+            <summary>
+            Execute non-query command. No need to set Connection and Transaction properties on the command.
+            Returns number of rows affected (if applicable).
+            </summary>
+            <example>
+            DataProvider.Current.ExecuteNonQuery(
+                "UPDATE Contact SET DisplayName=@DisplayName WHERE Id=@Id", 
+                "Id", 10,                   // @Id => 10
+                "DisplayName", "John Doe"   // @DisplayName => "John Doe"
+            );
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteReader(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning data in a IDataReader. No need to set Connection and Transaction 
+            properties on the command. You are responsible for closing the IDataReader. Easiest way
+            is with a "using" statement.
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns an open IDataReader</returns>
+            <example>
+            IDbCommand command = DataProvider.Current.CreateSelectCommand(
+                "Contacts",             // table 
+                "Id,DisplayName",       // columns
+                null,                   // filter
+                "-DisplayName,+Id",     // order
+                Limit.Range(100,110)    // limit
+            );
+            using (IDataReader reader = DataProvider.Current.ExecuteReader(command))
+                while (reader.Read())
+                    Console.WriteLine(reader["Id"]);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteReader(System.String,System.Object[])">
+            <summary>
+            Execute command returning data in a IDataReader. No need to set Connection and Transaction 
+            properties on the command. You are responsible for closing the IDataReader. Easiest way
+            is with a "using" statement.
+            Returns an open IDataReader.
+            </summary>
+            <example>
+            using (IDataReader reader = DataProvider.Current.ExecuteReader("SELECT * FROM Contacts"))
+                while (reader.Read())
+                    Console.WriteLine(reader[0]);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalar(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning scalar value. No need to set Connection and Transaction 
+            properties on the command. 
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns single value (scalar).</returns>
+            <example>
+            DateTime? dt = (DataTime?)DataProvider.Current.ExecuteScalar(command);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalar(System.String,System.Object[])">
+            <summary>
+            Execute command returning scalar value. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns single value (scalar).
+            </summary>
+            <example>
+            DateTime? dt = (DataTime?)DataProvider.Current.ExecuteScalar("SELECT BirthDate FROM Contacts WHERE Id=@Id", "Id",10);
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalarInt32(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning an int value. No need to set Connection and Transaction 
+            properties on the command. 
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns single value (scalar).</returns>
+            <example>
+            int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalarInt32(System.String,System.Object[])">
+            <summary>
+            Execute command returning an int value. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns single int value.
+            </summary>
+            <example>
+            int count = DataProvider.Current.ExecuteScalarInt32("SELECT COUNT(*) FROM Contacts");
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalarString(System.Data.IDbCommand)">
+            <summary>
+            Execute command returning a string. No need to set Connection and Transaction 
+            properties on the command. 
+            </summary>
+            <param name="command">Command object</param>
+            <returns>Returns string or null.</returns>
+            <example>
+            string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ExecuteScalarString(System.String,System.Object[])">
+            <summary>
+            Execute command returning a string. No need to set Connection and Transaction 
+            properties on the command. 
+            Returns string or null.
+            </summary>
+            <example>
+            string name = DataProvider.Current.ExecuteScalarInt32("SELECT Name FROM Contacts WHERE Id=@Id", "Id",10");
+            </example>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.CreateAccessor(System.Type)">
+            <summary>
+            Create an Accessor class for high performance reading and writing objects 
+            from and to the database.Override this in derived class.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.InvalidateCache(System.Type)">
+            <summary>
+            Invalidate cached objects.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Find(System.Type,System.Object[])">
+            <summary>
+            Find object by its primary key(s). Returns null if not found.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter(System.Type,Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter(System.Type,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter(System.String,System.Type,Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter(System.String,System.Type,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Find(System.Type,System.Data.IDbCommand)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List(System.Type,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List(System.String,System.Type,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List(System.Type,System.Data.IDbCommand)">
+            <summary>
+            Return objects of given type selected by command.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Insert(System.Object)">
+            <summary>
+            Insert given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Update(System.Object)">
+            <summary>
+            Update given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Save(System.Object)">
+            <summary>
+            Save (insert or update) given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Delete(System.Object)">
+            <summary>
+            Delete given object.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Delete(System.Type,System.Object[])">
+            <summary>
+            Delete object by primary key(s).
+            </summary>
+            <param name="type">Type of object</param>
+            <param name="keys">Keys</param>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.DeleteAll(System.Type,Glue.Data.Filter)">
+            <summary>
+            Delete all objects satisfying given filter.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Count(System.Type,Glue.Data.Filter)">
+            <summary>
+            Determine number of objects satisfying given filter.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ListManyToMany(System.Object,System.Type,System.String)">
+            <summary>
+            List all associated (right-side) objects for given instance (left-side) 
+            in a many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.ListManyToMany(System.Object,System.Type,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            List all associated (right-side) objects for given instance (left-side) 
+            in a many-to-many relationship. Explicitly specify the joining table.
+            Filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.AddManyToMany(System.Object,System.Object,System.String)">
+            <summary>
+            Create an association between left and right object in a 
+            many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.DelManyToMany(System.Object,System.Object,System.String)">
+            <summary>
+            Delete an association between left and right object in a 
+            many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Map(System.Type,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Creates a dictionary of key-entity pairs for a given type. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Map(System.String,System.String,System.String,Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Creates a dictionary of key-value pairs where the keys and values are taken from two columns in a table.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Find``1(System.Object[])">
+            <summary>
+            Find object by its primary key(s). Returns null if not found.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.Find``1(System.Data.IDbCommand)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter``1(Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter``1(System.String,Glue.Data.Filter)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.FindByFilter``1(Glue.Data.Filter,Glue.Data.Order)">
+            <summary>
+            Search for first object which satisfies given conditions.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List``1(Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit may be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List``1(System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            Return objects of given type. Parameters filter, order and limit may be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseDataProvider.List``1(System.Data.IDbCommand)">
+            <summary>
+            Return objects of given type.
+            </summary>
+        </member>
+        <member name="P:Glue.Data.BaseDataProvider.ConnectionString">
+            <summary>
+            Returns the ConnectionString for this DataProvider
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.#ctor(System.String)">
+            <summary>
+            Initialize the DataProvider with given connection string.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Initialize the DataProvider with given connection string.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.#ctor(System.Xml.XmlNode)">
+            <summary>
+            Initialize the DataProvider from configuration
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.#ctor(Glue.Data.Providers.Sql.SqlDataProvider)">
+            <summary>
+            Protected copy constructor. Needed for Open() methods.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.Copy">
+            <summary>
+            Create a copy of this connection. Override this in your derived provider.
+            Only copy the connection string, do not copy connection and transaction fields.
+            Needed for Open() methods.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.CreateQueryBuilder">
+            <summary>
+            Create a QueryBuilder helper specific to the SQL dialect of
+            this provider.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.CreateAccessor(System.Type)">
+            <summary>
+            Create an Accessor class for high performance reading and writing objects 
+            from and to the database.Override this in derived class.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.CreateConnection">
+            <summary>
+            Create a provider specific connection. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.CreateCommand(System.String,System.Object[])">
+            <summary>
+            Create command from command text and parameters
+            </summary>
+            <param name="commandText">Command text</param>
+            <param name="paramNameValueList">Parameters</param>
+            <returns></returns>
+            <example>
+            DataProvider.Current.CreateCommand("SELECT * FROM User Where Name=@Name", "Name", name);
+            </example>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.CreateSelectCommand(System.String,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit,System.Object[])">
+            <summary>
+            Create SELECT command
+            This ONLY WORKS if the order by clause contains all key columns
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.ListManyToMany(System.Object,System.Type,System.String,Glue.Data.Filter,Glue.Data.Order,Glue.Data.Limit)">
+            <summary>
+            List all associated (right-side) objects for given instance (left-side) 
+            in a many-to-many relationship. Explicitly specify the joining table.
+            Filter, order and limit can be null.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlDataProvider.AddManyToMany(System.Object,System.Object,System.String)">
+            <summary>
+            Create an association between left and right object in a 
+            many-to-many relationship. Explicitly specify the joining table.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.Entity">
+            <summary>
+            Entity
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.SimpleDataImporter">
+            <summary>
+            Summary description for SimpleDataExporter.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.ImportMode">
+            <summary>
+            Summary description for ImportMode.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Order">
+            <summary>
+            An Order for data returned from a database query, corresponding to the 'ORDER BY' clause in SQL.
+            </summary>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="F:Glue.Data.Order.Empty">
+            <summary>
+            Returns empty Order. No ordering is done.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Order.op_Implicit(System.String)~Glue.Data.Order">
+            <summary>
+            Create Order from string
+            </summary>
+            <param name="order">Ordering</param>
+            <returns>New Order instance</returns>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Order.Coalesce(Glue.Data.Order[])">
+            <summary>
+            Returns the first non-empty Order in the argument list.
+            </summary>
+            <param name="orders"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Glue.Data.Order.#ctor(System.String)">
+            <summary>
+            Create Order from string
+            </summary>
+            <param name="order"></param>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Order.Create(System.String)">
+            <summary>
+            Create Order from string
+            </summary>
+            <param name="order"></param>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Order.#ctor(System.String[])">
+            <summary>
+            Create new Order 
+            </summary>
+            <param name="args">Ordering arguments</param>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Order.Create(System.String[])">
+            <summary>
+            Create new Order 
+            </summary>
+            <param name="args">Ordering arguments</param>
+            <remarks>
+            An Order can be constructed in the following ways:
+            <code>
+            Order o = new Order("-Name", "+Age");
+            </code>
+            <code>
+            Order o = new Order("Name DESC", "Age ASC");
+            </code>
+            <code>
+            Order o = new Order("-Name, +Age");    
+            </code>
+            An Order can also be constructed by casting: 
+            <code>
+            Order o = (Order)"-Name,+Age";
+            </code>
+            This is handy in List-methods:
+            <code>
+            List.All("-Name");
+            </code>
+            </remarks>
+        </member>
+        <member name="P:Glue.Data.Order.IsEmpty">
+            <summary>
+            True if the Order is empty, i.e. does no ordering at all.
+            </summary>
+        </member>
+        <member name="P:Glue.Data.Order.Count">
+            <summary>
+            The number of columns in the Order clause.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.BaseSchemaProvider">
+            <summary>
+            Implements many common methods for DataProviders. Currently all Glue DataProviders
+            use this as a base class to implement the IDataProvider interface.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.BaseSchemaProvider.#ctor(System.String,System.String,System.String)">
+            <summary>
+            SqlSchemaProvider
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.SchemaDiff">
+            <summary>
+            Summary description for SchemaDiff.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Providers.Sql.SqlSchemaProvider">
+            <summary>
+            SqlSchemaProvider.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.#ctor(System.String,System.String,System.String)">
+            <summary>
+            SqlSchemaProvider
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.#ctor(System.Xml.XmlNode)">
+            <summary>
+            Initialisation from config.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetDatabase(System.String)">
+            <summary>
+            GetDatabase
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetDatabases">
+            <summary>
+            GetDatabase
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetTables(Glue.Data.Schema.Database)">
+            <summary>
+            GetTables
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetViews(Glue.Data.Schema.Database)">
+            <summary>
+            GetViews
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetProcedures(Glue.Data.Schema.Database)">
+            <summary>
+            GetProcedures
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetColumns(Glue.Data.Schema.Container)">
+            <summary>
+            GetColumns
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetIndexes(Glue.Data.Schema.Container)">
+            <summary>
+            GetIndexes
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetTriggers(Glue.Data.Schema.Container)">
+            <summary>
+            GetTriggers
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetKeys(Glue.Data.Schema.Table)">
+            <summary>
+            GetKeys
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetParameters(Glue.Data.Schema.Procedure)">
+            <summary>
+            GetParameters
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetViewText(Glue.Data.Schema.View)">
+            <summary>
+            GetViewText
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.GetProcedureText(Glue.Data.Schema.Procedure)">
+            <summary>
+            GetProcedureText
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.Import(Glue.Data.Schema.Table,Glue.Data.IDataImporter,Glue.Data.Schema.ImportMode)">
+            <summary>
+            Import
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.Export(Glue.Data.Schema.Container,Glue.Data.IDataExporter)">
+            <summary>
+            Export
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Sql.SqlSchemaProvider.Script(Glue.Data.Schema.Database,System.IO.TextWriter)">
+            <summary>
+            Script
+            </summary>
+        </member>
+        <member name="P:Glue.Data.Providers.Sql.SqlSchemaProvider.Scheme">
+            <summary>
+            Scheme identifier of this provider
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Limit">
+            <summary>
+            Specifies a range of rows to limit the result set of a query. A Limit contains an Index (the first row 
+            to be returned) and a Count (the maximum number of rows). A Count of -1 means "unlimited".
+            For methods that take a Limit as an argument (like those in IDataProvider), passing 'null' is equivalent
+            to passing Limit.Unlimited.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Limit.Index">
+            <summary>
+            The row number of the first row in the result set.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Limit.Count">
+            <summary>
+            The maximum number of returned rows. Set to -1 for an unlimited number of rows.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Limit.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Create new Limit
+            </summary>
+            <param name="index">Index row</param>
+            <param name="count">Number of rows to return</param>
+        </member>
+        <member name="F:Glue.Data.Limit.Unlimited">
+            <summary>
+            Limit to return all rows.
+            </summary>
+        </member>
+        <member name="F:Glue.Data.Limit.One">
+            <summary>
+            Limit to return only the first row from a result set.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Limit.Create(System.Int32,System.Int32)">
+            <summary>
+            Create new Limit
+            </summary>
+            <param name="index">Index row</param>
+            <param name="count">Number of rows to return</param>
+            <returns>New Limit instance</returns>
+        </member>
+        <member name="M:Glue.Data.Limit.Coalesce(Glue.Data.Limit[])">
+            <summary>
+            Returns the first non-empty Limit in the argument list.
+            </summary>
+            <param name="limits">Limits</param>
+            <returns>First non-empty Limit in the argument list</returns>
+        </member>
+        <member name="M:Glue.Data.Limit.Top(System.Int32)">
+            <summary>
+            Limit to return the top 'count' rows.
+            </summary>
+            <param name="count">Number of rows to return</param>
+            <returns>New Limit-instance</returns>
+        </member>
+        <member name="M:Glue.Data.Limit.Range(System.Int32,System.Int32)">
+            <summary>
+            A Limit to return rows between rows 'from' and 'to'
+            </summary>
+            <param name="from">First row in the result set</param>
+            <param name="to">First row after (and not included in) the result set</param>
+            <returns>New Limit-instance</returns>
+        </member>
+        <member name="P:Glue.Data.Limit.IsUnlimited">
+            <summary>
+            True if Limit is set to Unlimited.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Column">
+            <summary>
+            Column
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Filter">
+            <summary>
+            A filter for data returned from a database query, corresponding to the 'WHERE' clause in SQL.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Filter.#ctor(System.String,System.Object[])">
+            <summary>
+            Returns new Filter where and fills parameters in expression with placeholders. Uses standard
+            SQL escaping for strings.
+            
+            Example:
+            <code>
+              Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+              =>
+              "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+            </code>
+            </summary>
+            <remarks>
+            <code>
+              Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+              =>
+              "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+            </code>
+            Strings will be correctly quoted, dates will have ISO representation, so they'll
+            always work.
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Filter.Coalesce(Glue.Data.Filter[])">
+            <summary>
+            Returns the first non-empty Filter from the argument list.
+            </summary>
+            <param name="filters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Glue.Data.Filter.Create(System.String,System.Object[])">
+            <summary>
+            Returns new Filter where and fills parameters in expression with placeholders. Uses standard
+            SQL escaping for strings.
+            
+            Example:
+            <code>
+              Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+              =>
+              "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+            </code>
+            </summary>
+            <remarks>
+            <code>
+              Filter f = new Filter("City=@0 AND Age=@1 AND BirthDate>@2", "Amsterdam", 20, DateTime.Now)
+              =>
+              "City='Amsterdam' and Age=20 and BirthDate>'2005-11-19 15:54:00'"
+            </code>
+            Strings will be correctly quoted, dates will have ISO representation, so they'll
+            always work.
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.Filter.ToSql(System.Object)">
+            <summary>
+            Convert value to safe SQL string. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Filter.And(Glue.Data.Filter,Glue.Data.Filter)">
+            <summary>
+            Combines two Filters with a logical AND.
+            </summary>
+            <param name="op1"></param>
+            <param name="op2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Glue.Data.Filter.Or(Glue.Data.Filter,Glue.Data.Filter)">
+            <summary>
+            Combines two Filters with a logical OR.
+            </summary>
+            <param name="op1"></param>
+            <param name="op2"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Glue.Data.Mapping.EntityMember">
+            <summary>
+            EntityMember
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.EntityMemberList">
+            <summary>
+            EntityMemberList
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.XmlDataImporter">
+            <summary>
+            Summary description for SimpleDataExporter.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Management">
+            <summary>
+            Static helper class.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.GetSchemePart(System.String)">
+            <summary>
+            Returns the provider scheme based on the url.
+            sample:
+            sql://calypso/Northwind => sql
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.GetServerPart(System.String)">
+            <summary>
+            Returns the server based on the url.
+            sample:
+            sql://calypso/Northwind => server
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.GetDatabasePart(System.String)">
+            <summary>
+            Returns the server based on the url.
+            sample:
+            sql://calypso/Northwind => Northwind
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.GetPathPart(System.String)">
+            <summary>
+            Returns the server based on the url.
+            sample:
+            sql://calypso/Northwind => Northwind
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.OpenDatabase(System.String,System.String,System.String)">
+            <summary>
+            Open database schema. Either from live server, (e.g. sql://calypso/Intranet_1_0 or from file file://myschema.schema) 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.OpenDatabaseFromConfiguration(System.String)">
+            <summary>
+            Open database from configuration file (typically web.config with dataprovider element).
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.CreateSchemaProvider(System.String,System.String,System.String,System.String)">
+            <summary>
+            Scheme can be sql, mysql, oledb
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Management.Schema(Glue.Data.Schema.Database,System.Xml.XmlWriter,System.String[])">
+            <summary>
+            Generate schema xml. 
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.ForeignKey">
+            <summary>
+            ForeignKey
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Providers.Odbc.OdbcDataProvider">
+            <summary>
+            DataProvider for ODBC data sources.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Odbc.OdbcDataProvider.#ctor(System.String)">
+            <summary>
+            Initialize the DataProvider with given connection string.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Odbc.OdbcDataProvider.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Initialize the DataProvider with given connection string.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Odbc.OdbcDataProvider.#ctor(System.Xml.XmlNode)">
+            <summary>
+            Initialize the DataProvider from configuration
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Providers.Odbc.OdbcDataProvider.#ctor(Glue.Data.Providers.Odbc.OdbcDataProvider)">
+            <summary>
+            Protected copy constructor. Needed for Open() methods.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.EntityColumn">
+            <summary>
+            EntityColumn
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Mapping.EntityColumnList">
+            <summary>
+            EntityColumnList
+            </summary>
+        </member>
+        <member name="T:Glue.Data.FieldChange">
+             <summary>
+             Class to compute and store Field value changes.
+             </summary>
+             <remarks>
+             <para>
+             This class can be used, in combination with the <see cref="T:Glue.Data.FieldChangeList"/>-class, to compute and store 
+             changes to object field/property values. 
+             </para>
+             <para>
+             If the FieldChanges are to be stored in a database, the class expects a table of the following structure:
+             </para>
+             <list type="table">
+             <listheader><term>Field</term><description>Type</description></listheader>  
+             <item><term>FieldName</term><description>string ((var)(n)char)</description></item>
+             <item><term>OldValue</term><description>string ((var)(n)char)</description></item>
+             <item><term>NewValue</term><description>string ((var)(n)char)</description></item>
+             <item><term>ChangeUser</term><description>string ((var)(n)char)</description></item>
+             <item><term>ChangeDate</term><description>DateTime ((small)datetime)</description></item>
+             </list>
+             <para>
+             How does it work? Easy: call <c>FieldChange.ComputeChanges()</c> with two objects and a list of field- and/or propertynames
+             and a list of <see cref="T:Glue.Data.FieldChange"/>s (a <see cref="T:Glue.Data.FieldChangeList"/>) is returned.
+             </para>
+             <para>
+             Here's an example of a custom <c>Update</c>-method on a class <c>User</c> that returns the changes to the object:
+             </para>
+             <code>
+                    public FieldChangeList Update(string updateUser)
+                    {
+                        FieldChangeList changes = FieldChange.ComputeChanges(
+                            new string[] {										// compare these fields/ properties
+                                "UserName", 
+                                "FirstName", 
+                                "MiddleName",
+                                "LastName",
+                                "Email",
+                                "NormalHoursPerWeek",
+                                "CostRate",
+                                "IsAdmin"
+                            },
+                            Global.DataProvider.Find&lt;User&gt;(Id),			// retrieve old data
+                            this,												// changed instance
+                            updateUser);
+            
+                        // Store the updates to this instance
+                        Global.DataProvider.Update(this);
+             
+                        // return list of changes
+                        return changes;
+                    }
+             </code>
+             <para>
+             To save a <see cref="T:Glue.Data.FieldChangeList"/> to the database, call <c>Store()</c> on the <see cref="T:Glue.Data.FieldChangeList"/>. <see cref="T:Glue.Data.FieldChange"/> has a method List() to retrieve the changes.
+             </para>
+             <code>
+                 // store changes
+                 Changes.Store(Global.DataProvider, "Changes_User", "User_Id", User.Id);
+                 
+                 // retrieve changes
+                 Changes = FieldChange.List(Global.DataProvider, "Changes_User", Filter.Create("User_Id=@0", User.Id));
+             </code>
+             <para>
+             If an object has more than one source of changes (i.e. child objects in linked tables), the following pattern can be used:
+             </para>
+             <code>
+                 // List of changes
+                 public FieldChangeList Changes;
+            
+                 // Changes to main item
+                 Changes = Project.Update(CurrentUser.UserName);
+                 
+                 // Other changes, linked tables etc.
+            
+                 // Use the '+' or '+=' operators to combine the list of changes
+                 Changes += Project.UpdateUserLinks(UserId, CurrentUser.UserName);
+                 Changes += ProcessSubProjects(id);
+             
+                 // Store changes to table "Changes_Project"
+                 // Add a reference to a key called "Project_Id" so we later on know how to retrieve changes for this project.
+                 Changes.Store(Global.DataProvider, "Changes_Project", "Project_Id", Project.Id);
+             </code>
+             <para>
+             Last but not least: to display the changes on a web page, <see cref="T:Glue.Data.FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+             </para>
+             <code>
+                 &lt;h4&gt;Changes&lt;/h4&gt;
+                 &lt;%=Changes.ToHtmlTable("grid") %&gt;
+             </code>
+             <para>
+             This generates the following table:
+             </para>
+             <code>
+             <![CDATA[
+             <h4>Changes</h4>
+             <table class="grid">
+            		<tr>
+            			<th>Date</th>
+            			<th>User</th>
+            			<th>Change</th>
+            			<th>Old value</th>
+            			<th>New value</th>
+            		</tr>
+            		<tr>
+            			<td>29-9-2008 23:38:38</td>
+            			<td>DOMAIN\Anonymous</td>
+            			<td>NormalHoursPerWeek</td>
+            			<td>0</td>
+            			<td>40</td>
+            		</tr>
+            		<tr>
+            			<td>29-9-2008 23:38:46</td>
+            			<td>DOMAIN\Admin</td>
+            			<td>NormalHoursPerWeek</td>
+            			<td>40</td>
+            			<td>48</td>
+            		</tr>
+            	</table>
+             ]]>
+             </code>
+             </remarks>
+             <seealso cref="T:Glue.Data.FieldChangeList"/>
+        </member>
+        <member name="M:Glue.Data.FieldChange.#ctor">
+            <summary>
+            Create new (empty) FieldChange
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChange.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Create new FieldChange with default ChangeDate (now)
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChange.#ctor(System.String,System.String,System.String,System.String,System.DateTime)">
+            <summary>
+            Create new FieldChange
+            </summary>
+        </member>
+        <member name="F:Glue.Data.FieldChange.FieldName">
+            <summary>
+            Field name
+            </summary>
+        </member>
+        <member name="F:Glue.Data.FieldChange.OldValue">
+            <summary>
+            Old field value
+            </summary>
+        </member>
+        <member name="F:Glue.Data.FieldChange.NewValue">
+            <summary>
+            New field value
+            </summary>
+        </member>
+        <member name="F:Glue.Data.FieldChange.ChangeUser">
+            <summary>
+            User responsible for change
+            </summary>
+        </member>
+        <member name="F:Glue.Data.FieldChange.ChangeDate">
+            <summary>
+            Date the field value was changed
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChange.ComputeChanges(System.String[],System.Object,System.Object,System.String,System.String)">
+            <summary>
+            Compute changes between an old and a new instance of an object (i.e. a row).
+            </summary>
+            <param name="fieldList">List of field names to compare.</param>
+            <param name="o">"Old" object instance</param>
+            <param name="n">"New" object instance</param>
+            <param name="changeUser"></param>
+            <param name="fieldNamePrefix">Prefix for field change name</param>
+            <returns>List of changes</returns>
+        </member>
+        <member name="M:Glue.Data.FieldChange.ComputeChanges(System.String[],System.Object,System.Object,System.String)">
+            <summary>
+            Compute changes between an old and a new instance of an object (i.e. a row).
+            </summary>
+            <param name="fieldList">List of field names to compare.</param>
+            <param name="o">"Old" object instance</param>
+            <param name="n">"New" object instance</param>
+            <param name="changeUser"></param>
+            <returns>List of changes</returns>
+        </member>
+        <member name="M:Glue.Data.FieldChange.Store(Glue.Data.IDataProvider,System.String,System.Object[])">
+            <summary>
+            Insert the FieldChange into a database table.
+            </summary>
+            <param name="dataprovider">Dataprovider instance</param>
+            <param name="table">Table name</param>
+            <param name="standardColumnsNameValueList">Standard column name/value pairs</param>
+            <remarks>
+            The standard columns can be used to store a reference to id(s) to the changed record.
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.FieldChange.List(Glue.Data.IDataProvider,System.String,Glue.Data.Filter)">
+            <summary>
+            Retrieve FieldChangeList
+            </summary>
+            <param name="dataprovider">IDataProvider instance</param>
+            <param name="table">Table name</param>
+            <param name="constraint">Filter</param>
+        </member>
+        <member name="T:Glue.Data.FieldChangeList">
+            <summary>
+            List of field value changes
+            </summary>
+            <remarks>
+            <para>
+            This class can be used, in combination with the <see cref="T:Glue.Data.FieldChange"/>-class, to compute and store 
+            changes to object field/property values. 
+            </para>
+            <para>
+            If the <see cref="T:Glue.Data.FieldChange"/>s are to be stored in a database, the class expects a table of the following structure:
+            </para>
+            <list type="table">
+            <listheader><term>Field</term><description>Type</description></listheader>  
+            <item><term>FieldName</term><description>string ((var)(n)char)</description></item>
+            <item><term>OldValue</term><description>string ((var)(n)char)</description></item>
+            <item><term>NewValue</term><description>string ((var)(n)char)</description></item>
+            <item><term>ChangeUser</term><description>string ((var)(n)char)</description></item>
+            <item><term>ChangeDate</term><description>DateTime ((small)datetime)</description></item>
+            </list>
+            <para>
+            See <see cref="T:Glue.Data.FieldChange"/> for some examples.
+            </para>
+            </remarks>
+            <seealso cref="T:Glue.Data.FieldChange"/>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.IndexOf(Glue.Data.FieldChange)">
+            <summary>
+            Determines the index of a specific item in the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Insert(System.Int32,Glue.Data.FieldChange)">
+            <summary>
+            Inserts an item to the FieldChangeList at the specified index. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.RemoveAt(System.Int32)">
+            <summary>
+            Removes the FieldChangeList item at the specified index. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Add(Glue.Data.FieldChange)">
+            <summary>
+            Adds an item to the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Clear">
+            <summary>
+            Removes all items from the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Contains(Glue.Data.FieldChange)">
+            <summary>
+            Determines whether the FieldChangeList contains a specific value. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.CopyTo(Glue.Data.FieldChange[],System.Int32)">
+            <summary>
+            Copies the FieldChangeList or a portion of it to a one-dimensional array. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Remove(Glue.Data.FieldChange)">
+            <summary>
+            Removes the first occurrence of a specific object from the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Add(System.Collections.Generic.IEnumerable{Glue.Data.FieldChange})">
+            <summary>
+            Add IEnumerable FieldChangeList to FieldChangeList 
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.op_Addition(Glue.Data.FieldChangeList,Glue.Data.FieldChange)">
+            <summary>
+            Add FieldChange to FieldChangeList 
+            </summary>
+            <param name="list">FieldChangeList</param>
+            <param name="change">FieldChange</param>
+            <returns>FieldChangeList</returns>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.op_Addition(Glue.Data.FieldChangeList,System.Collections.Generic.IEnumerable{Glue.Data.FieldChange})">
+            <summary>
+            Add FieldChangeList to FieldChangeList 
+            </summary>
+            <param name="list">FieldChangeList</param>
+            <param name="changes">FieldChangeList</param>
+            <returns>FieldChangeList</returns>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.Store(Glue.Data.IDataProvider,System.String,System.Object[])">
+            <summary>
+            Insert the FieldChangeList into a database table.
+            </summary>
+            <param name="dataprovider">Dataprovider instance</param>
+            <param name="table">Table name</param>
+            <param name="standardColumnsNameValueList">Standard column name/value pairs</param>
+            <remarks>
+            The standard columns can be used to store a reference to id(s) to the changed record.
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.#ctor">
+            <summary>
+            Creates new FieldChangeList instance.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.#ctor(System.Collections.Generic.IEnumerable{Glue.Data.FieldChange})">
+            <summary>
+            Creates new FieldChangeList instance.
+            </summary>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.ToHtmlTable(System.String)">
+            <summary>
+            Return changes as Html table
+            </summary>
+            <param name="tableClass">Name of css-class</param>
+            <remarks>
+            <para>
+            To display the changes on a web page, <see cref="T:Glue.Data.FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+            </para>
+            <code>
+                &lt;h4&gt;Changes&lt;/h4&gt;
+                &lt;%=Changes.ToHtmlTable("grid") %&gt;
+            </code>
+            <para>
+            This generates the following table:
+            </para>
+            <code>
+            <![CDATA[
+            <h4>Changes</h4>
+            <table class="grid">
+            	<tr>
+            		<th>Date</th>
+            		<th>User</th>
+            		<th>Change</th>
+            		<th>Old value</th>
+            		<th>New value</th>
+            	</tr>
+            	<tr>
+            		<td>29-9-2008 23:38:38</td>
+            		<td>DOMAIN\Anonymous</td>
+            		<td>NormalHoursPerWeek</td>
+            		<td>0</td>
+            		<td>40</td>
+            	</tr>
+            	<tr>
+            		<td>29-9-2008 23:38:46</td>
+            		<td>DOMAIN\Admin</td>
+            		<td>NormalHoursPerWeek</td>
+            		<td>40</td>
+            		<td>48</td>
+            	</tr>
+            </table>
+            ]]>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Glue.Data.FieldChangeList.ToHtmlTable">
+            <summary>
+            Return changes as Html table
+            </summary>
+            <remarks>
+            <para>
+            To display the changes on a web page, <see cref="T:Glue.Data.FieldChangeList"/> has a <c>ToHtmlTable()</c>-method, very useful in ASPX-pages:
+            </para>
+            <code>
+                &lt;h4&gt;Changes&lt;/h4&gt;
+                &lt;%=Changes.ToHtmlTable("grid") %&gt;
+            </code>
+            <para>
+            This generates the following table:
+            </para>
+            <code>
+            <![CDATA[
+            <h4>Changes</h4>
+            <table class="grid">
+            	<tr>
+            		<th>Date</th>
+            		<th>User</th>
+            		<th>Change</th>
+            		<th>Old value</th>
+            		<th>New value</th>
+            	</tr>
+            	<tr>
+            		<td>29-9-2008 23:38:38</td>
+            		<td>DOMAIN\Anonymous</td>
+            		<td>NormalHoursPerWeek</td>
+            		<td>0</td>
+            		<td>40</td>
+            	</tr>
+            	<tr>
+            		<td>29-9-2008 23:38:46</td>
+            		<td>DOMAIN\Admin</td>
+            		<td>NormalHoursPerWeek</td>
+            		<td>40</td>
+            		<td>48</td>
+            	</tr>
+            </table>
+            ]]>
+            </code>
+            </remarks>
+        </member>
+        <member name="P:Glue.Data.FieldChangeList.Item(System.Int32)">
+            <summary>
+            Removes the first occurrence of a specific object from the FieldChangeList. 
+            </summary>
+        </member>
+        <member name="P:Glue.Data.FieldChangeList.Count">
+            <summary>
+            Gets the number of elements actually contained in the FieldChangeList.
+            </summary>
+        </member>
+        <member name="P:Glue.Data.FieldChangeList.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the FieldChangeList is read-only.
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Database">
+            <summary>
+            Database
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Database.#ctor(Glue.Data.ISchemaProvider,System.String)">
+            <summary>
+            Use Database.Open instead
+            </summary>
+        </member>
+        <member name="M:Glue.Data.Schema.Database.#ctor(System.Xml.XmlElement)">
+            <summary>
+            Use Database.Open instead
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.Procedure">
+            <summary>
+            Procedure
+            </summary>
+        </member>
+        <member name="T:Glue.Data.Schema.BinHexEncoding">
+            <summary>
+            BinHexEncoding class.
+            </summary>
+        </member>
+    </members>
+</doc>
