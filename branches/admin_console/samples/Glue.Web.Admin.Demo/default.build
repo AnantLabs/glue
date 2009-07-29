@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<project name="Glue.Web.Admin.Demo">
+	<property name="product.version" value="1" /> 
+	<property name="product.name" value="${nant.project.name}" />
+	<property name="product.fullname" value="${product.name}-${product.version}" />
+
+	<property name="package.dir" value="dist" />
+	<property name="zipfile" value="${package.dir}/${product.fullname}.zip" />
+
+	<!--  PACKAGE: Create a distribution (zip) package. -->
+	<target name="package" depends="build" description="package to .zip file">
+		<echo>Create package: ${product.fullname}.zip</echo>
+		<mkdir dir="${package.dir}" failonerror="false" />
+		<delete file="${package.dir}/${product.fullname}.zip" failonerror="false" />
+
+		<!-- Copy web.config to development.web.config-->
+		<copy file="web/web.config" tofile="web/development.web.config" />
+
+		<zip zipfile="${zipfile}">
+			<!-- zip manager binaries -->
+			<fileset basedir="." prefix="">
+				<include name="admin/**" />
+				<exclude name="**/.svn" />
+			</fileset>
+
+			<!-- zip scripts -->
+			<fileset basedir="." prefix="">
+				<include name="scripts/**" />
+				<exclude name="**/.svn" />
+			</fileset>
+
+			<!-- zip web application -->
+			<fileset basedir="." prefix="">
+				<include name="web/**" />
+				<exclude name="web/web.config" />
+				<exclude name="**/*.pdb" />
+				<exclude name="**/*.cs" />
+				<exclude name="**/*.resx" />
+				<exclude name="**/*.sln" />
+				<exclude name="**/*.csproj" />
+				<exclude name="**/*.user" />
+				<exclude name="**/*.suo" />
+				<exclude name="**/*.build" />
+				<exclude name="**/.svn" />
+				<exclude name="**/_svn" />
+				<exclude name="**/obj" />
+			</fileset>
+		</zip>
+	</target>
+
+	<target name="asmversion">
+		<asminfo language="CSharp" output="web/Properties/AssemblyVersion.cs">
+		<imports>
+			<import namespace="System" />
+				<import namespace="System.Reflection" />
+			</imports>
+			<attributes>
+				<attribute type="AssemblyVersionAttribute" value="1.0.${product.version}.0" /> <!-- TODO svn revision -->
+			</attributes>
+		</asminfo>
+	</target>
+
+	<target name="build" depends="asmversion" description="Build the dll">
+		<exec program="C:\WINDOWS\Microsoft.NET\Framework\v3.5\MSBuild.exe" commandline="/t:rebuild /property:Config=Release" />
+	</target>
+</project>
