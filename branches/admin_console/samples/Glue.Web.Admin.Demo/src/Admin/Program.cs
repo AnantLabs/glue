@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
-namespace Glue.Web.AdminTest
+namespace Admin
 {
     class Program : Glue.Web.Admin
     {
@@ -13,9 +13,9 @@ namespace Glue.Web.AdminTest
         static string rootdir = Path.GetFullPath(Path.Combine(appdir, "../"));
         static string updateurl = "http://localhost:86/";
         static string web_config = Path.Combine(webdir, "web.config");
-        static string assembly_file = webdir + "\\bin\\demo01.dll";
+        static string assembly_file = webdir + "\\bin\\web.dll";
 
-        Program() : base(rootdir, webdir, assembly_file, "demo01.Global", updateurl, "demo01.OfflineHandler") { }
+        Program() : base(rootdir, webdir, assembly_file, "web.Global", updateurl, "web.OfflineHandler") { }
 
         static void Main(string[] args)
         {
