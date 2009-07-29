@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Admin", "src\Admin\Admin.csproj", "{B40B7797-928E-4439-BBD3-F554A79D4538}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web", "web\web.csproj", "{04CB4B07-F351-4400-B1D9-F257233EA8D5}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Web.Admin", "..\..\src\Glue.Web.Admin\Glue.Web.Admin.csproj", "{21B03078-7055-4295-B54D-B5D7449685E3}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Lib", "..\..\src\Glue.Lib\Glue.Lib.csproj", "{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data", "..\..\src\Glue.Data\Glue.Data.csproj", "{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B40B7797-928E-4439-BBD3-F554A79D4538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B40B7797-928E-4439-BBD3-F554A79D4538}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B40B7797-928E-4439-BBD3-F554A79D4538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B40B7797-928E-4439-BBD3-F554A79D4538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04CB4B07-F351-4400-B1D9-F257233EA8D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04CB4B07-F351-4400-B1D9-F257233EA8D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04CB4B07-F351-4400-B1D9-F257233EA8D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04CB4B07-F351-4400-B1D9-F257233EA8D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21B03078-7055-4295-B54D-B5D7449685E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21B03078-7055-4295-B54D-B5D7449685E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21B03078-7055-4295-B54D-B5D7449685E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21B03078-7055-4295-B54D-B5D7449685E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F4F960-BDEA-4BEC-9E58-B68BDE13D7F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
