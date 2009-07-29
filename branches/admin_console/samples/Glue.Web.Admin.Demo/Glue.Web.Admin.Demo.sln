@@ -31,6 +31,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data", "..\..\src\Glue
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glue.Data.PostgreSQL", "..\..\src\Glue.Data.PostgreSQL\Glue.Data.PostgreSQL.csproj", "{A4273673-6584-4130-9CF4-AAFA27F5691C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +63,10 @@ Global
 		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE0D936E-EFA5-4137-B99E-EDDA53A0CB48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4273673-6584-4130-9CF4-AAFA27F5691C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4273673-6584-4130-9CF4-AAFA27F5691C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4273673-6584-4130-9CF4-AAFA27F5691C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4273673-6584-4130-9CF4-AAFA27F5691C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

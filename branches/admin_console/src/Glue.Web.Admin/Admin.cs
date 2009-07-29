@@ -229,7 +229,7 @@ namespace Glue.Web
                     Console.WriteLine(ze.FileName);
                     try
                     {
-                        ze.Extract(RootDirectory, true);
+                        //ze.Extract(RootDirectory, true);
                     }
                     catch (UnauthorizedAccessException)
                     {

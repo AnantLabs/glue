@@ -1,0 +1,12 @@
+﻿body
+{
+    font-family: helvetica,sans-serif;
+    font-size: 10pt;
+}
+
+p.footer 
+{
+    font-style: italic;
+    font-size: smaller;
+    text-align: left;
+}
