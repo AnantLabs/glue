@@ -18,6 +18,7 @@ namespace Glue.Web
         protected string WebConfigFile;
         protected string UpdateUrl;
         protected string OfflineHandler;
+        protected string AppName;
 
         protected string DataproviderElementName = "dataprovider"; // default value, can be overridden
 
@@ -55,7 +56,7 @@ namespace Glue.Web
             }
         }
 
-        protected Admin(string rootDirectory, string webConfigFile, string appAssemblyFile, string appType, string updateUrl, string offlineHandler)
+        protected Admin(string rootDirectory, string webConfigFile, string appAssemblyFile, string appType, string updateUrl, string appName, string offlineHandler)
         {
             RootDirectory = rootDirectory;
             WebConfigFile = webConfigFile;
@@ -63,6 +64,7 @@ namespace Glue.Web
             AppType = appType;
             UpdateUrl = updateUrl;
             OfflineHandler = offlineHandler;
+            AppName = appName;
 
             if (WebConfigFile != null) Configuration.Register(WebConfigFile, false); // load web.config into Glue configuration
         }
@@ -216,7 +218,7 @@ namespace Glue.Web
         protected void Update()
         {
             string updatedir = Path.GetFullPath(Path.Combine(RootDirectory, "updates"));
-            string fname = Path.Combine(updatedir, String.Format("{0}-{1}.zip", AppType, AppVersion + 1));
+            string fname = Path.Combine(updatedir, String.Format("{0}-{1}.zip", AppName, AppVersion + 1));
 
             Console.WriteLine(fname);
             if (File.Exists(fname))
@@ -229,7 +231,7 @@ namespace Glue.Web
                     Console.WriteLine(ze.FileName);
                     try
                     {
-                        //ze.Extract(RootDirectory, true);
+                        ze.Extract(RootDirectory, true);
                     }
                     catch (UnauthorizedAccessException)
                     {
@@ -367,7 +369,7 @@ namespace Glue.Web
             string updatedir = Path.GetFullPath(Path.Combine(RootDirectory, "updates"));
             Console.WriteLine("Current version is {0}.", AppVersion);
 
-            string fname = "Grondwerk.Demo01-" + (AppVersion + 1) + ".zip";
+            string fname = AppName + "-" + (AppVersion + 1) + ".zip";
             string url = UpdateUrl + fname;
             string path = Path.Combine(updatedir, fname);
             Console.WriteLine("Checking for updates...");
@@ -393,7 +395,7 @@ namespace Glue.Web
             {
                 if (e.Status == System.Net.WebExceptionStatus.ProtocolError)
                 {
-                    Console.WriteLine("No updates are available.");
+                    Console.WriteLine("No update is available at {0}.", fname);
                 }
                 else PrintError(e);
             }
