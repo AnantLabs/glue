@@ -19,6 +19,10 @@ namespace Admin
 
         static void Main(string[] args)
         {
+            if (Directory.Exists(Path.Combine(rootdir, ".svn")))
+            {
+                Console.WriteLine("WARNING: Running from a SVN working copy.");
+            }
             new Program().Run(args);
         }
 

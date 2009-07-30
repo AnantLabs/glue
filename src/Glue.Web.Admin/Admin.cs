@@ -92,6 +92,11 @@ namespace Glue.Web
             get { return (null == WebConfigXml.SelectSingleNode("/configuration/system.web/httpHandlers/add[contains(@type,'"+OfflineHandler+"')]")); }
         }
 
+        protected bool IsSvnCopy
+        {
+            get { return (Directory.Exists(Path.Combine(RootDirectory, ".svn"))); }
+        }
+
         protected int AppVersion
         {
             get { return (int)AppAssembly.GetType(AppType).GetField("AppVersion").GetValue(null); }
@@ -113,6 +118,7 @@ namespace Glue.Web
             Console.WriteLine("Config version: {0}. Expected: {1}", CurrentConfigVersion, AppConfigVersion);
             Console.WriteLine("Schema version: {0}. Expected: {1}", CurrentSchemaVersion, AppSchemaVersion);
             Console.WriteLine("Status: {0}", IsOnline? "Online" : "Offline");
+            if (IsSvnCopy) Console.WriteLine("WARNING: Running from SVN working copy.");
         }
 
          ///<summary>
@@ -217,6 +223,12 @@ namespace Glue.Web
 
         protected void Update()
         {
+            if (IsSvnCopy)
+            {
+                Console.WriteLine("ERROR: Update not possible from SVN working copy.");
+                return;
+            }
+
             string updatedir = Path.GetFullPath(Path.Combine(RootDirectory, "updates"));
             string fname = Path.Combine(updatedir, String.Format("{0}-{1}.zip", AppName, AppVersion + 1));
 
@@ -292,14 +304,16 @@ namespace Glue.Web
         protected bool AppBackup()
         {
             string backupdir = Path.GetFullPath(Path.Combine(RootDirectory, "backups"));
-            string webdir = Path.GetFullPath(Path.Combine(RootDirectory, "web"));
-            // TODO verifieer of tool niet draait vanuit svn copy?
+            //string webdir = Path.GetFullPath(Path.Combine(RootDirectory, "web"));
+            
             ZipFile z = new ZipFile();
-            string zipfilepath = Path.Combine(backupdir, "web_" + DateTime.Now.ToString("yyyy'-'MM'-'dd_HHmmss") + ".zip");
+            string zipfilepath = Path.Combine(backupdir, "backup_" + DateTime.Now.ToString("yyyy'-'MM'-'dd_HHmmss") + ".zip");
 
             Console.Out.WriteLine("Backing up to file: \n{0}", zipfilepath);
-            z.AddDirectory(webdir);
-            //z.AddDirectory(appdir, "zz2");
+            
+            z.AddSelectedFiles("name != *backups\\* AND name != *updates\\*", RootDirectory, "", true);
+
+            //foreach (ZipEntry ze in z.Entries) Console.WriteLine(ze.FileName);
 
             string dir = Path.GetDirectoryName(zipfilepath);
             if (!Directory.Exists(dir))
@@ -314,6 +328,12 @@ namespace Glue.Web
 
         protected void AppRestore(string filename)
         {
+            if (IsSvnCopy)
+            {
+                Console.WriteLine("ERROR: Restore not possible from SVN working copy.");
+                return;
+            }
+
             string backupdir = Path.GetFullPath(Path.Combine(RootDirectory, "backups"));
             string webdir = Path.GetFullPath(Path.Combine(RootDirectory, "web"));
             // todo detecteer laatste backup
