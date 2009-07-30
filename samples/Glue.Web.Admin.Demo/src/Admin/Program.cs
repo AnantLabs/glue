@@ -15,7 +15,7 @@ namespace Admin
         static string web_config = Path.Combine(webdir, "web.config");
         static string assembly_file = webdir + "\\bin\\web.dll";
 
-        Program() : base(rootdir, webdir, assembly_file, "web.Global", updateurl, "web.OfflineHandler") { }
+        Program() : base(rootdir, web_config, assembly_file, "web.Global", updateurl, "Glue.Web.Admin.Demo", "web.OfflineHandler") { }
 
         static void Main(string[] args)
         {

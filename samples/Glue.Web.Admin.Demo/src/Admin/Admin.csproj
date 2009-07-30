@@ -37,6 +37,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Glue.Data.PostgreSQL\Glue.Data.PostgreSQL.csproj">
+      <Project>{A4273673-6584-4130-9CF4-AAFA27F5691C}</Project>
+      <Name>Glue.Data.PostgreSQL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Glue.Web.Admin\Glue.Web.Admin.csproj">
       <Project>{21B03078-7055-4295-B54D-B5D7449685E3}</Project>
       <Name>Glue.Web.Admin</Name>
