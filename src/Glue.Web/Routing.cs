@@ -43,6 +43,14 @@ namespace Glue.Web
         {
             base.Add(new Route(pattern, parms));
         }
+        public void Prepend(string pattern, IDictionary parms)
+        {
+            base.Insert(0, new Route(pattern, parms));
+        }
+        public void Insert(int index, string pattern, IDictionary parms)
+        {
+            base.Insert(index, new Route(pattern, parms));
+        }
         public new Route this[int i]
         {
             get { return (Route)base[i]; }
