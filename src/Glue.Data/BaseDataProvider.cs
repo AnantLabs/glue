@@ -938,6 +938,19 @@ namespace Glue.Data
         }
 
         /// <summary>
+        /// Determine number of objects satisfying given filter.
+        /// </summary>
+        public int Count(string table, Filter filter)
+        {
+            QueryBuilder s = CreateQueryBuilder();
+            s.Append("SELECT COUNT(*) FROM ");
+            s.Append(table);
+            s.Filter(filter);
+
+            return Convert.ToInt32(ExecuteScalar(s.ToString()));
+        }
+
+        /// <summary>
         /// List all associated (right-side) objects for given instance (left-side) 
         /// in a many-to-many relationship. Explicitly specify the joining table.
         /// </summary>
