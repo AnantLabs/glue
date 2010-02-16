@@ -364,6 +364,11 @@ namespace Glue.Data
         int Count(Type type, Filter filter);
 
         /// <summary>
+        /// Determine number of objects satisfying given filter.
+        /// </summary>
+        int Count(string table, Filter filter);
+
+        /// <summary>
         /// List all associated (right-side) objects for given instance (left-side) 
         /// in a many-to-many relationship. Explicitly specify the joining table.
         /// </summary>
