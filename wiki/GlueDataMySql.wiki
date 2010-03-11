@@ -23,7 +23,7 @@ Constructs a !MySqlDataProviderwith an XML node as a parameter. The node has to 
 {{{
 <!-- This is an XML node in the app's configuration file -->
 <dataprovider
-    type="Glue.Data.Providers.MySql.MySqlDataProvider"
+    type="Glue.Data.Providers.MySql.MySqlDataProvider,Glue.Data.MySql"
     database="dev"
     username="wdambrink"
     server="glueproject.com"
