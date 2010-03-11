@@ -23,9 +23,17 @@ This is a default constructor. It works, but only the "database" is used.
 Constructs a SQLiteDataprovider with an XmlNode as a parameter. The node has to have either an attribute "connectionString", containing the complete connection string, or an attribute "database", with a path to a database file. 
 
 {{{
-<!-- This is an XML node in the app's configuration file -->
+<!-- 
+     This is an XML node in the app's configuration file.
+
+     Please note not only the type, but also the assembly of the SQLiteDataProvider
+     need to be added:
+    
+     type="[...],Glue.Data.SQLite"
+
+-->
 <dataprovider 
-      type="Glue.Data.Providers.SQLite.SQLiteDataProvider" 
+      type="Glue.Data.Providers.SQLite.SQLiteDataProvider,Glue.Data.SQLite" 
       database="App_Data/databasefile.db3"
 />
 }}}
