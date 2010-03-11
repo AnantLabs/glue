@@ -21,7 +21,15 @@ IDataProvider provider =
 Constructs a !MySqlDataProviderwith an XML node as a parameter. The node has to have either an attribute "connectionString", containing the complete connection string, or attributes for server, database, username and password.
 
 {{{
-<!-- This is an XML node in the app's configuration file -->
+<!-- 
+     This is an XML node in the app's configuration file.
+
+     Please note not only the type, but also the assembly of the MySqlDataProvider
+     need to be added:
+    
+     type="[...],Glue.Data.MySql"
+
+-->
 <dataprovider
     type="Glue.Data.Providers.MySql.MySqlDataProvider,Glue.Data.MySql"
     database="dev"
