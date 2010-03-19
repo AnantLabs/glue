@@ -14,8 +14,13 @@ namespace Glue.Data.Providers.Sql
     /// <summary>
     /// DataProvider for Microsoft SQL Server databases.
     /// </summary>
-     public class SqlDataProvider : BaseDataProvider
+    public class SqlDataProvider : BaseDataProvider
     {
+        /// <summary>
+        /// Major database version
+        /// </summary>
+        private int _majorVersion = 0;
+
         /// <summary>
         /// Initialize the DataProvider with given connection string.
         /// </summary>
@@ -114,13 +119,85 @@ namespace Glue.Data.Providers.Sql
 
         /// <summary>
         /// Create SELECT command
-        /// This ONLY WORKS if the order by clause contains all key columns
         /// </summary>
+        /// <remarks>
+        /// For SQL Server versions BEFORE 2005, this ONLY WORKS if the order by clause contains all key columns. So, if we would like to sort on a NAME column, the Order-parameter should contain an ID-column as well: Order.Create("Name, Id"). 
+        /// Using a simple Order.Create("Name") would result in records being "skipped" when paging through the recordset.
+        /// </remarks>
         public override IDbCommand CreateSelectCommand(string table, string columns, Filter constraint, Order order, Limit limit, params object[] paramNameValueList)
         {
             if (order == null) order = Order.Empty;
             if (limit == null) limit = Limit.Unlimited;
 
+            if (MajorVersion < 9)
+                return InternalCreateSelectCommand2000(table, columns, ref constraint, order, limit, paramNameValueList);
+            else
+                return InternalCreateSelectCommand2005(table, columns, ref constraint, order, limit, paramNameValueList);
+        }
+
+        private IDbCommand InternalCreateSelectCommand2005(string table, string columns, ref Filter constraint, Order order, Limit limit, object[] paramNameValueList)
+        {
+            QueryBuilder s = CreateQueryBuilder();
+
+            // HACK: check if there's a WITH option clause in the data source.
+            bool nolock = table.IndexOf(" WITH ") < 0;
+
+            if (limit.Index > 0)
+            {
+                // paging: use a common table expression
+                s.Append("WITH Glue_Data_OuterSelect AS (SELECT ");
+                s.Append(columns);
+                s.Append(",(ROW_NUMBER() OVER (");
+                if (order.IsEmpty)
+                    s.Append("ORDER BY (SELECT 0)");
+                else
+                    s.Order(order);
+                s.Append(") -1) AS Glue_Data_Row_Number FROM ");
+                s.Identifier(table);
+                if (nolock)
+                    s.Append(" WITH (NOLOCK) ");
+                s.Filter(constraint);
+                s.Append(") SELECT ");
+                s.Append(columns);
+                s.Append(" FROM Glue_Data_OuterSelect WHERE ");
+                if (limit.Count == -1)
+                {
+                    s.Append("Glue_Data_Row_Number > ");
+                    s.Append(limit.Index.ToString());
+                }
+                else
+                {
+                    s.Append("Glue_Data_Row_Number BETWEEN ");
+                    s.Append(limit.Index.ToString());
+                    s.Append(" AND ");
+                    s.Append((limit.Count + limit.Index - 1).ToString());
+                }
+                s.Append(" ORDER BY Glue_Data_Row_Number ASC");
+            }
+            else
+            {
+                // Create main select
+                if (limit.Count >= 0)
+                    s.AppendLine("SET ROWCOUNT " + limit.Count);
+                s.Append("SELECT ");
+                s.Append(columns);
+                s.Append(" FROM ");
+                s.Identifier(table);
+                if (nolock)
+                    s.Append(" WITH (NOLOCK) ");
+                s.Filter(constraint);
+                s.Order(order);
+                s.AppendLine();
+                if (limit.Count >= 0)
+                    s.AppendLine("SET ROWCOUNT 0");
+            }
+            Log.Debug("List SQL: " + s);
+
+            return CreateCommand(s.ToString(), paramNameValueList);
+        }
+
+        private IDbCommand InternalCreateSelectCommand2000(string table, string columns, ref Filter constraint, Order order, Limit limit, object[] paramNameValueList)
+        {
             QueryBuilder s = CreateQueryBuilder();
 
             // HACK: check if there's a WITH option clause in the data source.
@@ -307,6 +384,29 @@ namespace Glue.Data.Providers.Sql
          {
              throw new NotImplementedException();
          }
+
+         /// <summary>
+         /// Major database version
+         /// </summary>
+         /// <remarks>
+         /// I.e.:
+         /// 7: SQL Server 7
+         /// 8: SQL Server 2000
+         /// 9: SQL Server 2005
+         /// </remarks>
+         private int MajorVersion
+         {
+             get
+             {
+                 if (_majorVersion == 0)
+                 {
+                     _majorVersion = ((int)ExecuteScalar("SELECT @@microsoftversion")) >> 24;
+                     Log.Debug("Major database version: " + _majorVersion);
+                 }
+                 return _majorVersion;
+             }
+         }
+
     }
 
     class SqlSchemaCache
