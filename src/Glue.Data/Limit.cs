@@ -8,6 +8,9 @@ namespace Glue.Data
     /// For methods that take a Limit as an argument (like those in IDataProvider), passing 'null' is equivalent
     /// to passing Limit.Unlimited.
     /// </summary>
+    /// <remarks>
+    /// The index is zero-based.
+    /// </remarks>
     public class Limit 
     {
         /// <summary>
