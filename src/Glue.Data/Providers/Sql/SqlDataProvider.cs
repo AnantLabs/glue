@@ -33,8 +33,11 @@ namespace Glue.Data.Providers.Sql
         /// Initialize the DataProvider with given connection string.
         /// </summary>
         public SqlDataProvider(string server, string database, string username, string password)
-            : base("server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password)
         {
+            if (String.IsNullOrEmpty(username))
+                _connectionString = "server=" + server + ";database=" + database + ";integrated security=true";
+            else
+                _connectionString = "server=" + server + ";database=" + database + ";user id=" + username + ";password=" + password;
         }
 
         /// <summary>
