@@ -323,7 +323,7 @@ namespace Glue.Lib
         /// <summary>
         /// Log level
         /// </summary>
-        public Level Level;
+        public Level Level = Level.Info;
 
         protected bool _usingDefaultLevel = true;
 
@@ -472,6 +472,7 @@ namespace Glue.Lib
             else
                 Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FormatLine(level, msg));
+            Console.ForegroundColor = color;
         }
     }
 

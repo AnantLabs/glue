@@ -16,14 +16,29 @@ namespace Glue.Lib
     /// care of creating and invoking the settings objects you define. The Config class
     /// can also watch for external changes in the underlying XML files and will
     /// automatically recreate your settings objects.
-    /// 
+    /// </summary>
+    /// <remarks>
     /// When you request the config object through the Config.Get
     /// method with a key, a configuration object of a previously registered
     /// type will be constructed by feeding it the xml contents. 
     /// Normally this object is created once and cached. You can 
     /// instruct the Config class to watch for changes in the underlying
     /// XML file by setting watch parameter to true.
-    /// </summary>
+    /// 
+    /// Add the following to your config file:
+    /// <code>
+    /// <![CDATA[
+    ///   <configSections>
+    ///     <section name="settings" type="Glue.Lib.Configuration,glue.lib" />
+    ///   </configSections>
+    ///   <settings>
+    ///     ... custom settings ... (for example Log config, see Glue.Lib.Log)
+    ///   </settings>
+    ///   ...
+    /// ]]>
+    /// </code>
+    /// </remarks>
+    /// 
     /// <example>
     ///   <code>
     ///   class MySettings
