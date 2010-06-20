@@ -58,7 +58,8 @@ namespace Glue.Data.Mapping
             code.WriteLine("    }");
             code.WriteLine("  }");
             code.WriteLine("}");
-            Log.Debug(code.ToString());
+            if (Glue.Lib.Compilation.Settings.Current.Debug)
+                Log.Debug(code.ToString());
             Glue.Lib.Compilation.SourceCompiler compiler = new Glue.Lib.Compilation.SourceCompiler();
             compiler.Language = "C#";
             compiler.Source = code.ToString();
