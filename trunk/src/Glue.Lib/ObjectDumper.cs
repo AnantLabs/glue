@@ -20,11 +20,26 @@ namespace Glue.Lib
             Write(Console.Out, instance, depth);
         }
 
+        public static void Write(TextWriter output, object instance)
+        {
+            output.Write(ToString(instance, 0));
+        }
+
         public static void Write(TextWriter output, object instance, int depth)
+        {
+            output.Write(ToString(instance, depth));
+        }
+
+        public static string ToString(object instance)
+        {
+            return ToString(instance, 0);
+        }
+
+        public static string ToString(object instance, int depth)
         {
             ObjectDumper dumper = new ObjectDumper(depth);
             dumper.WriteObject(null, instance);
-            Console.Write(dumper.ToString());
+            return dumper.ToString();
         }
 
         private StringBuilder builder = new StringBuilder();
@@ -66,6 +81,30 @@ namespace Glue.Lib
         private void WriteTab()
         {
             Write("\t");
+        }
+
+        private void WriteValue(object o)
+        {
+            if (o == null)
+            {
+                Write("null");
+            }
+            else if (o is DateTime)
+            {
+                Write(((DateTime)o).ToShortDateString());
+            }
+            else if (o is ValueType || o is string)
+            {
+                Write(o.ToString());
+            }
+            else if (o is IEnumerable)
+            {
+                Write("…");
+            }
+            else
+            {
+                Write("{ }");
+            }
         }
 
         private void WriteObject(string prefix, object o)
@@ -179,30 +218,6 @@ namespace Glue.Lib
                         }
                     }
                 }
-            }
-        }
-
-        private void WriteValue(object o)
-        {
-            if (o == null)
-            {
-                Write("null");
-            }
-            else if (o is DateTime)
-            {
-                Write(((DateTime)o).ToShortDateString());
-            }
-            else if (o is ValueType || o is string)
-            {
-                Write(o.ToString());
-            }
-            else if (o is IEnumerable)
-            {
-                Write("…");
-            }
-            else
-            {
-                Write("{ }");
             }
         }
     }
