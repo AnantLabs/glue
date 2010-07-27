@@ -64,12 +64,16 @@ namespace Glue.Data.Mapping
         {
             try
             {
-                Entity info = (Entity)entityCache[type];
-                if (info == null)
+                Entity info = null;
+                lock (typeof(Entity)) // prevent multiple threads from simultanious access
                 {
-                    entityCache[type] = -1; // means busy, will throw exception if recursion occurs.
-                    info = new Entity(type);
-                    entityCache[type] = info;
+                    info = (Entity)entityCache[type];
+                    if (info == null)
+                    {
+                        entityCache[type] = -1; // means busy, will throw exception if recursion occurs.
+                        info = new Entity(type);
+                        entityCache[type] = info;
+                    }
                 }
                 return info;
             }
