@@ -34,17 +34,20 @@ namespace Glue.Data.Mapping
         {
             Type providerType = provider.GetType();
             Dictionary<Type, Accessor> bag;
-            if (!_cache.TryGetValue(providerType, out bag))
-            {
-                bag = new Dictionary<Type, Accessor>();
-                _cache.Add(providerType, bag);
-            }
             Accessor accessor;
-            if (!bag.TryGetValue(type, out accessor))
+            lock (_cache)
             {
-                accessor = provider.CreateAccessor(type);
-                accessor.Entity = Entity.Obtain(type);
-                bag.Add(type, accessor);
+                if (!_cache.TryGetValue(providerType, out bag))
+                {
+                    bag = new Dictionary<Type, Accessor>();
+                    _cache.Add(providerType, bag);
+                }
+                if (!bag.TryGetValue(type, out accessor))
+                {
+                    accessor = provider.CreateAccessor(type);
+                    accessor.Entity = Entity.Obtain(type);
+                    bag.Add(type, accessor);
+                }
             }
             return accessor;
         }
