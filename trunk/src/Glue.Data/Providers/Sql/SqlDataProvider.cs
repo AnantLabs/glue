@@ -194,7 +194,7 @@ namespace Glue.Data.Providers.Sql
                 if (limit.Count >= 0)
                     s.AppendLine("SET ROWCOUNT 0");
             }
-            Log.Debug("List SQL: " + s);
+            // Log.Debug("List SQL: " + s);
 
             return CreateCommand(s.ToString(), paramNameValueList);
         }
@@ -304,7 +304,7 @@ namespace Glue.Data.Providers.Sql
             s.AppendLine();
             if (limit.Count >= 0)
                 s.AppendLine("SET ROWCOUNT 0");
-            Log.Debug("List SQL: " + s);
+            // Log.Debug("List SQL: " + s);
 
             return CreateCommand(s.ToString(), paramNameValueList);
         }
