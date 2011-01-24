@@ -77,7 +77,9 @@ namespace Glue.Lib
         /// </summary>
         static Configuration()
         {
+            // System.Diagnostics.Debug.WriteLine("Configuration.Configuration");
             Register(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, true);
+            // System.Diagnostics.Debug.WriteLine("/Configuration.Configuration");
         }
 
         public static void Register(string path, bool watch)
@@ -93,7 +95,7 @@ namespace Glue.Lib
         [System.Diagnostics.DebuggerNonUserCode]
         public static object Get(string key)
         {
-			return Get(key, null);
+	    return Get(key, null);
         }
 
         static string[] _rootdependency = {"#Glue.Lib.Configuration#"};
@@ -170,9 +172,12 @@ namespace Glue.Lib
         /// </summary>
         public static XmlElement GetRoot()
         {
+            // Get root from cache
             XmlElement root = (XmlElement)HttpRuntime.Cache["#Glue.Lib.Configuration#"];
             if (root != null)
                 return root;
+            
+            // If no root, construct the xml document with merged configuration files.
             StringCollection dependencies = new StringCollection();
             XmlDocument doc = new XmlDocument();
             doc.LoadXml("<configuration/>");
@@ -180,7 +185,9 @@ namespace Glue.Lib
 
             // Load and merge all registered stores and all files referred 
             // to from within the config files.
-            foreach (string store in _stores)
+            ArrayList reverse = new ArrayList(_stores);
+            reverse.Reverse();
+            foreach (string store in reverse)
             {
                 Merge(root, null, store, ref dependencies);
             }
