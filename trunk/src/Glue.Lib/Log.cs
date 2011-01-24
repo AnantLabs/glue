@@ -555,7 +555,8 @@ namespace Glue.Lib
             path = Path.Combine(dir, path);
 
             check = now.Date.AddDays(1);
-            writer = new StreamWriter(path, true, System.Text.Encoding.UTF8, 256);
+            try { writer = new StreamWriter(path, true, System.Text.Encoding.UTF8, 256); }
+            catch { writer = null; }
         }
 
         public override void Close()
@@ -573,8 +574,11 @@ namespace Glue.Lib
 
             if (DateTime.Now > check)
                 RollOver();
-            writer.WriteLine(FormatLine(level, msg));
-            writer.Flush();
+            if (writer != null)
+            {
+                writer.WriteLine(FormatLine(level, msg));
+                writer.Flush();
+            }
         }
     }
 
