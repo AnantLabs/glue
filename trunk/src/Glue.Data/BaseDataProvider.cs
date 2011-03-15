@@ -404,6 +404,9 @@ namespace Glue.Data
         /// </example>
         public virtual int ExecuteNonQuery(IDbCommand command)
         {
+            //Log.Debug("ExecuteNonQuery: " + command.CommandText.Replace('\r',' ').Replace('\n',' '));
+            //Log.Debug("ExecuteNonQuery");
+
             bool leaveOpen = false;
             if (command.Connection == null)
             {
@@ -462,6 +465,9 @@ namespace Glue.Data
         /// </example>
         public virtual IDataReader ExecuteReader(IDbCommand command)
         {
+            //Log.Debug("ExecuteReader: " + command.CommandText.Replace('\r', ' ').Replace('\n', ' '));
+            //Log.Debug("ExecuteReader");
+
             bool leaveOpen = false;
             if (command.Connection == null)
             {
@@ -511,6 +517,9 @@ namespace Glue.Data
         /// </example>
         public virtual object ExecuteScalar(IDbCommand command)
         {
+            //Log.Debug("ExecuteScalar: " + command.CommandText.Replace('\r', ' ').Replace('\n', ' '));
+            //Log.Debug("ExecuteScalar");
+
             bool leaveOpen = false;
             if (command.Connection == null)
             {
