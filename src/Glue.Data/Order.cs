@@ -300,6 +300,11 @@ namespace Glue.Data
 
         public override string ToString()
         {
+            return ToString(null);
+        }
+
+        public string ToString(string prefix)
+        {
             int n = terms.Length;
             if (n == 0)
                 return "";
@@ -309,19 +314,26 @@ namespace Glue.Data
             {
                 if (i > 0)
                     s.Append(',');
+                if (prefix != null && prefix != string.Empty)
+                    s.Append(prefix).Append('.');
                 s.Append(terms[i].Substring(1));
                 if (terms[i][0] == '-')
-                    s.Append(" desc");
+                    s.Append(" DESC");
             }
             return s.ToString();
         }
 
         public string ToSql()
         {
+            return ToSql(null);
+        }
+
+        public string ToSql(string prefix)
+        {
             if (IsEmpty)
                 return "";
             else
-                return "ORDER BY " + ToString();
+                return "ORDER BY " + ToString(prefix);
         }
 
         private string NormalizeTerm(string s)
