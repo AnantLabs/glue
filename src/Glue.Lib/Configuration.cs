@@ -111,57 +111,64 @@ namespace Glue.Lib
             object obj = HttpRuntime.Cache["#Glue.Lib.Configuration#Cached#" + key + "#" + type];
             if (obj == null)
             {
-                // Find node, possibly changing type to a ancestor type.
-                Type t = null;
-                XmlNode n = GetElement(key);
-                if (n == null)
-				{
-                    t = type;
-                }
-                else
+                lock (typeof(Configuration))
                 {
-                    t = GetAttrType(n, "type", type);
-                    if (type != null)
-                        if (t == null || t != type && !t.IsSubclassOf(type))
-                            t = type;
-                }
-                if (t == null)
-                {
-                    throw new System.Configuration.ConfigurationErrorsException("Error getting '" + key + "'");
-                }
-                
-                try
-                {
-                    // We have a type, now create an instance.
-                    obj = Activator.CreateInstance(
-                        t, 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance,
-                        null,
-                        n == null ? null : new object[] {n},
-                        null,
-                        null);
-                    
-                    // If the actual type is different from the type asked (that is, a subclass) 
-                    // register this one in the cache too.
-                    if (t != type)
+                    obj = HttpRuntime.Cache["#Glue.Lib.Configuration#Cached#" + key + "#" + type];
+                    if (obj == null)
                     {
-                        HttpRuntime.Cache.Insert(
-                            "#Glue.Lib.Configuration#Cached#" + key + "#" + t, 
-                            obj, 
-                            new CacheDependency(null, _rootdependency)
-                            );
-                    }
+                        // Find node, possibly changing type to a ancestor type.
+                        Type t = null;
+                        XmlNode n = GetElement(key);
+                        if (n == null)
+                        {
+                            t = type;
+                        }
+                        else
+                        {
+                            t = GetAttrType(n, "type", type);
+                            if (type != null)
+                                if (t == null || t != type && !t.IsSubclassOf(type))
+                                    t = type;
+                        }
+                        if (t == null)
+                        {
+                            throw new System.Configuration.ConfigurationErrorsException("Error getting '" + key + "'");
+                        }
 
-                    // Add to type cache.
-                    HttpRuntime.Cache.Insert(
-                        "#Glue.Lib.Configuration#Cached#" + key + "#" + type, 
-                        obj, 
-                        new CacheDependency(null, _rootdependency)
-                        );
-                }
-                catch (TargetInvocationException e)
-                {
-                    throw e.InnerException;
+                        try
+                        {
+                            // We have a type, now create an instance.
+                            obj = Activator.CreateInstance(
+                                t,
+                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance,
+                                null,
+                                n == null ? null : new object[] { n },
+                                null,
+                                null);
+
+                            // If the actual type is different from the type asked (that is, a subclass) 
+                            // register this one in the cache too.
+                            if (t != type)
+                            {
+                                HttpRuntime.Cache.Insert(
+                                    "#Glue.Lib.Configuration#Cached#" + key + "#" + t,
+                                    obj,
+                                    new CacheDependency(null, _rootdependency)
+                                    );
+                            }
+
+                            // Add to type cache.
+                            HttpRuntime.Cache.Insert(
+                                "#Glue.Lib.Configuration#Cached#" + key + "#" + type,
+                                obj,
+                                new CacheDependency(null, _rootdependency)
+                                );
+                        }
+                        catch (TargetInvocationException e)
+                        {
+                            throw e.InnerException;
+                        }
+                    }
                 }
             }
             return obj;
