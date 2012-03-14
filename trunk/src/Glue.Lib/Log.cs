@@ -537,26 +537,40 @@ namespace Glue.Lib
 
         public void RollOver()
         {
-            Close();
-            DateTime now = DateTime.Now;
+            lock (typeof(FileAppender))
+            {
+                Close();
+                DateTime now = DateTime.Now;
             
-            string exe = AppDomain.CurrentDomain.FriendlyName;
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
-            if (dir.EndsWith("\\bin\\"))
-                dir = dir.Substring(0, dir.Length - 4);
-            else if (dir.EndsWith("\\bin"))
-                dir = dir.Substring(0, dir.Length - 3);
+                string exe = AppDomain.CurrentDomain.FriendlyName;
+                string dir = AppDomain.CurrentDomain.BaseDirectory;
+                if (dir.EndsWith("\\bin\\"))
+                    dir = dir.Substring(0, dir.Length - 4);
+                else if (dir.EndsWith("\\bin"))
+                    dir = dir.Substring(0, dir.Length - 3);
 
-            path = spec.Replace("$yyyy$", now.Year.ToString("0000"));
-            path = path.Replace("$yy$", now.Year.ToString("00"));
-            path = path.Replace("$mm$", now.Month.ToString("00"));
-            path = path.Replace("$dd$", now.Day.ToString("00"));
-            path = path.Replace("$exe$", Path.GetFileNameWithoutExtension(exe));
-            path = Path.Combine(dir, path);
+                path = spec.Replace("$yyyy$", now.Year.ToString("0000"));
+                path = path.Replace("$yy$", now.Year.ToString("00"));
+                path = path.Replace("$mm$", now.Month.ToString("00"));
+                path = path.Replace("$dd$", now.Day.ToString("00"));
+                path = path.Replace("$exe$", Path.GetFileNameWithoutExtension(exe));
+                path = Path.Combine(dir, path);
 
-            check = now.Date.AddDays(1);
-            try { writer = new StreamWriter(path, true, System.Text.Encoding.UTF8, 256); }
-            catch { writer = null; }
+                check = now.Date.AddDays(1);
+
+                try 
+                {
+                    // writer = new StreamWriter(path, true, System.Text.Encoding.UTF8, 256); 
+                    writer = TextWriter.Synchronized(new StreamWriter(path, true, System.Text.Encoding.UTF8, 256)); 
+                }
+                catch 
+                { 
+                    writer = null; 
+
+                    // retry after 1s
+                    check = now.Date.AddSeconds(1);
+                }
+            }
         }
 
         public override void Close()
